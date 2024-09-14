@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.dto.PlayerDto;
 import pedribault.game.dto.PlayerUpdate;
-import pedribault.game.dto.SidekickDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.PlayerMapper;
 import pedribault.game.model.Player;
@@ -37,7 +36,7 @@ public class PlayerService {
         return playerDtos;
     }
 
-    public PlayerDto getPlayer(final Integer id, final String name, final String firstName) {
+    public PlayerDto getPlayerById(final Integer id, final String name, final String firstName) {
 
         PlayerDto playerDTO;
         if (id != null) {
@@ -105,7 +104,7 @@ public class PlayerService {
 
         return playerMapper.playerToPlayerDto(existingPlayer);
     }
-
+//TODO CONTROLLER
     public PlayerDto addSidekicks(Integer id, List<Integer> sideckikIds) {
 
         final Player player = playerRepository.findById(id)
@@ -154,11 +153,12 @@ public class PlayerService {
 
         return playerDto;
     }
-//TODO
+
     public PlayerDto updateSidekicks(Integer id, List<Integer> updatedSidekickIds) {
         final Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player id " + id + " doesn't exist", "The player was not found in the Players database"));
 
+        // removing sidekicks
         if (updatedSidekickIds != null && !updatedSidekickIds.isEmpty()) {
             final List<Integer> currentSidekicksIds = player.getSidekicks().stream().map(Sidekick::getId).toList();
             final List<Sidekick> sidekicksToRemove = new ArrayList<>();
@@ -171,6 +171,8 @@ public class PlayerService {
                 player.removeSidekick(s);
                 sidekickRepository.save(s);
             });
+
+            // adding missing sidekicks
             final List<Sidekick> sidekicksToAdd = new ArrayList<>();
             updatedSidekickIds.forEach(sidekickId -> {
                 if (!currentSidekicksIds.contains(sidekickId)) {

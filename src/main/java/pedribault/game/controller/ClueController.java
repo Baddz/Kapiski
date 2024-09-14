@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
-import pedribault.game.model.Clue;
 import pedribault.game.service.ClueService;
 
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ public class ClueController {
     }
 
     @GetMapping("/clues")
-    public List<Clue> getClues() {
+    public List<ClueDto> getClues() {
 
         log.info("[IN]=[GETTING CLUES]");
-        List<Clue> clues = new ArrayList<>();
+        List<ClueDto> clues = new ArrayList<>();
 
         clues = clueService.getClues();
         final StringBuilder reqOut = new StringBuilder();
@@ -40,11 +40,10 @@ public class ClueController {
     }
 
     @GetMapping("/{id}")
-    public Clue getClueById(@PathVariable Integer id) {
+    public ClueDto getClueById(@PathVariable Integer id) {
 
         log.info("[IN]=[GETTING CLUE [ID]=[{}]]", id);
-        Clue clue = null;
-        clue = clueService.getClueById(id);
+        final ClueDto clue = clueService.getClueById(id);
 
         final StringBuilder reqOut = new StringBuilder();
         reqOut.append("[OUT]=[[STATUS]=[OK]]");
@@ -55,12 +54,12 @@ public class ClueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Clue> createClue(@RequestBody Clue clue) {
+    public ResponseEntity<ClueDto> createClue(@RequestBody ClueDto clue) {
 
         log.info("[IN]=[CREATING CLUE]");
         try {
-            Clue createdClue = clueService.createClue(clue);
-            log.info("[OUT]=[[STATUS]=[CREATED],[MISSION_ID]=[{}],[CONTENT]=[{}]]", clue.getMission().getId(), clue.getContent());
+            ClueDto createdClue = clueService.createClue(clue);
+            log.info("[OUT]=[[STATUS]=[CREATED],[CLUE_ID]=[{}],[MISSION_ID]=[{}],[ORDER]=[{}],[CONTENT]=[{}], ]", clue.getId(), clue.getMissionId(), clue.getOrder(), clue.getContent());
             return new ResponseEntity<>(createdClue, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",
@@ -69,11 +68,11 @@ public class ClueController {
         }
     }
 
-    @PutMapping("/{id}/update")
-    public ResponseEntity<Clue> updateClue(@PathVariable Integer id, @RequestBody Clue updatedClue) {
-        log.info("[IN]=[UPDATING CLUE [ID]=[{}]]", id);
+    @PutMapping("/update")
+    public ResponseEntity<ClueDto> updateClue(@RequestBody ClueDto clueDto) {
+        log.info("[IN]=[UPDATING CLUE]");
         try {
-            Clue clue = clueService.updateClue(id, updatedClue);
+            ClueDto clue = clueService.updateClue(clueDto);
             log.info("[OUT]=[[STATUS]=[OK]]");
             return new ResponseEntity<>(clue, HttpStatus.OK);
         } catch (TheGameException e) {

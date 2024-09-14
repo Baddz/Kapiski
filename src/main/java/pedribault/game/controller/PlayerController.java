@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import pedribault.game.dto.PlayerDto;
 import pedribault.game.dto.PlayerUpdate;
 import pedribault.game.exceptions.TheGameException;
-import pedribault.game.model.Player;
 import pedribault.game.service.PlayerService;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class PlayerController {
                             @RequestParam(required = false) String firstName) {
 
         log.info("[IN]=[GETTING PLAYER [ID]=[{}], [NAME]=[{}], [FIRSTNAME]=[{}]]", id, name, firstName);
-        PlayerDto player = playerService.getPlayer(id, name, firstName);
+        final PlayerDto player = playerService.getPlayerById(id, name, firstName);
 
         final StringBuilder reqOut = new StringBuilder();
         reqOut.append("[OUT]=[[STATUS]=[OK]]");

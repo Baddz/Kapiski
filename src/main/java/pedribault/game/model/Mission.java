@@ -59,4 +59,16 @@ public class Mission {
         this.getClues().addAll(clues);
     }
 
+    public void removeClue(Clue clue) {
+        if (this.getClues() == null) {
+            this.setClues(new ArrayList<>());
+        }
+
+        if (clue != null) {
+            if (this.getClues().contains(clue)) {
+                this.getClues().remove(clue);
+            }
+        }
+    }
+
 }
