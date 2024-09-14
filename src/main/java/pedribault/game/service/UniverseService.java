@@ -1,6 +1,7 @@
 package pedribault.game.service;
 
 import org.springframework.http.HttpStatus;
+import pedribault.game.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Clue;
 import pedribault.game.model.Universe;
@@ -31,11 +32,13 @@ public class UniverseService {
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + id + " does not exist."));
     }
 
-    public Universe createUniverse(final Universe universe) {
+    public UniverseDto createUniverse(final Universe universe) {
 
         if (universe == null || universe.getTitle() == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
         }
+
+
 
         return universeRepository.save(universe);
 

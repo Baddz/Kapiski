@@ -14,10 +14,10 @@ public class PlayerMission {
 
     @Id
     @Column(name = "id_player", insertable = false, updatable = false)
-    private int idPlayer;
+    private int playerId;
     @Id
     @Column(name = "id_mission", insertable = false, updatable = false)
-    private int idMission;
+    private int missionId;
 
     @ManyToOne
     @MapsId("idMission")
@@ -34,21 +34,21 @@ public class PlayerMission {
 
     public PlayerMission() {}
 
-    public PlayerMission(Integer idPlayer, Integer idMission, MissionStatusEnum status) {
-        this.idPlayer = idPlayer;
-        this.idMission = idMission;
+    public PlayerMission(Integer playerId, Integer missionId, MissionStatusEnum status) {
+        this.playerId = playerId;
+        this.missionId = missionId;
         this.status = status;
-        this.idMission = mission.getId();
-        this.idPlayer = player.getId();
+        this.missionId = mission.getId();
+        this.playerId = player.getId();
     }
 
     @Transient
-    public int getIdMission() {
+    public int getMissionId() {
         return mission != null ? mission.getId() : null;
     }
 
     @Transient
-    public int getIdPlayer() {
+    public int getPlayerId() {
         return player != null ? player.getId() : null;
     }
 }

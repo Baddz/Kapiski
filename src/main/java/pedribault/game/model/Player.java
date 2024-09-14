@@ -28,7 +28,10 @@ public class Player {
     private String mail;
     @Column(name = "address")
     private String address;
-
+    @Column(name = "phone")
+    private String phone;
+    @Column(name = "comment")
+    private String comment;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerMission> playerMissions;

@@ -9,15 +9,15 @@ import java.util.Objects;
 @Setter
 public class EscapePlayerId implements Serializable {
 
-    private int idEscape;
-    private int idPlayer;
+    private int escapeId;
+    private int playerId;
 
     public EscapePlayerId() {
     }
 
-    public EscapePlayerId(int idEscape, int idPlayer) {
-        this.idEscape = idEscape;
-        this.idPlayer = idPlayer;
+    public EscapePlayerId(int escapeId, int playerId) {
+        this.escapeId = escapeId;
+        this.playerId = playerId;
     }
 
     @Override
@@ -25,12 +25,12 @@ public class EscapePlayerId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EscapePlayerId that = (EscapePlayerId) o;
-        return idEscape == that.idEscape &&
-                idPlayer == that.idPlayer;
+        return escapeId == that.escapeId &&
+                playerId == that.playerId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idEscape, idPlayer);
+        return Objects.hash(escapeId, playerId);
     }
 }

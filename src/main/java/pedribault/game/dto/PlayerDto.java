@@ -15,6 +15,8 @@ public class PlayerDto {
     private String address;
     private String name;
     private String firstName;
+    private String phone;
+    private String comment;
     private List<Integer> sidekickIds;
     private List<Integer> missionIds;
     private List<Integer> escapeIds;

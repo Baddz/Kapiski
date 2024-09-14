@@ -14,19 +14,19 @@ public class EscapePlayer {
 
     @Id
     @Column(name = "id_escape")
-    private int idEscape;
+    private int escapeId;
 
     @Id
     @Column(name = "id_player")
-    private int idPlayer;
+    private int playerId;
 
     @ManyToOne
-    @MapsId("idEscape")
+    @MapsId("escapeId")
     @JoinColumn(name = "id_escape")
     private Escape escape;
 
     @ManyToOne
-    @MapsId("idPlayer")
+    @MapsId("playerId")
     @JoinColumn(name = "id_player")
     private Player player;
 

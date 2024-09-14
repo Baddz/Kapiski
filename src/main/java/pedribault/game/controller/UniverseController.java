@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Universe;
 import pedribault.game.service.UniverseService;
@@ -51,14 +52,14 @@ public class UniverseController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Universe> createUniverse(@RequestBody Universe universe) {
+    public ResponseEntity<UniverseDto> createUniverse(@RequestBody Universe universe) {
 
         StringBuilder reqIn = new StringBuilder();
         reqIn.append("[IN]=[CREATING UNIVERSE]");
         log.info(reqIn.toString());
 
         try {
-            Universe createdUniverse = universeService.createUniverse(universe);
+            UniverseDto createdUniverse = universeService.createUniverse(universe);
             log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}]]", universe.getTitle());
             return new ResponseEntity<>(createdUniverse, HttpStatus.CREATED);
         } catch (TheGameException e) {
