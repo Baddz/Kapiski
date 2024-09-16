@@ -14,5 +14,5 @@ public class EscapeDto {
     private Integer difficulty;
     private Integer universeId;
     private List<Integer> missionIds;
-    private List<Integer> escapePlayerIds;
+    private List<EscapePlayerDto> escapePlayerDtos;
 }

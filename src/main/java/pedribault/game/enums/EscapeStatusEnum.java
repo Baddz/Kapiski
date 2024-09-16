@@ -1,5 +1,5 @@
 package pedribault.game.enums;
 
 public enum EscapeStatusEnum {
-    START, PLAYING, PAUSED, COMPLETED
+    STARTING, PLAYING, PAUSED, COMPLETED, CANCELED
 }

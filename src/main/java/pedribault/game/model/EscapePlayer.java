@@ -9,16 +9,10 @@ import pedribault.game.enums.EscapeStatusEnum;
 @Getter
 @Setter
 @Table(name = "Escape_J_Player")
-@IdClass(EscapePlayerId.class)
 public class EscapePlayer {
 
-    @Id
-    @Column(name = "id_escape")
-    private int escapeId;
-
-    @Id
-    @Column(name = "id_player")
-    private int playerId;
+    @EmbeddedId
+    private EscapePlayerId id = new EscapePlayerId();
 
     @ManyToOne
     @MapsId("escapeId")
@@ -40,15 +34,16 @@ public class EscapePlayer {
         this.player = player;
         this.escape = escape;
         this.status = status;
+        this.id = new EscapePlayerId(escape.getId(), player.getId());
     }
 
     @Transient
-    public int getIdEscape() {
+    public Integer getIdEscape() {
         return escape != null ? escape.getId() : null;
     }
 
     @Transient
-    public int getIdPlayer() {
+    public Integer getIdPlayer() {
         return player != null ? player.getId() : null;
     }
 }

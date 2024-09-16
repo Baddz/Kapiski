@@ -9,8 +9,8 @@ import java.util.Objects;
 @Setter
 public class EscapePlayerId implements Serializable {
 
-    private int escapeId;
-    private int playerId;
+    private Integer escapeId;
+    private Integer playerId;
 
     public EscapePlayerId() {
     }
