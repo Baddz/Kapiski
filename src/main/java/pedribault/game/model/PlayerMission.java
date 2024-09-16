@@ -20,12 +20,12 @@ public class PlayerMission {
     private int missionId;
 
     @ManyToOne
-    @MapsId("idMission")
+    @MapsId("missionId")
     @JoinColumn(name = "id_mission")
     private Mission mission;
 
     @ManyToOne
-    @MapsId("idPlayer")
+    @MapsId("playerId")
     @JoinColumn(name = "id_player")
     private Player player;
 

@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Data
 @Table(name = "Universes")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Universe {

@@ -16,7 +16,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Data
 @Table(name = "Missions")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Mission {

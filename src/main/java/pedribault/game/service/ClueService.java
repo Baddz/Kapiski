@@ -54,10 +54,14 @@ public class ClueService {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Clue is null", "A body is required");
         }
 
-        final Clue clue = clueMapper.clueDtoToClue(clueDto);
-
+        final Clue clue = new Clue();
+        final Clue newClue = clueMapper.clueDtoToClue(clueDto);
+        clue.setMission(newClue.getMission());
+        clue.setOrder(newClue.getOrder());
+        clue.setContent(newClue.getContent());
         clueRepository.save(clue);
 
+        clueDto.setId(clue.getId());
         return clueDto;
     }
 
@@ -81,8 +85,12 @@ public class ClueService {
         if (clueDto.getContent() != null) {
             existingClue.setContent(clueDto.getContent());
         }
-        if (clueDto.getMissionId() != null) {
-            updateMission(clueDto.getId(), clueDto.getMissionId());
+        final Integer missionId = clueDto.getMissionId();
+        // missionId == null --> no modification
+        if (missionId != null) {
+            final Mission newMission = missionRepository.findById(missionId)
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission id " + missionId + " doesn't exist", "The mission was not found in the Missions database"));
+            existingClue.setMission(newMission);
         }
 
         clueRepository.save(existingClue);
@@ -90,27 +98,4 @@ public class ClueService {
         return clueMapper.clueToClueDto(existingClue);
     }
 
-    public ClueDto updateMission(Integer id, Integer missionId) {
-
-        final Clue clue = clueRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Clue id " + id + " doesn't exist", "The clue was not found in the Clues database"));
-        final Mission currentMission = clue.getMission();
-        if (missionId == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The mission id can't be null", "Enter a valid mission id");
-        }
-        final Mission newMission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission id " + missionId + " doesn't exist", "The mission was not found in the Missions database"));
-        clue.setMission(newMission);
-        if (!Objects.equals(currentMission, newMission)) {
-            if (currentMission != null) {
-                currentMission.removeClue(clue);
-                missionRepository.save(currentMission);
-            }
-            newMission.addClue(clue);
-            missionRepository.save(newMission);
-            clueRepository.save(clue);
-        }
-        final ClueDto clueDto = clueMapper.clueToClueDto(clue);
-        return clueDto;
-    }
 }

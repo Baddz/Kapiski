@@ -10,14 +10,14 @@ import java.util.Objects;
 @Setter
 public class PlayerMissionId implements Serializable {
 
-    private Integer idPlayer;
-    private Integer idMission;
+    private Integer playerId;
+    private Integer missionId;
 
     public PlayerMissionId() {}
 
-    public PlayerMissionId(Integer idPlayer, Integer idMission) {
-        this.idPlayer = idPlayer;
-        this.idMission = idMission;
+    public PlayerMissionId(Integer playerId, Integer missionId) {
+        this.playerId = playerId;
+        this.missionId = missionId;
     }
 
     @Override
@@ -25,12 +25,12 @@ public class PlayerMissionId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayerMissionId that = (PlayerMissionId) o;
-        return Objects.equals(idPlayer, that.idPlayer) &&
-                Objects.equals(idMission, that.idMission);
+        return Objects.equals(playerId, that.playerId) &&
+                Objects.equals(missionId, that.missionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idPlayer, idMission);
+        return Objects.hash(playerId, missionId);
     }
 }

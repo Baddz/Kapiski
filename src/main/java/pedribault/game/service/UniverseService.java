@@ -31,16 +31,16 @@ public class UniverseService {
         return universeRepository.findById(id)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + id + " does not exist."));
     }
-
+//TODO
     public UniverseDto createUniverse(final Universe universe) {
 
         if (universe == null || universe.getTitle() == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
         }
 
+        universeRepository.save(universe);
 
-
-        return universeRepository.save(universe);
+        return null;
 
     }
 
