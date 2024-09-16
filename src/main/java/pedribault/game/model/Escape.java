@@ -7,8 +7,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.dto.EscapePlayerDto;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,4 +38,18 @@ public class Escape {
 
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EscapePlayer> escapePlayers;
+
+    public void addEscapePlayer(EscapePlayer escapePlayer) {
+        if (this.getEscapePlayers() == null) {
+            this.setEscapePlayers(new ArrayList<>());
+        }
+        this.getEscapePlayers().add(escapePlayer);
+    }
+
+    public void addMission(Mission mission) {
+        if (this.getMissions() == null) {
+            this.setMissions(new ArrayList<>());
+        }
+        this.getMissions().add(mission);
+    }
 }
