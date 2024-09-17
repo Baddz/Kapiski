@@ -7,7 +7,7 @@ import pedribault.game.enums.EscapeStatusEnum;
 @Getter
 @Setter
 public class EscapePlayerDto {
-    private int escapeId;
-    private int playerId;
+    private Integer escapeId;
+    private Integer playerId;
     private EscapeStatusEnum status;
 }

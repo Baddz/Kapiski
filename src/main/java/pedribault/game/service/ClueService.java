@@ -73,10 +73,8 @@ public class ClueService {
         }
 
         log.info("RETREIVING CLUE ID = " + clueDto.getId());
-
         Clue existingClue = clueRepository.findById(clueDto.getId())
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Clue not found", "The id " + clueDto.getId() + " doesn't exist in the Clues database"));
-
         log.info("CLUE RETREIVED");
 
         if (clueDto.getOrder() != null) {

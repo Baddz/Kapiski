@@ -3,6 +3,7 @@ package pedribault.game.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.dto.EscapeDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Escape;
 import pedribault.game.service.EscapeService;
@@ -24,10 +25,10 @@ public class EscapeController {
     }
 
     @GetMapping("/escapes")
-    public List<Escape> getEscapes() {
+    public List<EscapeDto> getEscapes() {
 
         log.info("[IN]=[GETTING ESCAPES]");
-        List<Escape> escapes = new ArrayList<>();
+        List<EscapeDto> escapes = new ArrayList<>();
 
         escapes = escapeService.getEscapes();
         final StringBuilder reqOut = new StringBuilder();
@@ -38,10 +39,10 @@ public class EscapeController {
     }
 
     @GetMapping("/{id}")
-    public Escape getEscapeById(@PathVariable Integer id) {
+    public EscapeDto getEscapeById(@PathVariable Integer id) {
 
         log.info("[IN]=[GETTING UNIVERSE [ID]=[{}]]", id);
-        Escape escape = escapeService.getEscapeById(id);
+        EscapeDto escape = escapeService.getEscapeById(id);
 
         final StringBuilder reqOut = new StringBuilder();
         reqOut.append("[OUT]=[[STATUS]=[OK]]");
@@ -52,11 +53,11 @@ public class EscapeController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Escape> createEscape(@RequestBody Escape escape) {
+    public ResponseEntity<EscapeDto> createEscape(@RequestBody EscapeDto escape) {
 
         log.info("[IN]=[CREATING ESCAPE]");
         try {
-            Escape createdEscape = escapeService.createEscape(escape);
+            EscapeDto createdEscape = escapeService.createEscape(escape);
             log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[SUCCESS_RATE]=[{}],[DIFFICULTY]=[{}],[UNIVERSE_ID]=[{}]]", escape.getTitle(), escape.getSuccessRate(), escape.getDifficulty(), escape.getUniverse().getId());
             return new ResponseEntity<>(createdEscape, HttpStatus.CREATED);
         } catch (TheGameException e) {
@@ -66,11 +67,11 @@ public class EscapeController {
         }
     }
 
-    @PutMapping("/{id}/update")
-    public ResponseEntity<Escape> updateEscape(@PathVariable Integer id, @RequestBody Escape updatedEscape) {
-        log.info("[IN]=[UPDATING ESCAPE [ID]=[{}]]", id);
+    @PutMapping("/{update")
+    public ResponseEntity<EscapeDto> updateEscape(@RequestBody EscapeDto escapeDto) {
+        log.info("[IN]=[UPDATING ESCAPE");
         try {
-            Escape escape = escapeService.updateEscape(id, updatedEscape);
+            EscapeDto escape = escapeService.updateEscape(escapeDto);
             log.info("[OUT]=[[STATUS]=[OK]]");
             return new ResponseEntity<>(escape, HttpStatus.OK);
         } catch (TheGameException e) {
