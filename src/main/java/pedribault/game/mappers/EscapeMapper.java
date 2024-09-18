@@ -4,29 +4,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.dto.EscapeDto;
-import pedribault.game.dto.EscapePlayerDto;
+import pedribault.game.dto.PlayerStatus;
+import pedribault.game.enums.EscapeStatusEnum;
 import pedribault.game.exceptions.TheGameException;
-import pedribault.game.model.Escape;
-import pedribault.game.model.EscapePlayer;
-import pedribault.game.model.Mission;
-import pedribault.game.model.Universe;
+import pedribault.game.model.*;
 import pedribault.game.repository.EscapePlayerRepository;
-import pedribault.game.repository.EscapeRepository;
 import pedribault.game.repository.MissionRepository;
+import pedribault.game.repository.PlayerRepository;
 import pedribault.game.repository.UniverseRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class EscapeMapper {
 
     @Autowired
     private UniverseRepository universeRepository;
+    @Autowired
     private EscapePlayerMapper escapePlayerMapper;
     @Autowired
     private EscapePlayerRepository escapePlayerRepository;
     @Autowired
     private MissionRepository missionRepository;
+    @Autowired
+    private PlayerRepository playerRepository;
 
     public EscapeDto escapeToEscapeDto(Escape escape) {
         final EscapeDto escapeDto = new EscapeDto();
@@ -38,12 +42,12 @@ public class EscapeMapper {
             escapeDto.setUniverseId(escape.getUniverse().getId());
         }
         if (escape.getMissions() != null) {
-            final List<Integer> missionIds = escape.getMissions().stream().map(m -> m.getId()).toList();
+            final List<Integer> missionIds = escape.getMissions().stream().map(Mission::getId).toList();
             escapeDto.setMissionIds(missionIds);
         }
         if (escape.getEscapePlayers() != null) {
-            final List<EscapePlayerDto> escapePlayerDtos = escape.getEscapePlayers().stream().map(ep -> escapePlayerMapper.escapePlayerToEscapePlayerDto(ep)).toList();
-            escapeDto.setEscapePlayerDtos(escapePlayerDtos);
+            final List<PlayerStatus> playerStatuses = escape.getEscapePlayers().stream().map(ep -> escapePlayerMapper.escapePlayerToEscapePlayerDto(ep)).toList();
+            escapeDto.setPlayers(playerStatuses);
         }
         return escapeDto;
     }
@@ -59,9 +63,16 @@ public class EscapeMapper {
         if (escapeDto.getUniverseId() != null) {
             Universe universe = universeRepository.findById(escapeDto.getUniverseId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + escapeDto.getUniverseId() + " does not exist."));
         }
-        if (escapeDto.getEscapePlayerDtos() != null) {
-            escapeDto.getEscapePlayerDtos().forEach(epdto -> {
-                EscapePlayer escapePlayer = escapePlayerRepository.findByEscapeIdAndPlayerId(epdto.getEscapeId(), epdto.getPlayerId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "The EscapePlayer with escapeId " + epdto.getEscapeId() + " and playerId " + epdto.getPlayerId() + " doesn't exist", "The EscapePlayer does not exist in the Escape_J_Players databas."));
+        if (escapeDto.getPlayers() != null) {
+            List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(PlayerStatus::getPlayerId).toList());
+            HashSet<PlayerStatus> playersSet = new HashSet<>(escapeDto.getPlayers());
+            if (players.size() != playersSet.size()) {
+                List<Integer> missingPlayerIds = players.stream().map(Player::getId).filter(p -> !playersSet.contains(p)).toList();
+                throw new TheGameException(HttpStatus.NOT_FOUND, "Some players don't exist in the Players database","Players with id " + missingPlayerIds + " don't exist");
+            }
+            escapeDto.getPlayers().forEach(ps -> {
+                final Player player = players.stream().filter(p -> p.getId() == ps.getPlayerId()).toList().get(0);
+                final EscapePlayer escapePlayer = new EscapePlayer(player, escape, EscapeStatusEnum.NEW);
                 escape.addEscapePlayer(escapePlayer);
             });
         }

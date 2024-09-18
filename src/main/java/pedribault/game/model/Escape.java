@@ -1,13 +1,10 @@
 package pedribault.game.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.dto.EscapePlayerDto;
 
 
 import java.util.ArrayList;
@@ -51,5 +48,11 @@ public class Escape {
             this.setMissions(new ArrayList<>());
         }
         this.getMissions().add(mission);
+    }
+
+    public void removeMission(Mission mission) {
+        if (this.getMissions().contains(mission)) {
+            this.getMissions().remove(mission);
+        }
     }
 }

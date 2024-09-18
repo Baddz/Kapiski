@@ -58,7 +58,7 @@ public class EscapeController {
         log.info("[IN]=[CREATING ESCAPE]");
         try {
             EscapeDto createdEscape = escapeService.createEscape(escape);
-            log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[SUCCESS_RATE]=[{}],[DIFFICULTY]=[{}],[UNIVERSE_ID]=[{}]]", escape.getTitle(), escape.getSuccessRate(), escape.getDifficulty(), escape.getUniverse().getId());
+            log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[SUCCESS_RATE]=[{}],[DIFFICULTY]=[{}]]", escape.getTitle(), escape.getSuccessRate(), escape.getDifficulty());
             return new ResponseEntity<>(createdEscape, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",
@@ -67,7 +67,7 @@ public class EscapeController {
         }
     }
 
-    @PutMapping("/{update")
+    @PutMapping("/update")
     public ResponseEntity<EscapeDto> updateEscape(@RequestBody EscapeDto escapeDto) {
         log.info("[IN]=[UPDATING ESCAPE");
         try {

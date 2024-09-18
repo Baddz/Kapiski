@@ -15,12 +15,12 @@ public class EscapeDto {
     private Integer difficulty;
     private Integer universeId;
     private List<Integer> missionIds;
-    private List<EscapePlayerDto> escapePlayerDtos;
+    private List<PlayerStatus> players;
 
-    public void addEscapePlayerDto(EscapePlayerDto escapePlayerDto) {
-        if (this.getEscapePlayerDtos() == null) {
-            this.setEscapePlayerDtos(new ArrayList<>());
+    public void addEscapePlayerDto(PlayerStatus playerStatus) {
+        if (this.getPlayers() == null) {
+            this.setPlayers(new ArrayList<>());
         }
-        this.getEscapePlayerDtos().add(escapePlayerDto);
+        this.getPlayers().add(playerStatus);
     }
 }
