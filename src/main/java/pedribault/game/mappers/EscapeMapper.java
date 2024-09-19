@@ -13,10 +13,10 @@ import pedribault.game.repository.MissionRepository;
 import pedribault.game.repository.PlayerRepository;
 import pedribault.game.repository.UniverseRepository;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Component
 public class EscapeMapper {
@@ -31,6 +31,10 @@ public class EscapeMapper {
     private MissionRepository missionRepository;
     @Autowired
     private PlayerRepository playerRepository;
+    @Autowired
+    private UniverseMapper universeMapper;
+    @Autowired
+    private MissionMapper missionMapper;
 
     public EscapeDto escapeToEscapeDto(Escape escape) {
         final EscapeDto escapeDto = new EscapeDto();
@@ -39,15 +43,22 @@ public class EscapeMapper {
         escapeDto.setDifficulty(escape.getDifficulty());
         escapeDto.setSuccessRate(escape.getSuccessRate());
         if (escape.getUniverse() != null) {
-            escapeDto.setUniverseId(escape.getUniverse().getId());
+            escapeDto.setUniverse(universeMapper.universeToUniverseSummary(escape.getUniverse()));
         }
         if (escape.getMissions() != null) {
-            final List<Integer> missionIds = escape.getMissions().stream().map(Mission::getId).toList();
-            escapeDto.setMissionIds(missionIds);
+            if (escape.getMissions().isEmpty()) {
+                escapeDto.setMissions(new ArrayList<>());
+            } else {
+                escapeDto.setMissions(missionMapper.missionsToMissionSummaries(escape.getMissions()));
+            }
         }
         if (escape.getEscapePlayers() != null) {
-            final List<PlayerStatus> playerStatuses = escape.getEscapePlayers().stream().map(ep -> escapePlayerMapper.escapePlayerToEscapePlayerDto(ep)).toList();
-            escapeDto.setPlayers(playerStatuses);
+            if (escape.getEscapePlayers().isEmpty()) {
+                escapeDto.setPlayers(new ArrayList<>());
+            } else {
+                final List<PlayerStatus> playerStatuses = escape.getEscapePlayers().stream().map(ep -> escapePlayerMapper.escapePlayerToPlayerStatusDto(ep)).toList();
+                escapeDto.setPlayers(playerStatuses);
+            }
         }
         return escapeDto;
     }
@@ -60,25 +71,30 @@ public class EscapeMapper {
         escape.setTitle(escapeDto.getTitle());
         escape.setDifficulty(escapeDto.getDifficulty());
         escape.setSuccessRate(escapeDto.getSuccessRate());
-        if (escapeDto.getUniverseId() != null) {
-            Universe universe = universeRepository.findById(escapeDto.getUniverseId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + escapeDto.getUniverseId() + " does not exist."));
+        if (escapeDto.getUniverse() != null) {
+            Universe universe = universeRepository.findById(escapeDto.getUniverse().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + escapeDto.getUniverse().getId() + " does not exist."));
+            escape.setUniverse(universe);
         }
         if (escapeDto.getPlayers() != null) {
-            List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(PlayerStatus::getPlayerId).toList());
-            HashSet<PlayerStatus> playersSet = new HashSet<>(escapeDto.getPlayers());
-            if (players.size() != playersSet.size()) {
-                List<Integer> missingPlayerIds = players.stream().map(Player::getId).filter(p -> !playersSet.contains(p)).toList();
-                throw new TheGameException(HttpStatus.NOT_FOUND, "Some players don't exist in the Players database","Players with id " + missingPlayerIds + " don't exist");
+            if (escapeDto.getPlayers().isEmpty()) {
+                escape.setEscapePlayers(new ArrayList<>());
+            } else {
+                List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(PlayerStatus::getId).toList());
+                HashSet<PlayerStatus> playersSet = new HashSet<>(escapeDto.getPlayers());
+                if (players.size() != playersSet.size()) {
+                    List<Integer> missingPlayerIds = players.stream().filter(p -> !playersSet.contains(p)).map(Player::getId).toList();
+                    throw new TheGameException(HttpStatus.NOT_FOUND, "Some players don't exist in the Players database", "Players with id " + missingPlayerIds + " don't exist");
+                }
+                escapeDto.getPlayers().forEach(ps -> {
+                    final Player player = players.stream().filter(p -> Objects.equals(p.getId(), ps.getId())).toList().get(0);
+                    final EscapePlayer escapePlayer = new EscapePlayer(player, escape, EscapeStatusEnum.NEW);
+                    escape.addEscapePlayer(escapePlayer);
+                });
             }
-            escapeDto.getPlayers().forEach(ps -> {
-                final Player player = players.stream().filter(p -> p.getId() == ps.getPlayerId()).toList().get(0);
-                final EscapePlayer escapePlayer = new EscapePlayer(player, escape, EscapeStatusEnum.NEW);
-                escape.addEscapePlayer(escapePlayer);
-            });
         }
-        if (escapeDto.getMissionIds() != null) {
-            escapeDto.getMissionIds().forEach(mid -> {
-                Mission mission = missionRepository.findById(mid).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + mid + " does not exist."));
+        if (escapeDto.getMissions() != null) {
+            escapeDto.getMissions().forEach(m -> {
+                Mission mission = missionRepository.findById(m.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getId() + " does not exist."));
                 escape.addMission(mission);
             });
         }

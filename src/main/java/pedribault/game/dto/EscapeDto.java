@@ -13,8 +13,8 @@ public class EscapeDto {
     private String title;
     private Double successRate;
     private Integer difficulty;
-    private Integer universeId;
-    private List<Integer> missionIds;
+    private UniverseSummary universe;
+    private List<MissionSummary> missions;
     private List<PlayerStatus> players;
 
     public void addEscapePlayerDto(PlayerStatus playerStatus) {

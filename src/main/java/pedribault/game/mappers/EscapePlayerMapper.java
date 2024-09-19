@@ -12,9 +12,9 @@ public class EscapePlayerMapper {
     @Autowired
     private EscapePlayerRepository escapePlayerRepository;
 
-    public PlayerStatus escapePlayerToEscapePlayerDto(EscapePlayer escapePlayer) {
+    public PlayerStatus escapePlayerToPlayerStatusDto(EscapePlayer escapePlayer) {
         final PlayerStatus playerStatus = new PlayerStatus();
-        playerStatus.setPlayerId(escapePlayer.getIdPlayer());
+        playerStatus.setId(escapePlayer.getIdPlayer());
         playerStatus.setStatus(escapePlayer.getStatus());
         return playerStatus;
     }

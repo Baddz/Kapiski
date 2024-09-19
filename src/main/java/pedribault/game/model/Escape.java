@@ -31,10 +31,15 @@ public class Escape {
     private Universe universe;
 
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Mission> missions;
+    private List<Mission> missions = new ArrayList<>();
 
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EscapePlayer> escapePlayers;
+    private List<EscapePlayer> escapePlayers = new ArrayList<>();
+
+    public Escape() {
+        this.missions = new ArrayList<>();
+        this.escapePlayers = new ArrayList<>();
+    }
 
     public void addEscapePlayer(EscapePlayer escapePlayer) {
         if (this.getEscapePlayers() == null) {
