@@ -2,11 +2,11 @@ package pedribault.game.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.enums.EscapeStatusEnum;
 
 @Getter
 @Setter
-public class PlayerStatus {
+public class ClueSummary {
     private Integer id;
-    private EscapeStatusEnum status;
+    private String content;
+    private Integer order;
 }

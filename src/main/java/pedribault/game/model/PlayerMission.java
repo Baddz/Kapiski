@@ -22,7 +22,7 @@ public class PlayerMission {
     @ManyToOne
     @MapsId("missionId")
     @JoinColumn(name = "id_mission")
-    private Mission mission;
+    private StandardMission standardMission;
 
     @ManyToOne
     @MapsId("playerId")
@@ -38,13 +38,13 @@ public class PlayerMission {
         this.playerId = playerId;
         this.missionId = missionId;
         this.status = status;
-        this.missionId = mission.getId();
+        this.missionId = standardMission.getId();
         this.playerId = player.getId();
     }
 
     @Transient
     public int getMissionId() {
-        return mission != null ? mission.getId() : null;
+        return standardMission != null ? standardMission.getId() : null;
     }
 
     @Transient

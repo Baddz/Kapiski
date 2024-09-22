@@ -14,13 +14,13 @@ public class EscapeDto {
     private Double successRate;
     private Integer difficulty;
     private UniverseSummary universe;
-    private List<MissionSummary> missions;
-    private List<PlayerStatus> players;
+    private List<MissionSummaryEscape> missions;
+    private List<PlayerSummaryEscape> players;
 
-    public void addEscapePlayerDto(PlayerStatus playerStatus) {
+    public void addEscapePlayerDto(PlayerSummaryEscape playerSummaryEscape) {
         if (this.getPlayers() == null) {
             this.setPlayers(new ArrayList<>());
         }
-        this.getPlayers().add(playerStatus);
+        this.getPlayers().add(playerSummaryEscape);
     }
 }

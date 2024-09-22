@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.MissionConditionEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,8 @@ public class Player {
     private String phone;
     @Column(name = "comment")
     private String comment;
+    @Column(name = "preferences")
+    private List<MissionConditionEnum> preferences;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerMission> playerMissions;

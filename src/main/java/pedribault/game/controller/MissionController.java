@@ -4,8 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pedribault.game.exceptions.TheGameException;
-import pedribault.game.model.Escape;
-import pedribault.game.model.Mission;
+import pedribault.game.model.StandardMission;
 import pedribault.game.service.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,41 +24,41 @@ public class MissionController {
     }
 
     @GetMapping("/missions")
-    public List<Mission> getMissions() {
+    public List<StandardMission> getMissions() {
 
         log.info("[IN]=[GETTING MISSIONS]");
-        List<Mission> missions = new ArrayList<>();
+        List<StandardMission> standardMissions = new ArrayList<>();
 
-        missions = missionService.getMissions();
+        standardMissions = missionService.getMissions();
         final StringBuilder reqOut = new StringBuilder();
         reqOut.append("[OUT]=[[STATUS]=[OK]]");
         log.info(reqOut.toString());
 
-        return missions;
+        return standardMissions;
     }
 
     @GetMapping("/{id}")
-    public Mission getMissionById(@PathVariable Integer id) {
+    public StandardMission getMissionById(@PathVariable Integer id) {
 
         log.info("[IN]=[GETTING MISSION [ID]=[{}]]", id);
-        Mission mission = missionService.getMissionById(id);
+        StandardMission standardMission = missionService.getMissionById(id);
 
         final StringBuilder reqOut = new StringBuilder();
         reqOut.append("[OUT]=[[STATUS]=[OK]]");
         log.info(reqOut.toString());
 
-        return mission;
+        return standardMission;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Mission> createMission(@RequestBody Mission mission) {
+    public ResponseEntity<StandardMission> createMission(@RequestBody StandardMission standardMission) {
 
         log.info("[IN]=[CREATING MISSION]");
         try {
-            Mission createdMission = missionService.createMission(mission);
+            StandardMission createdStandardMission = missionService.createMission(standardMission);
             log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[VISIBLE]=[{}],[ESCAPE_ID]=[{}],[ORDER]=[{}],[SUCCESS_RATE]=[{}],[OPTIONAL]=[{}]]",
-                    mission.getTitle(), mission.getVisible(), mission.getEscape().getId(), mission.getMissionOrder(), mission.getSuccessRate(), mission.getOptional());
-            return new ResponseEntity<>(createdMission, HttpStatus.CREATED);
+                    standardMission.getTitle(), standardMission.getVisible(), standardMission.getEscape().getId(), standardMission.getMissionOrder(), standardMission.getSuccessRate(), standardMission.getOptional());
+            return new ResponseEntity<>(createdStandardMission, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",
                     e.getStatus(), e.getMessage(), e.getDetailedMessage());
@@ -68,12 +67,12 @@ public class MissionController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<Mission> updateMission(@PathVariable Integer id, @RequestBody Mission updatedMission) {
+    public ResponseEntity<StandardMission> updateMission(@PathVariable Integer id, @RequestBody StandardMission updatedStandardMission) {
         log.info("[IN]=[UPDATING MISSION [ID]=[{}]]", id);
         try {
-            Mission mission = missionService.updateMission(id, updatedMission);
+            StandardMission standardMission = missionService.updateMission(id, updatedStandardMission);
             log.info("[OUT]=[[STATUS]=[OK]]");
-            return new ResponseEntity<>(mission, HttpStatus.OK);
+            return new ResponseEntity<>(standardMission, HttpStatus.OK);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]]", e.getStatus(), e.getMessage(), e.getDetailedMessage());
             return new ResponseEntity<>(null, e.getStatus());

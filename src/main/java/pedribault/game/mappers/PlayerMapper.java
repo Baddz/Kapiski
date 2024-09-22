@@ -4,22 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.dto.PlayerDto;
-import pedribault.game.dto.PlayerUpdate;
-import pedribault.game.dto.SidekickDto;
-import pedribault.game.dto.SidekickUpdate;
+import pedribault.game.dto.PlayerSummary;
+import pedribault.game.dto.PlayerSummaryEscape;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
 import pedribault.game.repository.SidekickRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class PlayerMapper {
 
     @Autowired
     private SidekickRepository sidekickRepository;
+    @Autowired
+    private SidekickMapper sidekickMapper;
 
     public PlayerDto playerToPlayerDto(Player player) {
         final PlayerDto playerDTO = new PlayerDto();
@@ -29,7 +27,7 @@ public class PlayerMapper {
         playerDTO.setAddress(player.getAddress());
         playerDTO.setFirstName(player.getFirstName());
         if (player.getSidekicks() != null) {
-            playerDTO.setSidekickIds(player.getSidekicks().stream().map(p -> p.getId()).toList());
+            playerDTO.setSidekicks(player.getSidekicks().stream().map(s -> sidekickMapper.sidekickToSidekickSummary(s)).toList());
         }
         return playerDTO;
     }
@@ -42,14 +40,32 @@ public class PlayerMapper {
         player.setName(playerDTO.getName());
         player.setMail(playerDTO.getMail());
         player.setAddress(playerDTO.getAddress());
-        if (playerDTO.getSidekickIds() != null) {
-            playerDTO.getSidekickIds().forEach(id -> {
-                Sidekick sidekick = sidekickRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Sidekicks table", "The id " + id + " does not exist."));
+        if (playerDTO.getSidekicks() != null) {
+            playerDTO.getSidekicks().forEach(s -> {
+                Sidekick sidekick = sidekickRepository.findById(s.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Sidekicks table", "The id " + s.getId() + " does not exist."));
                 player.addSidekick(sidekick);
             });
         }
         player.setFirstName(playerDTO.getFirstName());
 
         return player;
+    }
+
+    public PlayerSummary playerToPlayerSummary(Player player) {
+        final PlayerSummary playerSummary = new PlayerSummary();
+        playerSummary.setAddress(player.getAddress());
+        playerSummary.setMail(player.getMail());
+        playerSummary.setName(player.getName());
+        playerSummary.setFirstName(player.getFirstName());
+        playerSummary.setId(player.getId());
+        playerSummary.setComment(player.getComment());
+        playerSummary.setPhone(player.getPhone());
+        return playerSummary;
+    }
+
+    public PlayerSummaryEscape playerToPlayerSummaryEscape(Player player) {
+        final PlayerSummaryEscape playerSummaryEscape = new PlayerSummaryEscape();
+        playerSummaryEscape.setPlayerSummary(playerToPlayerSummary(player));
+        return playerSummaryEscape;
     }
 }

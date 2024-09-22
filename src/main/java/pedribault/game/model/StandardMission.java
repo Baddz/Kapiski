@@ -5,20 +5,22 @@ package pedribault.game.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.MissionConditionEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Entity
 @Getter
 @Setter
-@Table(name = "Missions")
+@Table(name = "Standard_Missions")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Mission {
+public class StandardMission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -33,16 +35,19 @@ public class Mission {
     private Double successRate;
     @Column(name = "optional")
     private Boolean optional;
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne
-    @JoinColumn(name = "id_escape")
+    @JoinColumn(name = "escape_id")
     private Escape escape;
 
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
 
+    // maps : if hasFriendsInvolved with missionOption related, if location = Lyon with missionOption related
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlayerMission> playerMissions;
+    private Map<MissionConditionEnum, MissionOption> options = new HashMap<>();
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {

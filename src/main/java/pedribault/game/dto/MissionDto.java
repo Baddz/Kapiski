@@ -15,6 +15,6 @@ public class MissionDto {
     private Double successRate;
     private Boolean optional;
     private Integer escapeId;
-    private List<Integer> clueIds;
-    private List<Integer> playerMissionIds;
+    private List<ClueSummary> clues;
+    private List<PlayerSummaryMission> players;
 }

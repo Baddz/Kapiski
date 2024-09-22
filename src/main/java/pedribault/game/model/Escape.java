@@ -31,13 +31,13 @@ public class Escape {
     private Universe universe;
 
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Mission> missions = new ArrayList<>();
+    private List<StandardMission> standardMissions = new ArrayList<>();
 
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EscapePlayer> escapePlayers = new ArrayList<>();
 
     public Escape() {
-        this.missions = new ArrayList<>();
+        this.standardMissions = new ArrayList<>();
         this.escapePlayers = new ArrayList<>();
     }
 
@@ -48,16 +48,16 @@ public class Escape {
         this.getEscapePlayers().add(escapePlayer);
     }
 
-    public void addMission(Mission mission) {
-        if (this.getMissions() == null) {
-            this.setMissions(new ArrayList<>());
+    public void addMission(StandardMission standardMission) {
+        if (this.getStandardMissions() == null) {
+            this.setStandardMissions(new ArrayList<>());
         }
-        this.getMissions().add(mission);
+        this.getStandardMissions().add(standardMission);
     }
 
-    public void removeMission(Mission mission) {
-        if (this.getMissions().contains(mission)) {
-            this.getMissions().remove(mission);
+    public void removeMission(StandardMission standardMission) {
+        if (this.getStandardMissions().contains(standardMission)) {
+            this.getStandardMissions().remove(standardMission);
         }
     }
 }

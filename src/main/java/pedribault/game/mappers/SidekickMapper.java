@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.dto.SidekickDto;
+import pedribault.game.dto.SidekickSummary;
 import pedribault.game.dto.SidekickUpdate;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
@@ -46,6 +47,19 @@ public class SidekickMapper {
             sidekickDtos.addAll(sidekicks.stream().map(s -> sidekickToSidekickDto(s)).toList());
         }
         return sidekickDtos;
+    }
+
+    public SidekickSummary sidekickToSidekickSummary(Sidekick sidekick) {
+        final SidekickSummary sidekickSummary = new SidekickSummary();
+        sidekickSummary.setAddress(sidekick.getAddress());
+        sidekickSummary.setName(sidekick.getName());
+        sidekickSummary.setMail(sidekick.getMail());
+        sidekickSummary.setId(sidekick.getId());
+        sidekickSummary.setComment(sidekick.getComment());
+        sidekickSummary.setPhone(sidekick.getPhone());
+        sidekickSummary.setFirstName(sidekick.getFirstName());
+
+        return sidekickSummary;
     }
 
     public Sidekick sidekickDtoToSidekick(SidekickDto sidekickDTO) {

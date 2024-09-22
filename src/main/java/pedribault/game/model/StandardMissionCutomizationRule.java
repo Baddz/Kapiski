@@ -9,25 +9,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Clues")
+@Table(name = "Standard_Mission_Customization_Rule")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Clue {
-
+public class StandardMissionCutomizationRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "content")
-    private String content;
-    @Column(name = "`order`")
-    private Integer order;
+    private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "mission_id")
+    @JoinColumn(name = "standard_mission_id", nullable = true)
     private StandardMission standardMission;
 
     @ManyToOne
-    @JoinColumn(name = "custom_mission_id")
+    @JoinColumn(name = "personalized_mission_id", nullable = true)
     private CustomMission customMission;
+
 
 }

@@ -29,6 +29,10 @@ public class Sidekick {
     private String mail;
     @Column(name = "address")
     private String address;
+    @Column(name = "comment")
+    private String comment;
+    @Column(name = "phone")
+    private String phone;
 
     @ManyToMany(mappedBy = "sidekicks")
     @JsonBackReference

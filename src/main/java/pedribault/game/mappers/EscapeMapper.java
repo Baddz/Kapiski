@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.dto.EscapeDto;
-import pedribault.game.dto.PlayerStatus;
+import pedribault.game.dto.PlayerSummaryEscape;
 import pedribault.game.enums.EscapeStatusEnum;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.*;
@@ -24,8 +24,6 @@ public class EscapeMapper {
     @Autowired
     private UniverseRepository universeRepository;
     @Autowired
-    private EscapePlayerMapper escapePlayerMapper;
-    @Autowired
     private EscapePlayerRepository escapePlayerRepository;
     @Autowired
     private MissionRepository missionRepository;
@@ -35,6 +33,9 @@ public class EscapeMapper {
     private UniverseMapper universeMapper;
     @Autowired
     private MissionMapper missionMapper;
+    @Autowired
+    private PlayerMapper playerMapper;
+
 
     public EscapeDto escapeToEscapeDto(Escape escape) {
         final EscapeDto escapeDto = new EscapeDto();
@@ -45,19 +46,19 @@ public class EscapeMapper {
         if (escape.getUniverse() != null) {
             escapeDto.setUniverse(universeMapper.universeToUniverseSummary(escape.getUniverse()));
         }
-        if (escape.getMissions() != null) {
-            if (escape.getMissions().isEmpty()) {
+        if (escape.getStandardMissions() != null) {
+            if (escape.getStandardMissions().isEmpty()) {
                 escapeDto.setMissions(new ArrayList<>());
             } else {
-                escapeDto.setMissions(missionMapper.missionsToMissionSummaries(escape.getMissions()));
+                escapeDto.setMissions(missionMapper.standardMissionsToMissionSummaryEscapes(escape.getStandardMissions()));
             }
         }
         if (escape.getEscapePlayers() != null) {
             if (escape.getEscapePlayers().isEmpty()) {
                 escapeDto.setPlayers(new ArrayList<>());
             } else {
-                final List<PlayerStatus> playerStatuses = escape.getEscapePlayers().stream().map(ep -> escapePlayerMapper.escapePlayerToPlayerStatusDto(ep)).toList();
-                escapeDto.setPlayers(playerStatuses);
+                final List<PlayerSummaryEscape> playerSummaryEscapes = escape.getEscapePlayers().stream().map(ep -> playerMapper.playerToPlayerSummaryEscape(ep.getPlayer())).toList();
+                escapeDto.setPlayers(playerSummaryEscapes);
             }
         }
         return escapeDto;
@@ -79,14 +80,14 @@ public class EscapeMapper {
             if (escapeDto.getPlayers().isEmpty()) {
                 escape.setEscapePlayers(new ArrayList<>());
             } else {
-                List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(PlayerStatus::getId).toList());
-                HashSet<PlayerStatus> playersSet = new HashSet<>(escapeDto.getPlayers());
+                List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(pse -> pse.getPlayerSummary().getId()).toList());
+                HashSet<PlayerSummaryEscape> playersSet = new HashSet<>(escapeDto.getPlayers());
                 if (players.size() != playersSet.size()) {
                     List<Integer> missingPlayerIds = players.stream().filter(p -> !playersSet.contains(p)).map(Player::getId).toList();
                     throw new TheGameException(HttpStatus.NOT_FOUND, "Some players don't exist in the Players database", "Players with id " + missingPlayerIds + " don't exist");
                 }
                 escapeDto.getPlayers().forEach(ps -> {
-                    final Player player = players.stream().filter(p -> Objects.equals(p.getId(), ps.getId())).toList().get(0);
+                    final Player player = players.stream().filter(p -> Objects.equals(p.getId(), ps.getPlayerSummary().getId())).toList().get(0);
                     final EscapePlayer escapePlayer = new EscapePlayer(player, escape, EscapeStatusEnum.NEW);
                     escape.addEscapePlayer(escapePlayer);
                 });
@@ -94,8 +95,8 @@ public class EscapeMapper {
         }
         if (escapeDto.getMissions() != null) {
             escapeDto.getMissions().forEach(m -> {
-                Mission mission = missionRepository.findById(m.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getId() + " does not exist."));
-                escape.addMission(mission);
+                StandardMission standardMission = missionRepository.findById(m.getMissionSummary().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getMissionSummary().getId() + " does not exist."));
+                escape.addMission(standardMission);
             });
         }
         return escape;

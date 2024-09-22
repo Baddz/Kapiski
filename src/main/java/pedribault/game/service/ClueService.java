@@ -6,7 +6,7 @@ import pedribault.game.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.ClueMapper;
 import pedribault.game.model.Clue;
-import pedribault.game.model.Mission;
+import pedribault.game.model.StandardMission;
 import pedribault.game.repository.ClueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import pedribault.game.repository.MissionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -56,7 +55,7 @@ public class ClueService {
 
         final Clue clue = new Clue();
         final Clue newClue = clueMapper.clueDtoToClue(clueDto);
-        clue.setMission(newClue.getMission());
+        clue.setStandardMission(newClue.getStandardMission());
         clue.setOrder(newClue.getOrder());
         clue.setContent(newClue.getContent());
         clueRepository.save(clue);
@@ -83,12 +82,12 @@ public class ClueService {
         if (clueDto.getContent() != null) {
             existingClue.setContent(clueDto.getContent());
         }
-        final Integer missionId = clueDto.getMissionId();
+        final Integer missionId = clueDto.getMissionSummary().getId();
         // missionId == null --> no modification
         if (missionId != null) {
-            final Mission newMission = missionRepository.findById(missionId)
+            final StandardMission newStandardMission = missionRepository.findById(missionId)
                     .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission id " + missionId + " doesn't exist", "The mission was not found in the Missions database"));
-            existingClue.setMission(newMission);
+            existingClue.setStandardMission(newStandardMission);
         }
 
         clueRepository.save(existingClue);

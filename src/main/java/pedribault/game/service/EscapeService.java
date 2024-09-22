@@ -2,13 +2,11 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.EscapeDto;
-import pedribault.game.dto.MissionSummary;
-import pedribault.game.dto.PlayerStatus;
-import pedribault.game.dto.UniverseSummary;
+import pedribault.game.dto.*;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.EscapeMapper;
 import pedribault.game.model.*;
+import pedribault.game.model.StandardMission;
 import pedribault.game.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,7 +65,7 @@ public class EscapeService {
         escape.setEscapePlayers(newEscape.getEscapePlayers());
         escape.setTitle(newEscape.getTitle());
         escape.setDifficulty(newEscape.getDifficulty());
-        escape.setMissions(newEscape.getMissions());
+        escape.setStandardMissions(newEscape.getStandardMissions());
         escape.setUniverse(newEscape.getUniverse());
         escape.setSuccessRate(newEscape.getSuccessRate());
         escapeRepository.save(escape);
@@ -124,15 +122,15 @@ public class EscapeService {
 
     private void updateMissions(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
         if (escapeDto.getMissions() != null) {
-            final List<Integer> missionIds = escapeDto.getMissions().stream().map(MissionSummary::getId).toList();
+            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getMissionSummary().getId()).toList();
 
-            Set<Integer> existingMissionIds = existingEscape.getMissions()
+            Set<Integer> existingMissionIds = existingEscape.getStandardMissions()
                     .stream()
-                    .map(Mission::getId)
+                    .map(StandardMission::getId)
                     .collect(Collectors.toSet());
-            List<Mission> missions = missionRepository.findAllById(missionIds);
-            if (missions.size() != existingMissionIds.size()) {
-                List<Integer> foundMissionIds = missions.stream().map(Mission::getId).toList();
+            List<StandardMission> standardMissions = missionRepository.findAllById(missionIds);
+            if (standardMissions.size() != existingMissionIds.size()) {
+                List<Integer> foundMissionIds = standardMissions.stream().map(StandardMission::getId).toList();
                 List<Integer> missingMissionIds = missionIds.stream()
                         .filter(id -> !foundMissionIds.contains(id))
                         .toList();
@@ -140,13 +138,13 @@ public class EscapeService {
                         "Some missions don't exist in the Missions database",
                         "The following mission ids were not found: " + missingMissionIds);
             }
-            missions.forEach(mission -> {
+            standardMissions.forEach(mission -> {
                 if (!existingMissionIds.contains(mission.getId())) {
                     existingEscape.addMission(mission);
                     updated.set(true);
                 }
             });
-            existingEscape.getMissions().forEach(m -> {
+            existingEscape.getStandardMissions().forEach(m -> {
                 if (!existingMissionIds.contains(m.getId())) {
                     existingEscape.removeMission(m);
                 }
@@ -155,27 +153,27 @@ public class EscapeService {
     }
 
     private void updateEscapePlayers(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
-        final List<PlayerStatus> playerStatuses = escapeDto.getPlayers();
-        if (playerStatuses != null) {
+        final List<PlayerSummaryEscape> playerSummaryEscapes = escapeDto.getPlayers();
+        if (playerSummaryEscapes != null) {
             Set<Integer> existingPlayerIds = existingEscape.getEscapePlayers()
                     .stream()
                     .map(ep -> ep.getPlayer().getId())
                     .collect(Collectors.toSet());
 
-            playerStatuses.forEach(epdto -> {
-                if (existingPlayerIds.contains(epdto.getId())) {
+            playerSummaryEscapes.forEach(epdto -> {
+                if (existingPlayerIds.contains(epdto.getPlayerSummary().getId())) {
                     // The player is already linked to the escape; we skip
                     return;
                 }
-                Optional<EscapePlayer> escapePlayerOptional = escapePlayerRepository.findByEscapeIdAndPlayerId(existingEscape.getId(), epdto.getId());
+                Optional<EscapePlayer> escapePlayerOptional = escapePlayerRepository.findByEscapeIdAndPlayerId(existingEscape.getId(), epdto.getPlayerSummary().getId());
                 if (escapePlayerOptional.isPresent()) {
                     // The EscapePlayer exists, we add it
                     existingEscape.addEscapePlayer(escapePlayerOptional.get());
                     updated.set(true);
                 } else {
                     // The EscapePlayer doesn't exist, we create then add it
-                    final Player player = playerRepository.findById(epdto.getId()).orElseThrow(() ->
-                            new TheGameException(HttpStatus.NOT_FOUND, "One of the players submitted doesn't exist in the Players database", "The player with id " + epdto.getId() + " doesn't exist."));
+                    final Player player = playerRepository.findById(epdto.getPlayerSummary().getId()).orElseThrow(() ->
+                            new TheGameException(HttpStatus.NOT_FOUND, "One of the players submitted doesn't exist in the Players database", "The player with id " + epdto.getPlayerSummary().getId() + " doesn't exist."));
                     final EscapePlayer escapePlayer = new EscapePlayer(player, existingEscape, epdto.getStatus());
                     existingEscape.addEscapePlayer(escapePlayer);
                     updated.set(true);

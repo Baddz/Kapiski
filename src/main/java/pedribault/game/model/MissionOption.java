@@ -6,28 +6,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+// This class handles the different options a mission can be resolved, to ease the personalization od a standard mission
+
 @Entity
 @Getter
 @Setter
-@Table(name = "Clues")
+@Table(name = "Mission_Option")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Clue {
-
+public class MissionOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(name = "content")
-    private String content;
-    @Column(name = "`order`")
-    private Integer order;
+    @Column(name = "description")
+    private String description; // ex : "Receive a package", "Go to a location", "Get info by email"
 
     @ManyToOne
     @JoinColumn(name = "mission_id")
-    private StandardMission standardMission;
-
-    @ManyToOne
-    @JoinColumn(name = "custom_mission_id")
-    private CustomMission customMission;
-
+    private StandardMission mission;
 }
