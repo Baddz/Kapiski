@@ -122,7 +122,7 @@ public class EscapeService {
 
     private void updateMissions(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
         if (escapeDto.getMissions() != null) {
-            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getMissionSummary().getId()).toList();
+            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getStandardMissionSummary().getId()).toList();
 
             Set<Integer> existingMissionIds = existingEscape.getStandardMissions()
                     .stream()

@@ -57,7 +57,7 @@ public class MissionController {
         try {
             StandardMission createdStandardMission = missionService.createMission(standardMission);
             log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[VISIBLE]=[{}],[ESCAPE_ID]=[{}],[ORDER]=[{}],[SUCCESS_RATE]=[{}],[OPTIONAL]=[{}]]",
-                    standardMission.getTitle(), standardMission.getVisible(), standardMission.getEscape().getId(), standardMission.getMissionOrder(), standardMission.getSuccessRate(), standardMission.getOptional());
+                    standardMission.getTitle(), standardMission.getIsVisible(), standardMission.getEscape().getId(), standardMission.getOrder(), standardMission.getSuccessRate(), standardMission.getIsOptional());
             return new ResponseEntity<>(createdStandardMission, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",

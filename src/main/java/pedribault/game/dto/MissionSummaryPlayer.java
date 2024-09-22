@@ -8,6 +8,6 @@ import java.util.List;
 @Getter
 @Setter
 public class MissionSummaryPlayer {
-    private MissionSummary missionSummary;
+    private StandardMissionSummary standardMissionSummary;
     private List<ClueSummary> clues;
 }

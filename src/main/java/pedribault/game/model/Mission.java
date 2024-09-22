@@ -5,31 +5,34 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.MissionTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// This class handles the different options a mission can be resolved, to ease the personalization od a standard mission
-
 @Entity
 @Getter
 @Setter
-@Table(name = "Mission_Options")
+@Table(name = "Missions")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class MissionOption {
+public abstract class Mission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @Column(name = "title")
+    private String title;
     @Column(name = "description")
-    private String optionDescription; // ex : "Receive a package", "Go to a location", "Get info by email"
-
-    @OneToMany(mappedBy = "missionOption", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String description;
+    @Column(name = "visible")
+    private Boolean isVisible;
+    @Column(name = "optional")
+    private Boolean isOptional;
+    @Column(name = "order")
+    private Integer order;
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
-
-    @ManyToOne
-    @JoinColumn(name = "standard_mission_id")
-    private StandardMission standardMission;
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {

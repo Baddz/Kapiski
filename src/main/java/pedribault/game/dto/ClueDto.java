@@ -9,5 +9,5 @@ public class ClueDto {
     private Integer id;
     private String content;
     private Integer order;
-    private MissionSummary missionSummary;
+    private MissionSummaryClue mission;
 }

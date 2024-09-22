@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import pedribault.game.enums.MissionStatusEnum;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -30,5 +32,6 @@ public class MissionPlayerMapping {
     private CustomMission customMission;
 
     @Enumerated(EnumType.STRING)
+    @JoinColumn(name = "status")
     private MissionStatusEnum status;
 }

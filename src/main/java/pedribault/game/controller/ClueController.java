@@ -59,7 +59,7 @@ public class ClueController {
         log.info("[IN]=[CREATING CLUE]");
         try {
             ClueDto createdClue = clueService.createClue(clue);
-            log.info("[OUT]=[[STATUS]=[CREATED],[CLUE_ID]=[{}],[MISSION_ID]=[{}],[ORDER]=[{}],[CONTENT]=[{}], ]", clue.getId(), clue.getMissionSummary(), clue.getOrder(), clue.getContent());
+            log.info("[OUT]=[[STATUS]=[CREATED],[CLUE_ID]=[{}],[MISSION_ID]=[{}],[ORDER]=[{}],[CONTENT]=[{}], ]", clue.getId(), clue.getMission(), clue.getOrder(), clue.getContent());
             return new ResponseEntity<>(createdClue, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",

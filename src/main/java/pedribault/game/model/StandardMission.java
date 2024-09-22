@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pedribault.game.enums.MissionConditionEnum;
+import pedribault.game.enums.MissionTypeEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,61 +19,20 @@ import java.util.Map;
 @Entity
 @Getter
 @Setter
-@Table(name = "Standard_Missions")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class StandardMission {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @Column(name = "title")
-    private String title;
-    // Si la mission est publique pour le joueur, ou si c'est une mission "cachée" (à lui de trouver cette mission et de la remplir)
-    @Column(name = "visible")
-    private Boolean visible;
-    @Column(name = "mission_order")
-    private Integer missionOrder;
+@DiscriminatorValue("STANDARD")
+public class StandardMission extends Mission {
+
     @Column(name = "success_rate")
     private Double successRate;
-    @Column(name = "optional")
-    private Boolean optional;
-    @Column(name = "description")
-    private String description;
 
     @ManyToOne
     @JoinColumn(name = "escape_id")
     private Escape escape;
 
-    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Clue> clues;
-
     // maps : if hasFriendsInvolved with missionOption related, if location = Lyon with missionOption related
-    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "standardMission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKeyEnumerated(EnumType.STRING)
+    @MapKeyColumn(name = "condition")
     private Map<MissionConditionEnum, MissionOption> options = new HashMap<>();
-
-    public void addClue(Clue clue) {
-        if (this.getClues() == null) {
-            this.setClues(new ArrayList<>());
-        }
-        this.getClues().add(clue);
-    }
-
-    public void addClues(List<Clue> clues) {
-        if (this.getClues() == null) {
-            this.setClues(new ArrayList<>());
-        }
-        this.getClues().addAll(clues);
-    }
-
-    public void removeClue(Clue clue) {
-        if (this.getClues() == null) {
-            this.setClues(new ArrayList<>());
-        }
-
-        if (clue != null) {
-            if (this.getClues().contains(clue)) {
-                this.getClues().remove(clue);
-            }
-        }
-    }
 
 }

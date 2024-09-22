@@ -7,10 +7,5 @@ import pedribault.game.model.Universe;
 @Component
 public class UniverseMapper {
 
-    public UniverseSummary universeToUniverseSummary(Universe universe) {
-        final UniverseSummary universeSummary = new UniverseSummary();
-        universeSummary.setId(universe.getId());
-        universeSummary.setTitle(universe.getTitle());
-        return universeSummary;
-    }
+
 }

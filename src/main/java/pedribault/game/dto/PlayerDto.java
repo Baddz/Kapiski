@@ -18,6 +18,6 @@ public class PlayerDto {
     private String phone;
     private String comment;
     private List<SidekickSummary> sidekicks;
-    private List<MissionSummary> missions;
+    private List<StandardMissionSummary> missions;
     private List<Integer> escapeIds;
 }

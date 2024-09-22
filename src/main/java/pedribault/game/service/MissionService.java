@@ -18,8 +18,6 @@ public class MissionService {
     @Autowired
     private MissionRepository missionRepository;
     @Autowired
-    private PlayerMissionService playerMissionService;
-    @Autowired
     private EscapeRepository escapeRepository;
 
     public List<StandardMission> getMissions() {
@@ -46,16 +44,16 @@ public class MissionService {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Escape id is null", "A mission needs to refer to an Escape with a valid id");
         }
 
-        if (standardMission.getVisible() == null) {
-            standardMission.setVisible(true);
+        if (standardMission.getIsVisible() == null) {
+            standardMission.setIsVisible(true);
         }
 
-        if (standardMission.getOptional() == null) {
-            standardMission.setOptional(false);
+        if (standardMission.getIsOptional() == null) {
+            standardMission.setIsOptional(false);
         }
 
-        if (standardMission.getMissionOrder() == null) {
-            standardMission.setMissionOrder(0);
+        if (standardMission.getOrder() == null) {
+            standardMission.setOrder(0);
         }
 
         return missionRepository.save(standardMission);
@@ -74,14 +72,14 @@ public class MissionService {
         if (updatedStandardMission.getTitle() != null) {
             existingStandardMission.setTitle(updatedStandardMission.getTitle());
         }
-        if (updatedStandardMission.getVisible() != null) {
-            existingStandardMission.setVisible(updatedStandardMission.getVisible());
+        if (updatedStandardMission.getIsVisible() != null) {
+            existingStandardMission.setIsVisible(updatedStandardMission.getIsVisible());
         }
-        if (updatedStandardMission.getOptional() != null) {
-            existingStandardMission.setOptional(updatedStandardMission.getOptional());
+        if (updatedStandardMission.getIsOptional() != null) {
+            existingStandardMission.setIsOptional(updatedStandardMission.getIsOptional());
         }
-        if (updatedStandardMission.getMissionOrder() != null) {
-            existingStandardMission.setMissionOrder(updatedStandardMission.getMissionOrder());
+        if (updatedStandardMission.getOrder() != null) {
+            existingStandardMission.setOrder(updatedStandardMission.getOrder());
         }
         if (updatedStandardMission.getSuccessRate() != null) {
             existingStandardMission.setSuccessRate(updatedStandardMission.getSuccessRate());

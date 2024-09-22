@@ -49,19 +49,6 @@ public class SidekickMapper {
         return sidekickDtos;
     }
 
-    public SidekickSummary sidekickToSidekickSummary(Sidekick sidekick) {
-        final SidekickSummary sidekickSummary = new SidekickSummary();
-        sidekickSummary.setAddress(sidekick.getAddress());
-        sidekickSummary.setName(sidekick.getName());
-        sidekickSummary.setMail(sidekick.getMail());
-        sidekickSummary.setId(sidekick.getId());
-        sidekickSummary.setComment(sidekick.getComment());
-        sidekickSummary.setPhone(sidekick.getPhone());
-        sidekickSummary.setFirstName(sidekick.getFirstName());
-
-        return sidekickSummary;
-    }
-
     public Sidekick sidekickDtoToSidekick(SidekickDto sidekickDTO) {
         final Sidekick sidekick = new Sidekick();
         if (sidekickDTO.getId() != null) {

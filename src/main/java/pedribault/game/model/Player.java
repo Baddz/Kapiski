@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pedribault.game.enums.MissionConditionEnum;
+import pedribault.game.mappers.MissionConditionEnumConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +33,10 @@ public class Player {
     private String phone;
     @Column(name = "comment")
     private String comment;
-    @Column(name = "preferences")
-    private List<MissionConditionEnum> preferences;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlayerMission> playerMissions;
+    @Column(name = "preferences", columnDefinition = "TEXT")
+    @Convert(converter = MissionConditionEnumConverter.class)
+    private List<MissionConditionEnum> preferences;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EscapePlayer> escapePlayers;

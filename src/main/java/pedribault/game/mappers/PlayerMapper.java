@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.dto.PlayerDto;
-import pedribault.game.dto.PlayerSummary;
-import pedribault.game.dto.PlayerSummaryEscape;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
@@ -17,7 +15,7 @@ public class PlayerMapper {
     @Autowired
     private SidekickRepository sidekickRepository;
     @Autowired
-    private SidekickMapper sidekickMapper;
+    private ToSummaryMapper toSummaryMapper;
 
     public PlayerDto playerToPlayerDto(Player player) {
         final PlayerDto playerDTO = new PlayerDto();
@@ -27,7 +25,7 @@ public class PlayerMapper {
         playerDTO.setAddress(player.getAddress());
         playerDTO.setFirstName(player.getFirstName());
         if (player.getSidekicks() != null) {
-            playerDTO.setSidekicks(player.getSidekicks().stream().map(s -> sidekickMapper.sidekickToSidekickSummary(s)).toList());
+            playerDTO.setSidekicks(player.getSidekicks().stream().map(s -> toSummaryMapper.sidekickToSidekickSummary(s)).toList());
         }
         return playerDTO;
     }
@@ -49,23 +47,5 @@ public class PlayerMapper {
         player.setFirstName(playerDTO.getFirstName());
 
         return player;
-    }
-
-    public PlayerSummary playerToPlayerSummary(Player player) {
-        final PlayerSummary playerSummary = new PlayerSummary();
-        playerSummary.setAddress(player.getAddress());
-        playerSummary.setMail(player.getMail());
-        playerSummary.setName(player.getName());
-        playerSummary.setFirstName(player.getFirstName());
-        playerSummary.setId(player.getId());
-        playerSummary.setComment(player.getComment());
-        playerSummary.setPhone(player.getPhone());
-        return playerSummary;
-    }
-
-    public PlayerSummaryEscape playerToPlayerSummaryEscape(Player player) {
-        final PlayerSummaryEscape playerSummaryEscape = new PlayerSummaryEscape();
-        playerSummaryEscape.setPlayerSummary(playerToPlayerSummary(player));
-        return playerSummaryEscape;
     }
 }

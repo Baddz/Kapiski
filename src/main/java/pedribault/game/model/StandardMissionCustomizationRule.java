@@ -11,17 +11,19 @@ import lombok.Setter;
 @Setter
 @Table(name = "Standard_Mission_Customization_Rule")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class StandardMissionCutomizationRule {
+public class StandardMissionCustomizationRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "standard_mission_id", nullable = true)
     private StandardMission standardMission;
 
     @ManyToOne
-    @JoinColumn(name = "personalized_mission_id", nullable = true)
+    @JoinColumn(name = "custom_mission_id", nullable = true)
     private CustomMission customMission;
 
 

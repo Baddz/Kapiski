@@ -21,13 +21,19 @@ public class Clue {
     private String content;
     @Column(name = "`order`")
     private Integer order;
+    // when it is linked to a missionOption
+    @Column(name = "sub_order")
+    private Integer subOrder;
 
+    // A clue is either linked to a mission, or a specific option of a mission
+    // ie when 2 possibilities 1. package at the door 2. file to steal from colleague
+    // There may be different clues for the 2 possibilities
     @ManyToOne
     @JoinColumn(name = "mission_id")
-    private StandardMission standardMission;
+    private Mission mission;
 
     @ManyToOne
-    @JoinColumn(name = "custom_mission_id")
-    private CustomMission customMission;
+    @JoinColumn(name = "mission_option_id")
+    private MissionOption missionOption;
 
 }

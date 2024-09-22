@@ -32,6 +32,8 @@ public class EscapeMapper {
     @Autowired
     private UniverseMapper universeMapper;
     @Autowired
+    private ToSummaryMapper toSummaryMapper;
+    @Autowired
     private MissionMapper missionMapper;
     @Autowired
     private PlayerMapper playerMapper;
@@ -44,20 +46,20 @@ public class EscapeMapper {
         escapeDto.setDifficulty(escape.getDifficulty());
         escapeDto.setSuccessRate(escape.getSuccessRate());
         if (escape.getUniverse() != null) {
-            escapeDto.setUniverse(universeMapper.universeToUniverseSummary(escape.getUniverse()));
+            escapeDto.setUniverse(toSummaryMapper.universeToUniverseSummary(escape.getUniverse()));
         }
         if (escape.getStandardMissions() != null) {
             if (escape.getStandardMissions().isEmpty()) {
                 escapeDto.setMissions(new ArrayList<>());
             } else {
-                escapeDto.setMissions(missionMapper.standardMissionsToMissionSummaryEscapes(escape.getStandardMissions()));
+                escapeDto.setMissions(toSummaryMapper.standardMissionsToMissionSummaryEscapes(escape.getStandardMissions()));
             }
         }
         if (escape.getEscapePlayers() != null) {
             if (escape.getEscapePlayers().isEmpty()) {
                 escapeDto.setPlayers(new ArrayList<>());
             } else {
-                final List<PlayerSummaryEscape> playerSummaryEscapes = escape.getEscapePlayers().stream().map(ep -> playerMapper.playerToPlayerSummaryEscape(ep.getPlayer())).toList();
+                final List<PlayerSummaryEscape> playerSummaryEscapes = escape.getEscapePlayers().stream().map(ep -> toSummaryMapper.playerToPlayerSummaryEscape(ep.getPlayer())).toList();
                 escapeDto.setPlayers(playerSummaryEscapes);
             }
         }
@@ -95,7 +97,7 @@ public class EscapeMapper {
         }
         if (escapeDto.getMissions() != null) {
             escapeDto.getMissions().forEach(m -> {
-                StandardMission standardMission = missionRepository.findById(m.getMissionSummary().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getMissionSummary().getId() + " does not exist."));
+                StandardMission standardMission = missionRepository.findById(m.getStandardMissionSummary().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getStandardMissionSummary().getId() + " does not exist."));
                 escape.addMission(standardMission);
             });
         }

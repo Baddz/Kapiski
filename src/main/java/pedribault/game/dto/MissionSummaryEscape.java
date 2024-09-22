@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class MissionSummaryEscape {
-    private MissionSummary missionSummary;
+    private StandardMissionSummary standardMissionSummary;
     private List<ClueSummary> clues;
     private List<PlayerSummaryMission> players;
 }

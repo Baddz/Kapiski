@@ -55,7 +55,7 @@ public class ClueService {
 
         final Clue clue = new Clue();
         final Clue newClue = clueMapper.clueDtoToClue(clueDto);
-        clue.setStandardMission(newClue.getStandardMission());
+        clue.setMission(newClue.getMission());
         clue.setOrder(newClue.getOrder());
         clue.setContent(newClue.getContent());
         clueRepository.save(clue);
@@ -82,12 +82,12 @@ public class ClueService {
         if (clueDto.getContent() != null) {
             existingClue.setContent(clueDto.getContent());
         }
-        final Integer missionId = clueDto.getMissionSummary().getId();
+        final Integer missionId = clueDto.getMission().getId();
         // missionId == null --> no modification
         if (missionId != null) {
             final StandardMission newStandardMission = missionRepository.findById(missionId)
                     .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission id " + missionId + " doesn't exist", "The mission was not found in the Missions database"));
-            existingClue.setStandardMission(newStandardMission);
+            existingClue.setMission(newStandardMission);
         }
 
         clueRepository.save(existingClue);
