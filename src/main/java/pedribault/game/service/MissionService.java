@@ -3,6 +3,7 @@ package pedribault.game.service;
 import org.springframework.http.HttpStatus;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Escape;
+import pedribault.game.model.Mission;
 import pedribault.game.model.StandardMission;
 import pedribault.game.repository.EscapeRepository;
 import pedribault.game.repository.MissionRepository;
@@ -20,11 +21,11 @@ public class MissionService {
     @Autowired
     private EscapeRepository escapeRepository;
 
-    public List<StandardMission> getMissions() {
+    public List<Mission> getMissions() {
         return missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
     }
 
-    public StandardMission getMissionById(final Integer id) {
+    public Mission getMissionById(final Integer id) {
         if (id == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
         }
@@ -33,7 +34,7 @@ public class MissionService {
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + id + " does not exist."));
     }
 
-    public StandardMission createMission(StandardMission standardMission) {
+    public Mission createMission(StandardMission standardMission) {
         if (standardMission == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission is null", "A body is required");
         } else if (standardMission.getTitle() == null) {
@@ -59,7 +60,7 @@ public class MissionService {
         return missionRepository.save(standardMission);
     }
 
-    public StandardMission updateMission(Integer id, StandardMission updatedStandardMission) {
+    public Mission updateMission(Integer id, StandardMission updatedStandardMission) {
         if (id == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Id not provided", "The id must be provided");
         }
@@ -67,7 +68,7 @@ public class MissionService {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "The input mission is null", "The body is missing");
         }
 
-        StandardMission existingStandardMission = missionRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The id " + id + "doesn't exist in the Escapes database"));
+        Mission existingStandardMission = missionRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The id " + id + "doesn't exist in the Escapes database"));
 
         if (updatedStandardMission.getTitle() != null) {
             existingStandardMission.setTitle(updatedStandardMission.getTitle());
@@ -81,17 +82,17 @@ public class MissionService {
         if (updatedStandardMission.getOrder() != null) {
             existingStandardMission.setOrder(updatedStandardMission.getOrder());
         }
-        if (updatedStandardMission.getSuccessRate() != null) {
-            existingStandardMission.setSuccessRate(updatedStandardMission.getSuccessRate());
-        }
-        if (updatedStandardMission.getEscape() != null) {
-            Integer updatedEscapeId = updatedStandardMission.getEscape().getId();
-            if (updatedEscapeId != null) {
-                Escape updatedMissionEscape = escapeRepository.findById(updatedEscapeId)
-                        .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission with id " + updatedEscapeId + " was not found"));
-                existingStandardMission.setEscape(updatedMissionEscape);
-            }
-        }
+//        if (updatedStandardMission.getSuccessRate() != null) {
+//            existingStandardMission.setSuccessRate(updatedStandardMission.getSuccessRate());
+//        }
+//        if (updatedStandardMission.getEscape() != null) {
+//            Integer updatedEscapeId = updatedStandardMission.getEscape().getId();
+//            if (updatedEscapeId != null) {
+//                Escape updatedMissionEscape = escapeRepository.findById(updatedEscapeId)
+//                        .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission with id " + updatedEscapeId + " was not found"));
+//                existingStandardMission.setEscape(updatedMissionEscape);
+//            }
+//        }
 
         return missionRepository.save(existingStandardMission);
     }

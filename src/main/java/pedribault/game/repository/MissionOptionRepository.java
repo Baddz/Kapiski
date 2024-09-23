@@ -1,9 +1,9 @@
 package pedribault.game.repository;
 
-import pedribault.game.model.Mission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pedribault.game.model.MissionOption;
 
 @Repository
-public interface MissionRepository extends JpaRepository<Mission, Integer> {
+public interface MissionOptionRepository extends JpaRepository<MissionOption, Integer> {
 }

@@ -128,9 +128,9 @@ public class EscapeService {
                     .stream()
                     .map(StandardMission::getId)
                     .collect(Collectors.toSet());
-            List<StandardMission> standardMissions = missionRepository.findAllById(missionIds);
+            List<Mission> standardMissions = missionRepository.findAllById(missionIds);
             if (standardMissions.size() != existingMissionIds.size()) {
-                List<Integer> foundMissionIds = standardMissions.stream().map(StandardMission::getId).toList();
+                List<Integer> foundMissionIds = standardMissions.stream().map(Mission::getId).toList();
                 List<Integer> missingMissionIds = missionIds.stream()
                         .filter(id -> !foundMissionIds.contains(id))
                         .toList();
@@ -140,7 +140,7 @@ public class EscapeService {
             }
             standardMissions.forEach(mission -> {
                 if (!existingMissionIds.contains(mission.getId())) {
-                    existingEscape.addMission(mission);
+                    existingEscape.addMission((StandardMission) mission);
                     updated.set(true);
                 }
             });

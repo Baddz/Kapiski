@@ -3,9 +3,12 @@ package pedribault.game.mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import pedribault.game.dto.Clue.ClueCreate;
 import pedribault.game.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Clue;
+import pedribault.game.model.Mission;
+import pedribault.game.model.MissionOption;
 import pedribault.game.model.StandardMission;
 import pedribault.game.repository.MissionRepository;
 
@@ -28,19 +31,17 @@ public class ClueMapper {
         return clueDTO;
     }
 
-    public Clue clueDtoToClue(ClueDto clueDTO) {
+    public Clue clueDtoToClue(ClueDto clueDTO, Mission mission, MissionOption missionOption) {
         final Clue clue = new Clue();
         if (clueDTO.getId() != null) {
             clue.setId(clueDTO.getId());
         }
         clue.setOrder(clueDTO.getOrder());
         clue.setContent(clueDTO.getContent());
-        if (clueDTO.getMission() != null) {
-            StandardMission standardMission = missionRepository.findById(clueDTO.getMission().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + clueDTO.getMission().getId() + " does not exist."));
-            clue.setMission(standardMission);
+        if (mission != null) {
+            clue.setMission(mission);
         }
         return clue;
     }
-
 
 }

@@ -1,7 +1,8 @@
-package pedribault.game.dto;
+package pedribault.game.dto.summary;
 
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.dto.EscapeSummaryMission;
 
 @Getter
 @Setter

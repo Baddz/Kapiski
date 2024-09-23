@@ -1,14 +1,14 @@
-package pedribault.game.dto;
+package pedribault.game.dto.Clue;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ClueDto {
-    private Integer id;
+public class ClueCreate {
     private String content;
     private Integer order;
     private Integer subOrder;
-    private MissionSummaryClue mission;
+    private Integer missionId;
+    private Integer missionOptionId;
 }

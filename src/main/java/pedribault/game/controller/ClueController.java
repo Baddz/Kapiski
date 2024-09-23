@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.dto.Clue.ClueCreate;
 import pedribault.game.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.ClueService;
@@ -54,12 +55,12 @@ public class ClueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ClueDto> createClue(@RequestBody ClueDto clue) {
+    public ResponseEntity<ClueDto> createClue(@RequestBody ClueCreate clue) {
 
         log.info("[IN]=[CREATING CLUE]");
         try {
             ClueDto createdClue = clueService.createClue(clue);
-            log.info("[OUT]=[[STATUS]=[CREATED],[CLUE_ID]=[{}],[MISSION_ID]=[{}],[ORDER]=[{}],[CONTENT]=[{}], ]", clue.getId(), clue.getMission(), clue.getOrder(), clue.getContent());
+            log.info("[OUT]=[[STATUS]=[CREATED],[CLUE_ID]=[{}],[MISSION_ID]=[{}],[ORDER]=[{}],[SUB_ORDER]=[{}],[CONTENT]=[{}], ]", createdClue.getId(), createdClue.getMission().getId(), createdClue.getOrder(), createdClue.getSubOrder(), createdClue.getContent());
             return new ResponseEntity<>(createdClue, HttpStatus.CREATED);
         } catch (TheGameException e) {
             log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",

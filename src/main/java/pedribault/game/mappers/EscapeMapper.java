@@ -97,7 +97,7 @@ public class EscapeMapper {
         }
         if (escapeDto.getMissions() != null) {
             escapeDto.getMissions().forEach(m -> {
-                StandardMission standardMission = missionRepository.findById(m.getStandardMissionSummary().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getStandardMissionSummary().getId() + " does not exist."));
+                StandardMission standardMission = (StandardMission) missionRepository.findById(m.getStandardMissionSummary().getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + m.getStandardMissionSummary().getId() + " does not exist."));
                 escape.addMission(standardMission);
             });
         }

@@ -1,4 +1,4 @@
-package pedribault.game.dto;
+package pedribault.game.dto.summary;
 
 import lombok.Getter;
 import lombok.Setter;
