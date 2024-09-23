@@ -33,19 +33,19 @@ public class Escape {
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StandardMission> standardMissions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EscapePlayer> escapePlayers = new ArrayList<>();
+    @ManyToMany(mappedBy = "escape")
+    private List<Player> players = new ArrayList<>();
 
     public Escape() {
         this.standardMissions = new ArrayList<>();
-        this.escapePlayers = new ArrayList<>();
+        this.players = new ArrayList<>();
     }
 
-    public void addEscapePlayer(EscapePlayer escapePlayer) {
-        if (this.getEscapePlayers() == null) {
-            this.setEscapePlayers(new ArrayList<>());
+    public void addEscapePlayer(Player player) {
+        if (this.getPlayers() == null) {
+            this.setPlayers(new ArrayList<>());
         }
-        this.getEscapePlayers().add(escapePlayer);
+        this.getPlayers().add(player);
     }
 
     public void addMission(StandardMission standardMission) {

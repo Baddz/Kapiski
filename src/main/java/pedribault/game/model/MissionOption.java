@@ -22,7 +22,7 @@ public class MissionOption {
     private Integer id;
 
     @Column(name = "description")
-    private String optionDescription; // ex : "Receive a package", "Go to a location", "Get info by email"
+    private String description; // ex : "Receive a package", "Go to a location", "Get info by email"
 
     @OneToMany(mappedBy = "missionOption", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;

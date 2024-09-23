@@ -7,10 +7,10 @@ import lombok.Setter;
 @Setter
 public class SidekickSummary {
     private Integer id;
-    private String mail;
-    private String address;
     private String name;
     private String firstName;
+    private String mail;
+    private String address;
     private String phone;
     private String comment;
 }

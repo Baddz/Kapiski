@@ -1,15 +1,11 @@
 package pedribault.game.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import pedribault.game.dto.Clue.ClueCreate;
 import pedribault.game.dto.ClueDto;
-import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Clue;
 import pedribault.game.model.Mission;
 import pedribault.game.model.MissionOption;
-import pedribault.game.model.StandardMission;
 import pedribault.game.repository.MissionRepository;
 
 @Component
@@ -27,6 +23,9 @@ public class ClueMapper {
         clueDTO.setContent(clue.getContent());
         if (clue.getMission() != null) {
             clueDTO.setMission(toSummaryMapper.missionToMissionSummaryClue(clue.getMission()));
+        }
+        if (clue.getMissionOption() != null) {
+            clueDTO.setMissionOption(toSummaryMapper.);
         }
         return clueDTO;
     }

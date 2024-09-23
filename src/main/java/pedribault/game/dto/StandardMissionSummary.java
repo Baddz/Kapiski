@@ -5,14 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StandardMissionSummary {
-    private Integer id;
-    private String title;
-    private String description;
-    private Boolean isVisible;
-    private Integer order;
-    private Integer subOrder;
+public class StandardMissionSummary extends MissionSummary {
     private Double successRate;
-    private Boolean isOptional;
-    private EscapeSummaryMission escape;
 }

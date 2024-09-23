@@ -10,5 +10,6 @@ public class ClueDto {
     private String content;
     private Integer order;
     private Integer subOrder;
-    private MissionSummaryClue mission;
+    private MissionSummary mission;
+    private MissionOptionSummary missionOption;
 }

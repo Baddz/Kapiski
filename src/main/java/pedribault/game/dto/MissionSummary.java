@@ -6,15 +6,12 @@ import pedribault.game.enums.MissionTypeEnum;
 
 @Getter
 @Setter
-public class MissionSummaryClue {
+public class MissionSummary {
     private Integer id;
-    private MissionTypeEnum missionType;
+    private MissionTypeEnum type;
     private String title;
     private String description;
+    private Integer order;
     private Boolean isVisible;
     private Boolean isOptional;
-    private Integer order;
-    private Integer subOrder;
-    private EscapeSummaryMission escape;
-    private Double successRate;
 }

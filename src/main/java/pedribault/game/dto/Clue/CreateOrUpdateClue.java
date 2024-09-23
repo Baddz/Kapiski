@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClueCreate {
+public class CreateOrUpdateClue {
     private String content;
     private Integer order;
     private Integer subOrder;

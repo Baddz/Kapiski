@@ -22,24 +22,24 @@ public class ToSummaryMapper {
         return clues.stream().map(c -> clueToClueSummary(c)).toList();
     }
 
-    public MissionSummaryClue missionToMissionSummaryClue(Mission mission) {
-        final MissionSummaryClue missionSummaryClue = new MissionSummaryClue();
-        missionSummaryClue.setId(mission.getId());
-        missionSummaryClue.setOrder(mission.getOrder());
-        missionSummaryClue.setIsOptional(mission.getIsOptional());
-        missionSummaryClue.setIsVisible(mission.getIsVisible());
-        missionSummaryClue.setTitle(mission.getTitle());
-        missionSummaryClue.setDescription(mission.getDescription());
+    public MissionSummary missionToMissionSummaryClue(Mission mission) {
+        final MissionSummary missionSummary = new MissionSummary();
+        missionSummary.setId(mission.getId());
+        missionSummary.setOrder(mission.getOrder());
+        missionSummary.setIsOptional(mission.getIsOptional());
+        missionSummary.setIsVisible(mission.getIsVisible());
+        missionSummary.setTitle(mission.getTitle());
+        missionSummary.setDescription(mission.getDescription());
         if (mission instanceof final StandardMission standardMission) {
-            missionSummaryClue.setSuccessRate(standardMission.getSuccessRate());
-            missionSummaryClue.setEscape(escapeToEscapeSummaryMission(standardMission.getEscape()));
-            missionSummaryClue.setMissionType(MissionTypeEnum.STANDARD);
+            missionSummary.setSuccessRate(standardMission.getSuccessRate());
+            missionSummary.setEscape(escapeToEscapeSummaryMission(standardMission.getEscape()));
+            missionSummary.setType(MissionTypeEnum.STANDARD);
         } else if (mission instanceof final CustomMission customMission) {
-            missionSummaryClue.setEscape(escapeToEscapeSummaryMission(customMission.getEscape()));
-            missionSummaryClue.setSubOrder(customMission.getSubOrder());
-            missionSummaryClue.setMissionType(MissionTypeEnum.CUSTOM);
+            missionSummary.setEscape(escapeToEscapeSummaryMission(customMission.getEscape()));
+            missionSummary.setSubOrder(customMission.getSubOrder());
+            missionSummary.setType(MissionTypeEnum.CUSTOM);
         }
-        return missionSummaryClue;
+        return missionSummary;
     }
 
     public EscapeSummaryMission escapeToEscapeSummaryMission(Escape escape) {
@@ -53,7 +53,7 @@ public class ToSummaryMapper {
         return escapeSummaryMission;
     }
 
-    public List<MissionSummaryClue> missionsToMissionSummaryClues(List<StandardMission> standardMissions) {
+    public List<MissionSummary> missionsToMissionSummaryClues(List<StandardMission> standardMissions) {
         return standardMissions.stream().map(this::missionToMissionSummaryClue).toList();
     }
 

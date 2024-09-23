@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pedribault.game.dto.Clue.ClueCreate;
+import pedribault.game.dto.Clue.CreateOrUpdateClue;
 import pedribault.game.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.ClueService;
@@ -55,7 +55,7 @@ public class ClueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ClueDto> createClue(@RequestBody ClueCreate clue) {
+    public ResponseEntity<ClueDto> createClue(@RequestBody CreateOrUpdateClue clue) {
 
         log.info("[IN]=[CREATING CLUE]");
         try {
@@ -69,11 +69,11 @@ public class ClueController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<ClueDto> updateClue(@RequestBody ClueDto clueDto) {
+    @PutMapping("/{id}/update")
+    public ResponseEntity<ClueDto> updateClue(@PathVariable Integer id, @RequestBody CreateOrUpdateClue createOrUpdateClue) {
         log.info("[IN]=[UPDATING CLUE]");
         try {
-            ClueDto clue = clueService.updateClue(clueDto);
+            ClueDto clue = clueService.updateClue(id, createOrUpdateClue);
             log.info("[OUT]=[[STATUS]=[OK]]");
             return new ResponseEntity<>(clue, HttpStatus.OK);
         } catch (TheGameException e) {

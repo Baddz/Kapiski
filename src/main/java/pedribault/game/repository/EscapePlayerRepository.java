@@ -2,7 +2,6 @@ package pedribault.game.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pedribault.game.model.EscapePlayer;
 
 import java.util.Optional;
 

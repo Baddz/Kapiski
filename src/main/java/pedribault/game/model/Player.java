@@ -10,7 +10,9 @@ import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.mappers.MissionConditionEnumConverter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -36,10 +38,20 @@ public class Player {
 
     @Column(name = "preferences", columnDefinition = "TEXT")
     @Convert(converter = MissionConditionEnumConverter.class)
-    private List<MissionConditionEnum> preferences;
+    private List<MissionConditionEnum> preferences = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EscapePlayer> escapePlayers;
+    @ManyToMany(mappedBy = "player")
+    private List<Escape> escapes = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "player_custom_mission",
+            joinColumns = @JoinColumn(name = "player_id"),
+            inverseJoinColumns = @JoinColumn(name = "custom_mission_id")
+    )
+    private List<CustomMission> customMissions = new ArrayList<>();
+
+    private Map<Escape, List<CustomMission>> escapeCustomMissionsMap = new HashMap<>();
 
     @ManyToMany
     @JoinTable(

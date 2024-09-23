@@ -36,7 +36,7 @@ public class Sidekick {
 
     @ManyToMany(mappedBy = "sidekicks")
     @JsonBackReference
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     public void addPlayer(Player player) {
         if (player == null) {

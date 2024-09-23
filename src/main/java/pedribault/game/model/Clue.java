@@ -35,5 +35,4 @@ public class Clue {
     @ManyToOne
     @JoinColumn(name = "mission_option_id")
     private MissionOption missionOption;
-
 }

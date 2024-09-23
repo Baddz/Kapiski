@@ -55,11 +55,11 @@ public class EscapeMapper {
                 escapeDto.setMissions(toSummaryMapper.standardMissionsToMissionSummaryEscapes(escape.getStandardMissions()));
             }
         }
-        if (escape.getEscapePlayers() != null) {
-            if (escape.getEscapePlayers().isEmpty()) {
+        if (escape.getPlayers() != null) {
+            if (escape.getPlayers().isEmpty()) {
                 escapeDto.setPlayers(new ArrayList<>());
             } else {
-                final List<PlayerSummaryEscape> playerSummaryEscapes = escape.getEscapePlayers().stream().map(ep -> toSummaryMapper.playerToPlayerSummaryEscape(ep.getPlayer())).toList();
+                final List<PlayerSummaryEscape> playerSummaryEscapes = escape.getPlayers().stream().map(ep -> toSummaryMapper.playerToPlayerSummaryEscape(ep.getPlayer())).toList();
                 escapeDto.setPlayers(playerSummaryEscapes);
             }
         }
@@ -80,7 +80,7 @@ public class EscapeMapper {
         }
         if (escapeDto.getPlayers() != null) {
             if (escapeDto.getPlayers().isEmpty()) {
-                escape.setEscapePlayers(new ArrayList<>());
+                escape.setPlayers(new ArrayList<>());
             } else {
                 List<Player> players = playerRepository.findAllById(escapeDto.getPlayers().stream().map(pse -> pse.getPlayerSummary().getId()).toList());
                 HashSet<PlayerSummaryEscape> playersSet = new HashSet<>(escapeDto.getPlayers());

@@ -12,10 +12,11 @@ import java.util.List;
 @Data
 public class SidekickDto {
     private Integer id;
-    private String mail;
-    private String address;
     private String name;
     private String firstName;
-    private List<Integer> playerIds;
-
+    private String mail;
+    private String address;
+    private String phone;
+    private String comment;
+    private List<PlayerSummary> players;
 }

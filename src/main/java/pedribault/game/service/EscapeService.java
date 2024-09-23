@@ -62,7 +62,7 @@ public class EscapeService {
 
         final Escape escape = new Escape();
         final Escape newEscape = escapeMapper.escapeDtoToEscape(escapeDto);
-        escape.setEscapePlayers(newEscape.getEscapePlayers());
+        escape.setPlayers(newEscape.getPlayers());
         escape.setTitle(newEscape.getTitle());
         escape.setDifficulty(newEscape.getDifficulty());
         escape.setStandardMissions(newEscape.getStandardMissions());
@@ -155,7 +155,7 @@ public class EscapeService {
     private void updateEscapePlayers(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
         final List<PlayerSummaryEscape> playerSummaryEscapes = escapeDto.getPlayers();
         if (playerSummaryEscapes != null) {
-            Set<Integer> existingPlayerIds = existingEscape.getEscapePlayers()
+            Set<Integer> existingPlayerIds = existingEscape.getPlayers()
                     .stream()
                     .map(ep -> ep.getPlayer().getId())
                     .collect(Collectors.toSet());

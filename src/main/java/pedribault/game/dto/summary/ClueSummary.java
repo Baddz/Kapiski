@@ -9,4 +9,5 @@ public class ClueSummary {
     private Integer id;
     private String content;
     private Integer order;
+    private Integer subOrder;
 }

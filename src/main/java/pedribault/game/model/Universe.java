@@ -24,5 +24,4 @@ public class Universe {
 
     @OneToMany(mappedBy = "universe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Escape> escapes;
-
 }

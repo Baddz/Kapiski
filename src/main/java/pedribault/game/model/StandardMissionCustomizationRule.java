@@ -25,6 +25,4 @@ public class StandardMissionCustomizationRule {
     @ManyToOne
     @JoinColumn(name = "custom_mission_id", nullable = true)
     private CustomMission customMission;
-
-
 }
