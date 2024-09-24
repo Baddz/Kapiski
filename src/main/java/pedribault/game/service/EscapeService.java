@@ -30,8 +30,6 @@ public class EscapeService {
     @Autowired
     private PlayerRepository playerRepository;
     @Autowired
-    private EscapePlayerRepository escapePlayerRepository;
-    @Autowired
     private MissionRepository missionRepository;
 
     public List<EscapeDto> getEscapes() {
@@ -58,21 +56,21 @@ public class EscapeService {
 
     public EscapeDto createEscape(EscapeDto escapeDto) {
 
-        if (escapeDto == null || escapeDto.getTitle() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
-        }
-
-        final Escape escape = new Escape();
-        final Escape newEscape = escapeMapper.escapeDtoToEscape(escapeDto);
-        escape.setPlayers(newEscape.getPlayers());
-        escape.setTitle(newEscape.getTitle());
-        escape.setDifficulty(newEscape.getDifficulty());
-        escape.setStandardMissions(newEscape.getStandardMissions());
-        escape.setUniverse(newEscape.getUniverse());
-        escape.setSuccessRate(newEscape.getSuccessRate());
-        escapeRepository.save(escape);
-
-        escapeDto = escapeMapper.escapeToEscapeDto(escape);
+//        if (escapeDto == null || escapeDto.getTitle() == null) {
+//            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
+//        }
+//
+//        final Escape escape = new Escape();
+//        final Escape newEscape = escapeMapper.escapeDtoToEscape(escapeDto);
+//        escape.setPlayers(newEscape.getPlayers());
+//        escape.setTitle(newEscape.getTitle());
+//        escape.setDifficulty(newEscape.getDifficulty());
+//        escape.setStandardMissions(newEscape.getStandardMissions());
+//        escape.setUniverse(newEscape.getUniverse());
+//        escape.setSuccessRate(newEscape.getSuccessRate());
+//        escapeRepository.save(escape);
+//
+//        escapeDto = escapeMapper.escapeToEscapeDto(escape);
         return escapeDto;
     }
 

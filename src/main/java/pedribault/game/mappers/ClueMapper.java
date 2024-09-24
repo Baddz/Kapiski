@@ -17,9 +17,9 @@ public class ClueMapper {
     @Autowired
     private MissionRepository missionRepository;
     @Autowired
-    private ToSummaryMapper toSummaryMapper;
-    @Autowired
     private MissionOptionMapper missionOptionMapper;
+    @Autowired
+    private MissionMapper missionMapper;
 
     public ClueDto clueToClueDto(Clue clue) {
         final ClueDto clueDTO = new ClueDto();
@@ -27,7 +27,7 @@ public class ClueMapper {
         clueDTO.setOrder(clue.getOrder());
         clueDTO.setContent(clue.getContent());
         if (clue.getMission() != null) {
-            clueDTO.setMission(toSummaryMapper.missionToMissionSummary(clue.getMission()));
+            clueDTO.setMission(missionMapper.missionToMissionSummary(clue.getMission()));
         }
         if (clue.getMissionOption() != null) {
             clueDTO.setMissionOption(missionOptionMapper.missionOptionToMissionOptionSummary(clue.getMissionOption()));

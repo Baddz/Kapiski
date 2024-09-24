@@ -30,8 +30,6 @@ public class StandardMission extends Mission {
     private Escape escape;
 
     // maps : if hasFriendsInvolved with missionOption related, if location = Lyon with missionOption related
-    @OneToMany(mappedBy = "standardMission", cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKeyJoinColumn(name = "escape_id")
-    private Map<MissionConditionEnum, MissionOption> options = new HashMap<>();
+
 
 }

@@ -7,6 +7,7 @@ import pedribault.game.model.dto.SidekickDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
+import pedribault.game.model.dto.summary.PlayerSummary;
 import pedribault.game.model.dto.summary.SidekickSummary;
 import pedribault.game.repository.PlayerRepository;
 
@@ -16,12 +17,10 @@ import java.util.List;
 @Component
 public class SidekickMapper {
 
-    private PlayerMapper playerMapper;
     private PlayerRepository playerRepository;
 
     @Autowired
-    public SidekickMapper(PlayerMapper playerMapper, PlayerRepository playerRepository) {
-        this.playerMapper = playerMapper;
+    public SidekickMapper(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
 
@@ -32,7 +31,19 @@ public class SidekickMapper {
         sidekickDTO.setMail(sidekick.getMail());
         sidekickDTO.setAddress(sidekick.getAddress());
         if (sidekick.getPlayers() != null) {
-            sidekickDTO.setPlayerIds(sidekick.getPlayers().stream().map(p -> p.getId()).toList());
+            final List<PlayerSummary> playerSummaries = sidekick.getPlayers().stream().map(p -> {
+                final PlayerSummary playerSummary = new PlayerSummary();
+                playerSummary.setId(p.getId());
+                playerSummary.setMail(p.getMail());
+                playerSummary.setName(p.getName());
+                playerSummary.setAddress(p.getAddress());
+                playerSummary.setComment(p.getComment());
+                playerSummary.setFirstName(p.getFirstName());
+                playerSummary.setPhone(p.getPhone());
+                return playerSummary;
+            }).toList();
+
+            sidekickDTO.setPlayers(playerSummaries);
         }
         sidekickDTO.setFirstName(sidekick.getFirstName());
 
@@ -55,9 +66,9 @@ public class SidekickMapper {
         sidekick.setName(sidekickDTO.getName());
         sidekick.setMail(sidekickDTO.getMail());
         sidekick.setAddress(sidekickDTO.getAddress());
-        if (sidekickDTO.getPlayerIds() != null) {
-            sidekickDTO.getPlayerIds().forEach(id -> {
-                Player player = playerRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Players table", "The id " + id + " does not exist."));
+        if (sidekickDTO.getPlayers() != null) {
+            sidekickDTO.getPlayers().forEach(p -> {
+                Player player = playerRepository.findById(p.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Players table", "The id " + p.getId() + " does not exist."));
                 sidekick.addPlayer(player);
             });
         }

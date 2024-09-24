@@ -20,10 +20,17 @@ public class EscapeDto {
     private List<StandardMissionSummary> missions;
     private List<PlayerSummary> players;
 
-    public void addEscapePlayerDto(PlayerSummary playerSummary) {
+    public void addPlayerDto(PlayerSummary playerSummary) {
         if (this.getPlayers() == null) {
             this.setPlayers(new ArrayList<>());
         }
         this.getPlayers().add(playerSummary);
+    }
+
+    public void addMission(StandardMissionSummary missionSummary) {
+        if (this.getMissions() == null) {
+            this.setMissions(new ArrayList<>());
+        }
+        this.getMissions().add(missionSummary);
     }
 }

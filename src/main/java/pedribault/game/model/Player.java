@@ -40,14 +40,14 @@ public class Player {
     @Convert(converter = MissionConditionEnumConverter.class)
     private List<MissionConditionEnum> preferences = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "player")
+    @ManyToMany(mappedBy = "players")
     private List<Escape> escapes = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
-            name = "player_custom_mission",
+            name = "Player_J_Mission",
             joinColumns = @JoinColumn(name = "player_id"),
-            inverseJoinColumns = @JoinColumn(name = "custom_mission_id")
+            inverseJoinColumns = @JoinColumn(name = "mission_id")
     )
     private List<CustomMission> customMissions = new ArrayList<>();
 

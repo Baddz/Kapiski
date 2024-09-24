@@ -33,7 +33,12 @@ public class Escape {
     @OneToMany(mappedBy = "escape", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StandardMission> standardMissions = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "escape")
+    @ManyToMany
+    @JoinTable(
+            name = "Player_J_Mission",  // Define the join table name
+            joinColumns = @JoinColumn(name = "player_id"),  // Foreign key for Player
+            inverseJoinColumns = @JoinColumn(name = "escape_id")  // Foreign key for Escape
+    )
     private List<Player> players = new ArrayList<>();
 
     public Escape() {

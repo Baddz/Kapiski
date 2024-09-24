@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.enums.MissionTypeEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -33,6 +36,11 @@ public abstract class Mission {
     private Integer order;
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
+
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKeyColumn(name = "condition")
+    @MapKeyEnumerated(EnumType.STRING)
+    private Map<MissionConditionEnum, MissionOption> options = new HashMap<>();
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {
