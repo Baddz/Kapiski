@@ -7,6 +7,7 @@ import pedribault.game.model.dto.PlayerDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
+import pedribault.game.model.dto.summary.PlayerSummary;
 import pedribault.game.repository.SidekickRepository;
 
 @Component
@@ -47,5 +48,17 @@ public class PlayerMapper {
         player.setFirstName(playerDTO.getFirstName());
 
         return player;
+    }
+
+    public PlayerSummary playerToPlayerSummary(Player player) {
+        final PlayerSummary playerSummary = new PlayerSummary();
+        playerSummary.setAddress(player.getAddress());
+        playerSummary.setMail(player.getMail());
+        playerSummary.setName(player.getName());
+        playerSummary.setFirstName(player.getFirstName());
+        playerSummary.setId(player.getId());
+        playerSummary.setComment(player.getComment());
+        playerSummary.setPhone(player.getPhone());
+        return playerSummary;
     }
 }

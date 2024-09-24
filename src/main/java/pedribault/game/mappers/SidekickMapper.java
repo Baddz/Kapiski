@@ -7,6 +7,7 @@ import pedribault.game.model.dto.SidekickDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
+import pedribault.game.model.dto.summary.SidekickSummary;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.ArrayList;
@@ -63,5 +64,18 @@ public class SidekickMapper {
         sidekick.setFirstName(sidekick.getFirstName());
 
         return sidekick;
+    }
+
+    public SidekickSummary sidekickToSidekickSummary(Sidekick sidekick) {
+        final SidekickSummary sidekickSummary = new SidekickSummary();
+        sidekickSummary.setAddress(sidekick.getAddress());
+        sidekickSummary.setName(sidekick.getName());
+        sidekickSummary.setMail(sidekick.getMail());
+        sidekickSummary.setId(sidekick.getId());
+        sidekickSummary.setComment(sidekick.getComment());
+        sidekickSummary.setPhone(sidekick.getPhone());
+        sidekickSummary.setFirstName(sidekick.getFirstName());
+
+        return sidekickSummary;
     }
 }

@@ -6,7 +6,10 @@ import pedribault.game.model.dto.ClueDto;
 import pedribault.game.model.Clue;
 import pedribault.game.model.Mission;
 import pedribault.game.model.MissionOption;
+import pedribault.game.model.dto.summary.ClueSummary;
 import pedribault.game.repository.MissionRepository;
+
+import java.util.List;
 
 @Component
 public class ClueMapper {
@@ -15,6 +18,8 @@ public class ClueMapper {
     private MissionRepository missionRepository;
     @Autowired
     private ToSummaryMapper toSummaryMapper;
+    @Autowired
+    private MissionOptionMapper missionOptionMapper;
 
     public ClueDto clueToClueDto(Clue clue) {
         final ClueDto clueDTO = new ClueDto();
@@ -22,10 +27,10 @@ public class ClueMapper {
         clueDTO.setOrder(clue.getOrder());
         clueDTO.setContent(clue.getContent());
         if (clue.getMission() != null) {
-            clueDTO.setMission(toSummaryMapper.missionToMissionSummaryClue(clue.getMission()));
+            clueDTO.setMission(toSummaryMapper.missionToMissionSummary(clue.getMission()));
         }
         if (clue.getMissionOption() != null) {
-            clueDTO.setMissionOption(toSummaryMapper.);
+            clueDTO.setMissionOption(missionOptionMapper.missionOptionToMissionOptionSummary(clue.getMissionOption()));
         }
         return clueDTO;
     }
@@ -41,6 +46,18 @@ public class ClueMapper {
             clue.setMission(mission);
         }
         return clue;
+    }
+
+    public ClueSummary clueToClueSummary(Clue clue) {
+        final ClueSummary clueSummary = new ClueSummary();
+        clueSummary.setId(clue.getId());
+        clueSummary.setContent(clue.getContent());
+        clueSummary.setOrder(clue.getOrder());
+        return clueSummary;
+    }
+
+    public List<ClueSummary> cluesToClueSummaries(List<Clue> clues) {
+        return clues.stream().map(c -> clueToClueSummary(c)).toList();
     }
 
 }

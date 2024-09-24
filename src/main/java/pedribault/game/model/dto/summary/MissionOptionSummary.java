@@ -8,5 +8,5 @@ import lombok.Setter;
 public class MissionOptionSummary {
     private Integer id;
     private String description;
-    private StandardMissionSummary mission;
+    private MissionSummary mission;
 }

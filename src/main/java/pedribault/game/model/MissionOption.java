@@ -28,8 +28,8 @@ public class MissionOption {
     private List<Clue> clues;
 
     @ManyToOne
-    @JoinColumn(name = "standard_mission_id")
-    private StandardMission standardMission;
+    @JoinColumn(name = "mission_id")
+    private Mission mission;
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {

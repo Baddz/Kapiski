@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CustomMissionSummary {
+public class CustomMissionSummary extends MissionSummary {
     private Integer subOrder;
 }

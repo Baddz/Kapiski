@@ -3,6 +3,7 @@ package pedribault.game.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.model.dto.EscapeDto;
+import pedribault.game.model.dto.summary.PlayerSummary;
 import pedribault.game.model.dto.summary.UniverseSummary;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.EscapeMapper;
@@ -123,7 +124,7 @@ public class EscapeService {
 
     private void updateMissions(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
         if (escapeDto.getMissions() != null) {
-            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getStandardMissionSummary().getId()).toList();
+            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getId()).toList();
 
             Set<Integer> existingMissionIds = existingEscape.getStandardMissions()
                     .stream()
@@ -154,32 +155,32 @@ public class EscapeService {
     }
 
     private void updateEscapePlayers(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
-        final List<PlayerSummaryEscape> playerSummaryEscapes = escapeDto.getPlayers();
-        if (playerSummaryEscapes != null) {
+        final List<PlayerSummary> players = escapeDto.getPlayers();
+        if (players != null) {
             Set<Integer> existingPlayerIds = existingEscape.getPlayers()
                     .stream()
-                    .map(ep -> ep.getPlayer().getId())
+                    .map(ep -> ep.getId())
                     .collect(Collectors.toSet());
 
-            playerSummaryEscapes.forEach(epdto -> {
-                if (existingPlayerIds.contains(epdto.getPlayerSummary().getId())) {
-                    // The player is already linked to the escape; we skip
-                    return;
-                }
-                Optional<EscapePlayer> escapePlayerOptional = escapePlayerRepository.findByEscapeIdAndPlayerId(existingEscape.getId(), epdto.getPlayerSummary().getId());
-                if (escapePlayerOptional.isPresent()) {
-                    // The EscapePlayer exists, we add it
-                    existingEscape.addEscapePlayer(escapePlayerOptional.get());
-                    updated.set(true);
-                } else {
-                    // The EscapePlayer doesn't exist, we create then add it
-                    final Player player = playerRepository.findById(epdto.getPlayerSummary().getId()).orElseThrow(() ->
-                            new TheGameException(HttpStatus.NOT_FOUND, "One of the players submitted doesn't exist in the Players database", "The player with id " + epdto.getPlayerSummary().getId() + " doesn't exist."));
-                    final EscapePlayer escapePlayer = new EscapePlayer(player, existingEscape, epdto.getStatus());
-                    existingEscape.addEscapePlayer(escapePlayer);
-                    updated.set(true);
-                }
-            });
+//            players.forEach(epdto -> {
+//                if (existingPlayerIds.contains(epdto.getPlayerSummary().getId())) {
+//                    // The player is already linked to the escape; we skip
+//                    return;
+//                }
+//                Optional<EscapePlayer> escapePlayerOptional = escapePlayerRepository.findByEscapeIdAndPlayerId(existingEscape.getId(), epdto.getPlayerSummary().getId());
+//                if (escapePlayerOptional.isPresent()) {
+//                    // The EscapePlayer exists, we add it
+//                    existingEscape.addEscapePlayer(escapePlayerOptional.get());
+//                    updated.set(true);
+//                } else {
+//                    // The EscapePlayer doesn't exist, we create then add it
+//                    final Player player = playerRepository.findById(epdto.getPlayerSummary().getId()).orElseThrow(() ->
+//                            new TheGameException(HttpStatus.NOT_FOUND, "One of the players submitted doesn't exist in the Players database", "The player with id " + epdto.getPlayerSummary().getId() + " doesn't exist."));
+//                    final EscapePlayer escapePlayer = new EscapePlayer(player, existingEscape, epdto.getStatus());
+//                    existingEscape.addEscapePlayer(escapePlayer);
+//                    updated.set(true);
+//                }
+//            });
         }
     }
 }
