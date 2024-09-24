@@ -51,8 +51,6 @@ public class Player {
     )
     private List<CustomMission> customMissions = new ArrayList<>();
 
-    private Map<Escape, List<CustomMission>> escapeCustomMissionsMap = new HashMap<>();
-
     @ManyToMany
     @JoinTable(
             name = "Player_J_Sidekick",

@@ -1,9 +1,8 @@
 package pedribault.game.service;
 
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.UniverseDto;
+import pedribault.game.model.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
-import pedribault.game.model.Clue;
 import pedribault.game.model.Universe;
 import pedribault.game.repository.UniverseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UniverseService {

@@ -3,9 +3,7 @@ package pedribault.game.mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import pedribault.game.dto.SidekickDto;
-import pedribault.game.dto.SidekickSummary;
-import pedribault.game.dto.SidekickUpdate;
+import pedribault.game.model.dto.SidekickDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
@@ -13,7 +11,6 @@ import pedribault.game.repository.PlayerRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class SidekickMapper {

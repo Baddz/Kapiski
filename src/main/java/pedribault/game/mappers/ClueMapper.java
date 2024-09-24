@@ -2,7 +2,7 @@ package pedribault.game.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pedribault.game.dto.ClueDto;
+import pedribault.game.model.dto.ClueDto;
 import pedribault.game.model.Clue;
 import pedribault.game.model.Mission;
 import pedribault.game.model.MissionOption;

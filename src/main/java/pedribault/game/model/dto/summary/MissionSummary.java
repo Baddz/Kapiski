@@ -1,14 +1,13 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto.summary;
 
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.enums.MissionTypeEnum;
 
 @Getter
 @Setter
 public class MissionSummary {
     private Integer id;
-    private MissionTypeEnum type;
+    private String type;
     private String title;
     private String description;
     private Integer order;

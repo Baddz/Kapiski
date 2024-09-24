@@ -2,8 +2,8 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.SidekickDto;
-import pedribault.game.dto.SidekickUpdate;
+import pedribault.game.model.dto.SidekickDto;
+import pedribault.game.model.dto.CreateOrUpdate.SidekickUpdate;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.SidekickMapper;
 import pedribault.game.model.Player;

@@ -1,12 +1,11 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto.summary;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class EscapeSummaryMission {
+public class UniverseSummary {
     private Integer id;
     private String title;
-    private UniverseSummary universe;
 }

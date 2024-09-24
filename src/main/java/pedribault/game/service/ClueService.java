@@ -2,8 +2,8 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.Clue.CreateOrUpdateClue;
-import pedribault.game.dto.ClueDto;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
+import pedribault.game.model.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.ClueMapper;
 import pedribault.game.model.Clue;

@@ -1,7 +1,10 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.model.dto.summary.PlayerSummary;
+import pedribault.game.model.dto.summary.StandardMissionSummary;
+import pedribault.game.model.dto.summary.UniverseSummary;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,13 +1,16 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.model.dto.summary.PlayerSummary;
 
 import java.util.List;
 
 @Getter
 @Setter
-public class PlayerSummary {
+@Data
+public class SidekickDto {
     private Integer id;
     private String name;
     private String firstName;
@@ -15,4 +18,5 @@ public class PlayerSummary {
     private String address;
     private String phone;
     private String comment;
+    private List<PlayerSummary> players;
 }

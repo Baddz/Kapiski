@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pedribault.game.dto.Clue.CreateOrUpdateClue;
-import pedribault.game.dto.ClueDto;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
+import pedribault.game.model.dto.ClueDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.ClueService;
 

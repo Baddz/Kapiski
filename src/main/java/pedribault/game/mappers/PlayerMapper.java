@@ -3,7 +3,7 @@ package pedribault.game.mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import pedribault.game.dto.PlayerDto;
+import pedribault.game.model.dto.PlayerDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;

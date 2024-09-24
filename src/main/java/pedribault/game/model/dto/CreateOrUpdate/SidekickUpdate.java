@@ -1,10 +1,8 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto.CreateOrUpdate;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

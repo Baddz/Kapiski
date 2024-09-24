@@ -1,10 +1,9 @@
 package pedribault.game.mappers;
 
 import org.springframework.stereotype.Component;
-import pedribault.game.dto.*;
-import pedribault.game.dto.summary.ClueSummary;
 import pedribault.game.enums.MissionTypeEnum;
 import pedribault.game.model.*;
+import pedribault.game.model.dto.summary.*;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package pedribault.game.dto.Clue;
+package pedribault.game.model.dto.CreateOrUpdate;
 
 import lombok.Getter;
 import lombok.Setter;

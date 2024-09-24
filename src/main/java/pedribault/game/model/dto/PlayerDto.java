@@ -1,12 +1,11 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.dto.summary.CustomMissionSummary;
-import pedribault.game.dto.summary.EscapeSummary;
-import pedribault.game.enums.MissionConditionEnum;
-import pedribault.game.model.Escape;
+import pedribault.game.model.dto.summary.CustomMissionSummary;
+import pedribault.game.model.dto.summary.EscapeSummary;
+import pedribault.game.model.dto.summary.SidekickSummary;
 
 import java.util.List;
 import java.util.Map;

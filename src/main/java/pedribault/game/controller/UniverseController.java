@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pedribault.game.dto.UniverseDto;
+import pedribault.game.model.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Universe;
 import pedribault.game.service.UniverseService;

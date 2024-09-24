@@ -1,8 +1,9 @@
-package pedribault.game.dto;
+package pedribault.game.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.dto.summary.ClueSummary;
+import pedribault.game.model.dto.summary.ClueSummary;
+import pedribault.game.model.dto.summary.StandardMissionSummary;
 
 import java.util.List;
 

@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pedribault.game.dto.PlayerDto;
-import pedribault.game.dto.PlayerUpdate;
+import pedribault.game.model.dto.PlayerDto;
+import pedribault.game.model.dto.CreateOrUpdate.PlayerUpdate;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.PlayerService;
 

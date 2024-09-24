@@ -2,8 +2,8 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.PlayerDto;
-import pedribault.game.dto.PlayerUpdate;
+import pedribault.game.model.dto.PlayerDto;
+import pedribault.game.model.dto.CreateOrUpdate.PlayerUpdate;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.PlayerMapper;
 import pedribault.game.model.Player;

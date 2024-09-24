@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pedribault.game.enums.MissionStatusEnum;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -24,14 +25,17 @@ public class MissionPlayerMapping {
     private Player player;
 
     @ManyToOne
-    @JoinColumn(name = "standard_mission_id", nullable = true)
-    private StandardMission standardMission;
+    @JoinColumn(name = "mission_id")
+    private Mission mission;
 
-    @ManyToOne
-    @JoinColumn(name = "custom_mission_id", nullable = true)
-    private CustomMission customMission;
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @JoinColumn(name = "status")
     private MissionStatusEnum status;
+
 }

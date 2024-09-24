@@ -2,7 +2,8 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import pedribault.game.dto.*;
+import pedribault.game.model.dto.EscapeDto;
+import pedribault.game.model.dto.summary.UniverseSummary;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.EscapeMapper;
 import pedribault.game.model.*;
