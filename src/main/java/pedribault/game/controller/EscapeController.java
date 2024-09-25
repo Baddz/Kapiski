@@ -3,6 +3,7 @@ package pedribault.game.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateEscape;
 import pedribault.game.model.dto.EscapeDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.EscapeService;
@@ -52,7 +53,7 @@ public class EscapeController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<EscapeDto> createEscape(@RequestBody EscapeDto escape) {
+    public ResponseEntity<EscapeDto> createEscape(@RequestBody CreateOrUpdateEscape escape) {
 
         log.info("[IN]=[CREATING ESCAPE]");
         try {
@@ -66,7 +67,7 @@ public class EscapeController {
         }
     }
 
-    @PutMapping("/update")
+    @PutMapping("/{id}/update")
     public ResponseEntity<EscapeDto> updateEscape(@RequestBody EscapeDto escapeDto) {
         log.info("[IN]=[UPDATING ESCAPE");
         try {

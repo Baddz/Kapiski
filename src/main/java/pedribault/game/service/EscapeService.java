@@ -2,6 +2,7 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateEscape;
 import pedribault.game.model.dto.EscapeDto;
 import pedribault.game.model.dto.summary.PlayerSummary;
 import pedribault.game.model.dto.summary.UniverseSummary;
@@ -33,7 +34,7 @@ public class EscapeService {
     private MissionRepository missionRepository;
 
     public List<EscapeDto> getEscapes() {
-        final List<Escape> escapes =escapeRepository.findAll() == null ? new ArrayList<>() : escapeRepository.findAll();
+        final List<Escape> escapes = escapeRepository.findAll() == null ? new ArrayList<>() : escapeRepository.findAll();
         final List<EscapeDto> escapeDtos = new ArrayList<>();
         if (!escapes.isEmpty()) {
             escapeDtos.addAll(escapes.stream().map(e -> escapeMapper.escapeToEscapeDto(e)).toList());
@@ -54,14 +55,15 @@ public class EscapeService {
         return escapeDto;
     }
 
-    public EscapeDto createEscape(EscapeDto escapeDto) {
+    public EscapeDto createEscape(CreateOrUpdateEscape createOrUpdateEscape) {
 
-//        if (escapeDto == null || escapeDto.getTitle() == null) {
+
+//        if (createOrUpdateEscape == null || createOrUpdateEscape.getTitle() == null) {
 //            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
 //        }
 //
 //        final Escape escape = new Escape();
-//        final Escape newEscape = escapeMapper.escapeDtoToEscape(escapeDto);
+//        final Escape newEscape = escapeMapper.escapeDtoToEscape(createOrUpdateEscape);
 //        escape.setPlayers(newEscape.getPlayers());
 //        escape.setTitle(newEscape.getTitle());
 //        escape.setDifficulty(newEscape.getDifficulty());
@@ -70,8 +72,8 @@ public class EscapeService {
 //        escape.setSuccessRate(newEscape.getSuccessRate());
 //        escapeRepository.save(escape);
 //
-//        escapeDto = escapeMapper.escapeToEscapeDto(escape);
-        return escapeDto;
+//        createOrUpdateEscape = escapeMapper.escapeToEscapeDto(escape);
+        return createOrUpdateEscape;
     }
 
     public EscapeDto updateEscape(EscapeDto escapeDto) {
