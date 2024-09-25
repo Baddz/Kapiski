@@ -103,7 +103,7 @@ public class ClueService {
             existingClue.setOrder(createOrUpdateClue.getOrder());
         }
         if (createOrUpdateClue.getSubOrder() != null) {
-            existingClue.setOrder(createOrUpdateClue.getSubOrder());
+            existingClue.setSubOrder(createOrUpdateClue.getSubOrder());
         }
         if (createOrUpdateClue.getContent() != null) {
             existingClue.setContent(createOrUpdateClue.getContent());

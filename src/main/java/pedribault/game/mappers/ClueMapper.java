@@ -25,6 +25,7 @@ public class ClueMapper {
         final ClueDto clueDTO = new ClueDto();
         clueDTO.setId(clue.getId());
         clueDTO.setOrder(clue.getOrder());
+        clueDTO.setSubOrder(clue.getSubOrder());
         clueDTO.setContent(clue.getContent());
         if (clue.getMission() != null) {
             clueDTO.setMission(missionMapper.missionToMissionSummary(clue.getMission()));
