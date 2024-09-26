@@ -35,9 +35,9 @@ public class Escape {
 
     @ManyToMany
     @JoinTable(
-            name = "Player_J_Mission",  // Define the join table name
-            joinColumns = @JoinColumn(name = "player_id"),  // Foreign key for Player
-            inverseJoinColumns = @JoinColumn(name = "escape_id")  // Foreign key for Escape
+            name = "Escape_J_Player",
+            joinColumns = @JoinColumn(name = "escape_id"),
+            inverseJoinColumns = @JoinColumn(name = "player_id")
     )
     private List<Player> players = new ArrayList<>();
 

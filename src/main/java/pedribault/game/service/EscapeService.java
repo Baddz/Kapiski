@@ -57,23 +57,56 @@ public class EscapeService {
 
     public EscapeDto createEscape(CreateOrUpdateEscape createOrUpdateEscape) {
 
+        if (createOrUpdateEscape == null || createOrUpdateEscape.getTitle() == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
+        }
+        final Escape escape = new Escape();
 
-//        if (createOrUpdateEscape == null || createOrUpdateEscape.getTitle() == null) {
-//            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
-//        }
-//
-//        final Escape escape = new Escape();
-//        final Escape newEscape = escapeMapper.escapeDtoToEscape(createOrUpdateEscape);
-//        escape.setPlayers(newEscape.getPlayers());
-//        escape.setTitle(newEscape.getTitle());
-//        escape.setDifficulty(newEscape.getDifficulty());
-//        escape.setStandardMissions(newEscape.getStandardMissions());
-//        escape.setUniverse(newEscape.getUniverse());
-//        escape.setSuccessRate(newEscape.getSuccessRate());
-//        escapeRepository.save(escape);
-//
-//        createOrUpdateEscape = escapeMapper.escapeToEscapeDto(escape);
-        return createOrUpdateEscape;
+        escape.setTitle(createOrUpdateEscape.getTitle());
+        escape.setSuccessRate(createOrUpdateEscape.getSuccessRate());
+        escape.setDifficulty(createOrUpdateEscape.getDifficulty());
+
+        final List<Integer> playerIds = createOrUpdateEscape.getPlayerIds();
+        List<Player> players = new ArrayList<>();
+        if (playerIds != null && !playerIds.isEmpty()) {
+            final Set<Integer> distinctPlayerIds = new HashSet<>(playerIds);
+            players = playerRepository.findAllById(distinctPlayerIds);
+            if(players.size() != distinctPlayerIds.size()) {
+                final List<Integer> foundIds = players.stream().map(Player::getId).toList();
+                final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
+                throw new TheGameException(HttpStatus.NOT_FOUND,"Players not found", "The following ids were not found: " + missingIds + " in the PLayers database");
+            }
+        }
+        escape.setPlayers(players);
+
+        final Integer universeId = createOrUpdateEscape.getUniverseId();
+        if (universeId != null) {
+            final Universe universe = universeRepository.findById(universeId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The id " + universeId + " doesn't exist in the Universe database"));
+            escape.setUniverse(universe);
+        }
+
+        final List<Integer> missionIds = createOrUpdateEscape.getMissionIds();
+        List<StandardMission> standardMissions = new ArrayList<>();
+        if (missionIds != null && !missionIds.isEmpty()) {
+            final Set<Integer> distinctMissionIds = new HashSet<>(missionIds);
+            final List<Mission> missions = missionRepository.findAllById(distinctMissionIds);
+            if (missions.size() != distinctMissionIds.size()) {
+                final List<Integer> foundIds = missions.stream().map(Mission::getId).toList();
+                final List<Integer> missingIds = distinctMissionIds.stream().filter(id -> !foundIds.contains(id)).toList();
+                throw new TheGameException(HttpStatus.NOT_FOUND,"Missions not found", "The following ids were not found: " + missingIds + " in the Missions database");
+            }
+            missions.forEach(m -> {
+                if (!m.getClass().equals(StandardMission.class)) {
+                    throw new TheGameException(HttpStatus.NOT_ACCEPTABLE, "Mission is not standard", "Mission with id " + m.getId() + " is not a standard mission");
+                }
+            });
+            standardMissions = missions.stream().map(m -> (StandardMission) m).toList();
+        }
+        escape.setStandardMissions(standardMissions);
+
+        escapeRepository.save(escape);
+
+        return escapeMapper.escapeToEscapeDto(escape);
     }
 
     public EscapeDto updateEscape(EscapeDto escapeDto) {
