@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateEscape;
 import pedribault.game.model.dto.EscapeDto;
-import pedribault.game.model.dto.summary.PlayerSummary;
-import pedribault.game.model.dto.summary.UniverseSummary;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.EscapeMapper;
 import pedribault.game.model.*;
@@ -109,41 +107,41 @@ public class EscapeService {
         return escapeMapper.escapeToEscapeDto(escape);
     }
 
-    public EscapeDto updateEscape(EscapeDto escapeDto) {
-        if (escapeDto == null || escapeDto.getId() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id not provided", "The id must be provided in the body");
+    public EscapeDto updateEscape(CreateOrUpdateEscape createOrUpdateEscape, Integer id) {
+        if (createOrUpdateEscape == null || id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id or body not provided", "The id and the body must be provided");
         }
 
-        log.info("RETREIVING ESCAPE ID = " + escapeDto.getId());
-        Escape existingEscape = escapeRepository.findById(escapeDto.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "The id " + escapeDto.getId() + "doesn't exist in the Escapes database"));
+        log.info("RETREIVING ESCAPE ID = " + id);
+        Escape existingEscape = escapeRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "The id " + id + "doesn't exist in the Escapes database"));
         log.info("ESCAPE RETREIVED");
 
         final AtomicBoolean updated = new AtomicBoolean(false);
 
-        if (escapeDto.getTitle() != null && escapeDto.getTitle() != existingEscape.getTitle()) {
-            existingEscape.setTitle(escapeDto.getTitle());
+        if (createOrUpdateEscape.getTitle() != null && !createOrUpdateEscape.getTitle().equals(existingEscape.getTitle())) {
+            existingEscape.setTitle(createOrUpdateEscape.getTitle());
             updated.set(true);
         }
 
-        updateEscapePlayers(escapeDto, existingEscape, updated);
+        updateEscapePlayers(createOrUpdateEscape, existingEscape, updated);
 
-        updateMissions(escapeDto, existingEscape, updated);
+        updateMissions(createOrUpdateEscape, existingEscape, updated);
 
-        Integer updatedDifficulty = escapeDto.getDifficulty();
+        Integer updatedDifficulty = createOrUpdateEscape.getDifficulty();
         if (updatedDifficulty != null && !Objects.equals(existingEscape.getDifficulty(), updatedDifficulty)) {
             existingEscape.setDifficulty(updatedDifficulty);
             updated.set(true);
         }
 
-        Double updatedSuccessRate = escapeDto.getSuccessRate();
+        Double updatedSuccessRate = createOrUpdateEscape.getSuccessRate();
         if (updatedSuccessRate != null && !Objects.equals(existingEscape.getSuccessRate(), updatedSuccessRate)) {
             existingEscape.setSuccessRate(updatedSuccessRate);
             updated.set(true);
         }
 
-        UniverseSummary universe = escapeDto.getUniverse();
-        if (universe != null && existingEscape.getUniverse() != null && !Objects.equals(existingEscape.getUniverse().getId(), escapeDto.getUniverse().getId())) {
-            final Universe newUniverse = universeRepository.findById(universe.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Invalid Universe id", "In the body, please set the Universe's id to null, remove the Universe, or give a valid Universe id"));
+        Integer universeId = createOrUpdateEscape.getUniverseId();
+        if (universeId != null || (existingEscape.getUniverse() != null && !Objects.equals(existingEscape.getUniverse().getId(), createOrUpdateEscape.getUniverseId()))) {
+            final Universe newUniverse = universeRepository.findById(universeId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Invalid Universe id", "In the body, please set the Universe's id to null, remove the Universe, or give a valid Universe id"));
             existingEscape.setUniverse(newUniverse);
             updated.set(true);
         }
@@ -155,25 +153,39 @@ public class EscapeService {
         return escapeMapper.escapeToEscapeDto(existingEscape);
     }
 
-    private void updateMissions(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
-        if (escapeDto.getMissions() != null) {
-            final List<Integer> missionIds = escapeDto.getMissions().stream().map(m -> m.getId()).toList();
+    private void updateMissions(final CreateOrUpdateEscape createOrUpdateEscape, final Escape existingEscape, final AtomicBoolean updated) {
+        if (createOrUpdateEscape.getMissionIds() != null) {
+            final List<Integer> missionIds = createOrUpdateEscape.getMissionIds();
 
             Set<Integer> existingMissionIds = existingEscape.getStandardMissions()
                     .stream()
                     .map(StandardMission::getId)
                     .collect(Collectors.toSet());
-            List<Mission> standardMissions = missionRepository.findAllById(missionIds);
-            if (standardMissions.size() != existingMissionIds.size()) {
-                List<Integer> foundMissionIds = standardMissions.stream().map(Mission::getId).toList();
-                List<Integer> missingMissionIds = missionIds.stream()
-                        .filter(id -> !foundMissionIds.contains(id))
-                        .toList();
+            List<Mission> foundMissions = missionRepository.findAllById(missionIds);
+            List<Integer> foundMissionIds = foundMissions.stream().map(Mission::getId).toList();
+            List<Integer> missingMissionIds = missionIds.stream()
+                    .filter(id -> (!foundMissionIds.contains(id)))
+                    .toList();
+
+            if (missingMissionIds != null && !missingMissionIds.isEmpty()) {
                 throw new TheGameException(HttpStatus.NOT_FOUND,
-                        "Some missions don't exist in the Missions database",
-                        "The following mission ids were not found: " + missingMissionIds);
+                        "Some standard missions don't exist in the Missions database",
+                        "The following standard mission ids were not found: " + missingMissionIds);
             }
-            standardMissions.forEach(mission -> {
+
+            final List<Integer> nonStandardMissions = new ArrayList<>();
+            foundMissions.forEach(m -> {
+                if (!m.getClass().equals(StandardMission.class)) {
+                    nonStandardMissions.add(m.getId());
+                }
+            });
+            if (!nonStandardMissions.isEmpty()) {
+                throw new TheGameException(HttpStatus.NOT_FOUND,
+                        "Some missions provided are not standard missions",
+                        "The following missions are not standard and can not be added to an escape : " + nonStandardMissions);
+            }
+
+            foundMissions.forEach(mission -> {
                 if (!existingMissionIds.contains(mission.getId())) {
                     existingEscape.addMission((StandardMission) mission);
                     updated.set(true);
@@ -187,15 +199,15 @@ public class EscapeService {
         }
     }
 
-    private void updateEscapePlayers(final EscapeDto escapeDto, final Escape existingEscape, final AtomicBoolean updated) {
-        final List<PlayerSummary> players = escapeDto.getPlayers();
-        if (players != null) {
+    private void updateEscapePlayers(final CreateOrUpdateEscape createOrUpdateEscape, final Escape existingEscape, final AtomicBoolean updated) {
+        final List<Integer> playerIds = createOrUpdateEscape.getPlayerIds();
+        if (playerIds != null) {
             Set<Integer> existingPlayerIds = existingEscape.getPlayers()
                     .stream()
-                    .map(ep -> ep.getId())
+                    .map(Player::getId)
                     .collect(Collectors.toSet());
 
-//            players.forEach(epdto -> {
+//            playerIds.forEach(epdto -> {
 //                if (existingPlayerIds.contains(epdto.getPlayerSummary().getId())) {
 //                    // The player is already linked to the escape; we skip
 //                    return;
@@ -208,7 +220,7 @@ public class EscapeService {
 //                } else {
 //                    // The EscapePlayer doesn't exist, we create then add it
 //                    final Player player = playerRepository.findById(epdto.getPlayerSummary().getId()).orElseThrow(() ->
-//                            new TheGameException(HttpStatus.NOT_FOUND, "One of the players submitted doesn't exist in the Players database", "The player with id " + epdto.getPlayerSummary().getId() + " doesn't exist."));
+//                            new TheGameException(HttpStatus.NOT_FOUND, "One of the playerIds submitted doesn't exist in the Players database", "The player with id " + epdto.getPlayerSummary().getId() + " doesn't exist."));
 //                    final EscapePlayer escapePlayer = new EscapePlayer(player, existingEscape, epdto.getStatus());
 //                    existingEscape.addEscapePlayer(escapePlayer);
 //                    updated.set(true);

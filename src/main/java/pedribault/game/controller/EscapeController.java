@@ -68,10 +68,10 @@ public class EscapeController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<EscapeDto> updateEscape(@RequestBody EscapeDto escapeDto) {
+    public ResponseEntity<EscapeDto> updateEscape(@RequestBody CreateOrUpdateEscape createOrUpdateEscape, @PathVariable Integer id) {
         log.info("[IN]=[UPDATING ESCAPE");
         try {
-            EscapeDto escape = escapeService.updateEscape(escapeDto);
+            EscapeDto escape = escapeService.updateEscape(createOrUpdateEscape, id);
             log.info("[OUT]=[[STATUS]=[OK]]");
             return new ResponseEntity<>(escape, HttpStatus.OK);
         } catch (TheGameException e) {
