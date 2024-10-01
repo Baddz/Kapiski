@@ -46,11 +46,17 @@ public class Escape {
         this.players = new ArrayList<>();
     }
 
-    public void addEscapePlayer(Player player) {
+    public void addPlayer(Player player) {
         if (this.getPlayers() == null) {
             this.setPlayers(new ArrayList<>());
         }
         this.getPlayers().add(player);
+    }
+
+    public void removePlayer(Player player) {
+        if (this.getPlayers().contains(player)) {
+            this.getPlayers().remove(player);
+        }
     }
 
     public void addMission(StandardMission standardMission) {
