@@ -3,6 +3,7 @@ package pedribault.game.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Mission;
 import pedribault.game.model.StandardMission;
@@ -18,24 +19,30 @@ import java.util.List;
 @RequestMapping("/theGame/mission")
 public class MissionController {
 
-    private MissionService missionService;
+    private final GlobalExceptionHandler globalExceptionHandler;
+    private final MissionService missionService;
     @Autowired
-    public MissionController(MissionService missionService) {
+    public MissionController(final GlobalExceptionHandler globalExceptionHandler, MissionService missionService) {
+        this.globalExceptionHandler = globalExceptionHandler;
         this.missionService = missionService;
     }
 
     @GetMapping("/missions")
-    public List<Mission> getMissions() {
+    public ResponseEntity<?> getMissions() {
 
-        log.info("[IN]=[GETTING MISSIONS]");
-        List<Mission> standardMissions = new ArrayList<>();
+        try {
+            log.info("[IN]=[GETTING MISSIONS]");
+            List<Mission> missions = new ArrayList<>();
 
-        standardMissions = missionService.getMissions();
-        final StringBuilder reqOut = new StringBuilder();
-        reqOut.append("[OUT]=[[STATUS]=[OK]]");
-        log.info(reqOut.toString());
+            missions = missionService.getMissions();
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
 
-        return standardMissions;
+            return new ResponseEntity<>(missions, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
     }
 
     @GetMapping("/{id}")

@@ -10,8 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class StandardMissionDto {
+public class StandardMissionDto extends MissionDto {
     private Double successRate;
     private EscapeSummary escape;
-    private Map<MissionConditionEnum, MissionOptionSummary> options;
 }

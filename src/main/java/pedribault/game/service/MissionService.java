@@ -2,9 +2,11 @@ package pedribault.game.service;
 
 import org.springframework.http.HttpStatus;
 import pedribault.game.exceptions.TheGameException;
+import pedribault.game.mappers.MissionMapper;
 import pedribault.game.model.Escape;
 import pedribault.game.model.Mission;
 import pedribault.game.model.StandardMission;
+import pedribault.game.model.dto.MissionDto;
 import pedribault.game.repository.EscapeRepository;
 import pedribault.game.repository.MissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,16 @@ public class MissionService {
     @Autowired
     private MissionRepository missionRepository;
     @Autowired
+    private MissionMapper missionMapper;
+    @Autowired
     private EscapeRepository escapeRepository;
 
     public List<Mission> getMissions() {
-        return missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
+        final List<Mission> missions = missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
+        final List<MissionDto> missionDtos = new ArrayList<>();
+        for (final Mission mission : missions) {
+            missionDtos.add(missionMapper.);
+        }
     }
 
     public Mission getMissionById(final Integer id) {

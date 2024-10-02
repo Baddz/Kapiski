@@ -28,11 +28,7 @@ public class EscapeMapper {
     @Autowired
     private PlayerRepository playerRepository;
     @Autowired
-    private UniverseMapper universeMapper;
-    @Autowired
-    private MissionMapper missionMapper;
-    @Autowired
-    private PlayerMapper playerMapper;
+    private ToSummaryMapper toSummaryMapper;
 
 
     public EscapeDto escapeToEscapeDto(Escape escape) {
@@ -42,20 +38,20 @@ public class EscapeMapper {
         escapeDto.setDifficulty(escape.getDifficulty());
         escapeDto.setSuccessRate(escape.getSuccessRate());
         if (escape.getUniverse() != null) {
-            escapeDto.setUniverse(universeMapper.universeToUniverseSummary(escape.getUniverse()));
+            escapeDto.setUniverse(toSummaryMapper.universeToUniverseSummary(escape.getUniverse()));
         }
         if (escape.getStandardMissions() != null) {
             if (escape.getStandardMissions().isEmpty()) {
                 escapeDto.setMissions(new ArrayList<>());
             } else {
-                escape.getStandardMissions().forEach(sm -> escapeDto.addMission((StandardMissionSummary) missionMapper.missionToMissionSummary(sm)));
+                escape.getStandardMissions().forEach(sm -> escapeDto.addMission((StandardMissionSummary) toSummaryMapper.missionToMissionSummary(sm)));
             }
         }
         if (escape.getPlayers() != null) {
             if (escape.getPlayers().isEmpty()) {
                 escapeDto.setPlayers(new ArrayList<>());
             } else {
-                final List<PlayerSummary> playerSummaries = escape.getPlayers().stream().map(p -> playerMapper.playerToPlayerSummary(p)).toList();
+                final List<PlayerSummary> playerSummaries = escape.getPlayers().stream().map(p -> toSummaryMapper.playerToPlayerSummary(p)).toList();
                 escapeDto.setPlayers(playerSummaries);
             }
         }

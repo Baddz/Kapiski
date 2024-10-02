@@ -1,11 +1,8 @@
 package pedribault.game.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.enums.MissionTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +21,7 @@ public class CustomMission extends Mission {
 
     @ManyToOne
     @JoinColumn(name = "escape_id")
-    private Escape escape;
+    private List<Escape> escapes;
 
     @ManyToMany(mappedBy = "customMissions")
     private List<Player> players = new ArrayList<>();

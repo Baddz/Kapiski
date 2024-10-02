@@ -8,7 +8,6 @@ import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Player;
 import pedribault.game.model.Sidekick;
 import pedribault.game.model.dto.summary.PlayerSummary;
-import pedribault.game.model.dto.summary.SidekickSummary;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.ArrayList;
@@ -18,10 +17,12 @@ import java.util.List;
 public class SidekickMapper {
 
     private PlayerRepository playerRepository;
+    private ToSummaryMapper toSummaryMapper;
 
     @Autowired
-    public SidekickMapper(PlayerRepository playerRepository) {
+    public SidekickMapper(PlayerRepository playerRepository, final ToSummaryMapper toSummaryMapper) {
         this.playerRepository = playerRepository;
+        this.toSummaryMapper = toSummaryMapper;
     }
 
     public SidekickDto sidekickToSidekickDto(Sidekick sidekick) {
@@ -31,18 +32,7 @@ public class SidekickMapper {
         sidekickDTO.setMail(sidekick.getMail());
         sidekickDTO.setAddress(sidekick.getAddress());
         if (sidekick.getPlayers() != null) {
-            final List<PlayerSummary> playerSummaries = sidekick.getPlayers().stream().map(p -> {
-                final PlayerSummary playerSummary = new PlayerSummary();
-                playerSummary.setId(p.getId());
-                playerSummary.setMail(p.getMail());
-                playerSummary.setName(p.getName());
-                playerSummary.setAddress(p.getAddress());
-                playerSummary.setComment(p.getComment());
-                playerSummary.setFirstName(p.getFirstName());
-                playerSummary.setPhone(p.getPhone());
-                return playerSummary;
-            }).toList();
-
+            final List<PlayerSummary> playerSummaries = sidekick.getPlayers().stream().map(p -> toSummaryMapper.playerToPlayerSummary(p)).toList();
             sidekickDTO.setPlayers(playerSummaries);
         }
         sidekickDTO.setFirstName(sidekick.getFirstName());
@@ -75,18 +65,5 @@ public class SidekickMapper {
         sidekick.setFirstName(sidekick.getFirstName());
 
         return sidekick;
-    }
-
-    public SidekickSummary sidekickToSidekickSummary(Sidekick sidekick) {
-        final SidekickSummary sidekickSummary = new SidekickSummary();
-        sidekickSummary.setAddress(sidekick.getAddress());
-        sidekickSummary.setName(sidekick.getName());
-        sidekickSummary.setMail(sidekick.getMail());
-        sidekickSummary.setId(sidekick.getId());
-        sidekickSummary.setComment(sidekick.getComment());
-        sidekickSummary.setPhone(sidekick.getPhone());
-        sidekickSummary.setFirstName(sidekick.getFirstName());
-
-        return sidekickSummary;
     }
 }

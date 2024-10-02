@@ -17,9 +17,7 @@ public class ClueMapper {
     @Autowired
     private MissionRepository missionRepository;
     @Autowired
-    private MissionOptionMapper missionOptionMapper;
-    @Autowired
-    private MissionMapper missionMapper;
+    private ToSummaryMapper toSummaryMapper;
 
     public ClueDto clueToClueDto(Clue clue) {
         final ClueDto clueDTO = new ClueDto();
@@ -28,10 +26,10 @@ public class ClueMapper {
         clueDTO.setSubOrder(clue.getSubOrder());
         clueDTO.setContent(clue.getContent());
         if (clue.getMission() != null) {
-            clueDTO.setMission(missionMapper.missionToMissionSummary(clue.getMission()));
+            clueDTO.setMission(toSummaryMapper.missionToMissionSummary(clue.getMission()));
         }
         if (clue.getMissionOption() != null) {
-            clueDTO.setMissionOption(missionOptionMapper.missionOptionToMissionOptionSummary(clue.getMissionOption()));
+            clueDTO.setMissionOption(toSummaryMapper.missionOptionToMissionOptionSummary(clue.getMissionOption()));
         }
         return clueDTO;
     }
@@ -47,18 +45,6 @@ public class ClueMapper {
             clue.setMission(mission);
         }
         return clue;
-    }
-
-    public ClueSummary clueToClueSummary(Clue clue) {
-        final ClueSummary clueSummary = new ClueSummary();
-        clueSummary.setId(clue.getId());
-        clueSummary.setContent(clue.getContent());
-        clueSummary.setOrder(clue.getOrder());
-        return clueSummary;
-    }
-
-    public List<ClueSummary> cluesToClueSummaries(List<Clue> clues) {
-        return clues.stream().map(c -> clueToClueSummary(c)).toList();
     }
 
 }
