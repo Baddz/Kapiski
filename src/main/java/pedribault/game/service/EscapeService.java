@@ -234,7 +234,7 @@ public class EscapeService {
                 StandardMission m = iterator.next();
                 if (!foundMissions.contains(m)) {
                     iterator.remove();
-                    m.setEscape(null);
+                    log.info("WARNING: Mission with id " + m.getId() + " was deleted");
                     updated.set(true);
                 }
             }
