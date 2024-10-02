@@ -29,7 +29,5 @@ public class StandardMission extends Mission {
     @JoinColumn(name = "escape_id")
     private Escape escape;
 
-    // maps : if hasFriendsInvolved with missionOption related, if location = Lyon with missionOption related
-
 
 }

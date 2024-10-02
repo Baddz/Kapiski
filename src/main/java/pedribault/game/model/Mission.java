@@ -32,7 +32,7 @@ public abstract class Mission {
     private Boolean isVisible;
     @Column(name = "optional")
     private Boolean isOptional;
-    @Column(name = "order")
+    @Column(name = "`order`")
     private Integer order;
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;

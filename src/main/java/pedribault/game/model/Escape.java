@@ -64,11 +64,13 @@ public class Escape {
             this.setStandardMissions(new ArrayList<>());
         }
         this.getStandardMissions().add(standardMission);
+        standardMission.setEscape(this);
     }
 
     public void removeMission(StandardMission standardMission) {
         if (this.getStandardMissions().contains(standardMission)) {
             this.getStandardMissions().remove(standardMission);
+            standardMission.setEscape(null);
         }
     }
 }

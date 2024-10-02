@@ -46,7 +46,9 @@ public class EscapeService {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
         } else {
             Escape escape = escapeRepository.findById(id)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Escapes table", "The id " + id + " does not exist."));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                            "This id was not found in the Escapes table",
+                            "The id " + id + " does not exist."));
             escapeDto = escapeMapper.escapeToEscapeDto(escape);
         }
 
@@ -72,35 +74,49 @@ public class EscapeService {
             if(players.size() != distinctPlayerIds.size()) {
                 final List<Integer> foundIds = players.stream().map(Player::getId).toList();
                 final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
-                throw new TheGameException(HttpStatus.NOT_FOUND,"Players not found", "The following ids were not found: " + missingIds + " in the PLayers database");
+                throw new TheGameException(HttpStatus.NOT_FOUND,
+                        "Players not found",
+                        "The following ids were not found: " + missingIds + " in the PLayers database");
             }
         }
         escape.setPlayers(players);
 
         final Integer universeId = createOrUpdateEscape.getUniverseId();
         if (universeId != null) {
-            final Universe universe = universeRepository.findById(universeId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The id " + universeId + " doesn't exist in the Universe database"));
+            final Universe universe = universeRepository.findById(universeId).orElseThrow(() ->
+                    new TheGameException(HttpStatus.NOT_FOUND,
+                            "Universe not found",
+                            "The id " + universeId + " doesn't exist in the Universe database"));
             escape.setUniverse(universe);
         }
 
         final List<Integer> missionIds = createOrUpdateEscape.getMissionIds();
-        List<StandardMission> standardMissions = new ArrayList<>();
         if (missionIds != null && !missionIds.isEmpty()) {
             final Set<Integer> distinctMissionIds = new HashSet<>(missionIds);
             final List<Mission> missions = missionRepository.findAllById(distinctMissionIds);
             if (missions.size() != distinctMissionIds.size()) {
                 final List<Integer> foundIds = missions.stream().map(Mission::getId).toList();
                 final List<Integer> missingIds = distinctMissionIds.stream().filter(id -> !foundIds.contains(id)).toList();
-                throw new TheGameException(HttpStatus.NOT_FOUND,"Missions not found", "The following ids were not found: " + missingIds + " in the Missions database");
+                throw new TheGameException(HttpStatus.NOT_FOUND,
+                        "Missions not found",
+                        "The following ids were not found: " + missingIds + " in the Missions database");
             }
             missions.forEach(m -> {
                 if (!m.getClass().equals(StandardMission.class)) {
-                    throw new TheGameException(HttpStatus.NOT_ACCEPTABLE, "Mission is not standard", "Mission with id " + m.getId() + " is not a standard mission");
+                    throw new TheGameException(HttpStatus.NOT_ACCEPTABLE,
+                            "Mission is not standard",
+                            "Mission with id " + m.getId() + " is not a standard mission");
+                } else {
+                    if (((StandardMission) m).getEscape() != null) {
+                        throw new TheGameException(HttpStatus.BAD_REQUEST,
+                                "A Mission already belongs to an existing Escape",
+                                "Mission with id: " + m.getId()
+                                        + " is already linked with Escape with id: " + ((StandardMission) m).getEscape().getId());
+                    }
+                    escape.addMission((StandardMission) m);
                 }
             });
-            standardMissions = missions.stream().map(m -> (StandardMission) m).toList();
         }
-        escape.setStandardMissions(standardMissions);
 
         escapeRepository.save(escape);
 
@@ -109,11 +125,16 @@ public class EscapeService {
 
     public EscapeDto updateEscape(CreateOrUpdateEscape createOrUpdateEscape, Integer id) {
         if (createOrUpdateEscape == null || id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id or body not provided", "The id and the body must be provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                    "Id or body not provided",
+                    "The id and the body must be provided");
         }
 
         log.info("RETREIVING ESCAPE ID = " + id);
-        Escape existingEscape = escapeRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "The id " + id + "doesn't exist in the Escapes database"));
+        Escape existingEscape = escapeRepository.findById(id).orElseThrow(() ->
+                new TheGameException(HttpStatus.NOT_FOUND,
+                        "Escape not found",
+                        "The id " + id + "doesn't exist in the Escapes database"));
         log.info("ESCAPE RETREIVED");
 
         final AtomicBoolean updated = new AtomicBoolean(false);
@@ -141,8 +162,12 @@ public class EscapeService {
 
         Integer universeId = createOrUpdateEscape.getUniverseId();
         if (universeId != null) {
-            if (existingEscape.getUniverse() == null || !Objects.equals(existingEscape.getUniverse().getId(), createOrUpdateEscape.getUniverseId())) {
-                final Universe newUniverse = universeRepository.findById(universeId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The universe id " + universeId + " doesn't exist in the Universes database"));
+            if (existingEscape.getUniverse() == null
+                    || !Objects.equals(existingEscape.getUniverse().getId(), createOrUpdateEscape.getUniverseId())) {
+                final Universe newUniverse = universeRepository.findById(universeId).orElseThrow(
+                        () -> new TheGameException(HttpStatus.NOT_FOUND,
+                                "Universe not found",
+                                "The universe id " + universeId + " doesn't exist in the Universes database"));
                 existingEscape.setUniverse(newUniverse);
                 updated.set(true);
             }
@@ -186,19 +211,33 @@ public class EscapeService {
                         "Some missions provided are not standard missions",
                         "The following missions are not standard and can not be added to an escape : " + nonStandardMissions);
             }
-
+            final Map<Integer, Integer> forbiddenMissionIds = new HashMap<>();
             foundMissions.forEach(mission -> {
                 if (!existingMissionIds.contains(mission.getId())) {
-                    existingEscape.addMission((StandardMission) mission);
-                    updated.set(true);
+                    if (((StandardMission) mission).getEscape() != null
+                            && !Objects.equals(((StandardMission) mission).getEscape().getId(), existingEscape.getId())) {
+                        forbiddenMissionIds.put(mission.getId(), ((StandardMission) mission).getEscape().getId());
+                    } else {
+                        existingEscape.addMission((StandardMission) mission);
+                        updated.set(true);
+                    }
                 }
             });
-            existingEscape.getStandardMissions().forEach(m -> {
+            if (!forbiddenMissionIds.isEmpty()) {
+                throw new TheGameException(HttpStatus.BAD_REQUEST,
+                        "Missions already belong in an Escape",
+                        "Missions with id: " + forbiddenMissionIds.keySet().stream().toList()
+                                + " are linked with Escapes with id:" + forbiddenMissionIds.values().stream().toList()); // here how can i do to display list of escape ids ?
+            }
+            Iterator<StandardMission> iterator = existingEscape.getStandardMissions().iterator();
+            while (iterator.hasNext()) {
+                StandardMission m = iterator.next();
                 if (!foundMissions.contains(m)) {
-                    existingEscape.removeMission(m);
+                    iterator.remove();
+                    m.setEscape(null);
                     updated.set(true);
                 }
-            });
+            }
         }
     }
 
@@ -213,7 +252,8 @@ public class EscapeService {
             List<Integer> foundPlayerIds = foundPlayers.stream().map(Player::getId).toList();
             List<Integer> missingPlayerIds = playerIds.stream().filter(id -> !foundPlayerIds.contains(id)).toList();
             if (!missingPlayerIds.isEmpty()) {
-                throw new TheGameException(HttpStatus.NOT_FOUND, "Players not found", "The following standard mission ids were not found in the Players database: " + missingPlayerIds);
+                throw new TheGameException(HttpStatus.NOT_FOUND, "Players not found",
+                        "The following standard mission ids were not found in the Players database: " + missingPlayerIds);
             }
 
             foundPlayers.forEach(p -> {
