@@ -3,6 +3,8 @@ package pedribault.game.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.exceptions.ErrorResponse;
+import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateEscape;
 import pedribault.game.model.dto.EscapeDto;
 import pedribault.game.exceptions.TheGameException;
@@ -18,29 +20,37 @@ import java.util.List;
 @RequestMapping("/theGame/escape")
 public class EscapeController {
 
-    private EscapeService escapeService;
+    private final GlobalExceptionHandler globalExceptionHandler;
+    private final EscapeService escapeService;
+
     @Autowired
-    public EscapeController(EscapeService escapeService) {
+    public EscapeController(final GlobalExceptionHandler globalExceptionHandler, EscapeService escapeService) {
+        this.globalExceptionHandler = globalExceptionHandler;
         this.escapeService = escapeService;
     }
 
     @GetMapping("/escapes")
-    public List<EscapeDto> getEscapes() {
+    public ResponseEntity<?> getEscapes() {
 
-        log.info("[IN]=[GETTING ESCAPES]");
-        List<EscapeDto> escapes = new ArrayList<>();
+        try {
+            log.info("[IN]=[GETTING ESCAPES]");
+            List<EscapeDto> escapes = new ArrayList<>();
 
-        escapes = escapeService.getEscapes();
-        final StringBuilder reqOut = new StringBuilder();
-        reqOut.append("[OUT]=[[STATUS]=[OK]]");
-        log.info(reqOut.toString());
+            escapes = escapeService.getEscapes();
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
 
-        return escapes;
+            return new ResponseEntity<>(escapes, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
     }
 
     @GetMapping("/{id}")
-    public EscapeDto getEscapeById(@PathVariable Integer id) {
+    public ResponseEntity<?> getEscapeById(@PathVariable Integer id) {
 
+        try {
         log.info("[IN]=[GETTING UNIVERSE [ID]=[{}]]", id);
         EscapeDto escape = escapeService.getEscapeById(id);
 
@@ -48,35 +58,35 @@ public class EscapeController {
         reqOut.append("[OUT]=[[STATUS]=[OK]]");
         log.info(reqOut.toString());
 
-        return escape;
+        return new ResponseEntity<>(escape, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
     }
 
 
     @PostMapping("/create")
-    public ResponseEntity<EscapeDto> createEscape(@RequestBody CreateOrUpdateEscape escape) {
+    public ResponseEntity<?> createEscape(@RequestBody CreateOrUpdateEscape escape) {
 
         log.info("[IN]=[CREATING ESCAPE]");
         try {
             EscapeDto createdEscape = escapeService.createEscape(escape);
             log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[SUCCESS_RATE]=[{}],[DIFFICULTY]=[{}]]", escape.getTitle(), escape.getSuccessRate(), escape.getDifficulty());
             return new ResponseEntity<>(createdEscape, HttpStatus.CREATED);
-        } catch (TheGameException e) {
-            log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",
-                    e.getStatus(), e.getMessage(), e.getDetailedMessage());
-            return new ResponseEntity<>(null, e.getStatus());
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
         }
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<EscapeDto> updateEscape(@RequestBody CreateOrUpdateEscape createOrUpdateEscape, @PathVariable Integer id) {
+    public ResponseEntity<?> updateEscape(@RequestBody CreateOrUpdateEscape createOrUpdateEscape, @PathVariable Integer id) {
         log.info("[IN]=[UPDATING ESCAPE");
         try {
             EscapeDto escape = escapeService.updateEscape(createOrUpdateEscape, id);
             log.info("[OUT]=[[STATUS]=[OK]]");
             return new ResponseEntity<>(escape, HttpStatus.OK);
-        } catch (TheGameException e) {
-            log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]]", e.getStatus(), e.getMessage(), e.getDetailedMessage());
-            return new ResponseEntity<>(null, e.getStatus());
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
         }
     }
 }

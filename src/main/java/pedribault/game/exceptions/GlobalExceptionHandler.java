@@ -29,4 +29,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        if (e instanceof TheGameException) {
+            return handleTheGameException((TheGameException) e);
+        } else {
+            return handleGeneralException(e);
+        }
+    }
+
 }
