@@ -11,6 +11,6 @@ import java.util.List;
 @Setter
 public class CustomMissionDto extends MissionDto {
     private Integer subOrder;
-    private List<EscapeSummary> escapes;
+    private EscapeSummary escapes;
     private List<PlayerSummary> players;
 }

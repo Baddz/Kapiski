@@ -31,7 +31,7 @@ public class MissionMapper {
         } else if (mission instanceof final CustomMission customMission) {
             CustomMissionDto customMissionDto = new CustomMissionDto();
             customMissionDto.setSubOrder(customMission.getSubOrder());
-            customMissionDto.setEscapes(toSummaryMapper.escapesToEscapeSummaries(customMission.getEscapes()));
+            customMissionDto.setEscapes(toSummaryMapper.escapeToEscapeSummary(customMission.getEscapes()));
             customMissionDto.setPlayers(toSummaryMapper.playersToPlayerSummaries(customMission.getPlayers()));
             missionDto = customMissionDto;
         }

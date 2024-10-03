@@ -29,8 +29,9 @@ public class MissionService {
         final List<Mission> missions = missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
         final List<MissionDto> missionDtos = new ArrayList<>();
         for (final Mission mission : missions) {
-            missionDtos.add(missionMapper.);
+            //missionDtos.add(missionMapper.);
         }
+        return null;
     }
 
     public Mission getMissionById(final Integer id) {

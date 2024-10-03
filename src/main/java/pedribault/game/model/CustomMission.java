@@ -21,7 +21,7 @@ public class CustomMission extends Mission {
 
     @ManyToOne
     @JoinColumn(name = "escape_id")
-    private List<Escape> escapes;
+    private Escape escapes;
 
     @ManyToMany(mappedBy = "customMissions")
     private List<Player> players = new ArrayList<>();

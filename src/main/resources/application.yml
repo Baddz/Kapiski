@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/TheGame
-    username: root
-    password: azertyuiop
+    url: jdbc:mysql://109.234.166.199:3306/riba6140_Kapiski
+    username: riba6140_pierre
+    password: 0123456789Patate
   jpa:
     hibernate:
       ddl-auto: validate
