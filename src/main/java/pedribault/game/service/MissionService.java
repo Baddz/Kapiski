@@ -25,16 +25,16 @@ public class MissionService {
     @Autowired
     private EscapeRepository escapeRepository;
 
-    public List<Mission> getMissions() {
+    public List<MissionDto> getMissions() {
         final List<Mission> missions = missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
         final List<MissionDto> missionDtos = new ArrayList<>();
         for (final Mission mission : missions) {
-            //missionDtos.add(missionMapper.);
+            missionDtos.add(missionMapper.missionToMissionDto(mission));
         }
-        return null;
+        return missionDtos;
     }
 
-    public Mission getMissionById(final Integer id) {
+    public MissionDto getMissionById(final Integer id) {
         if (id == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
         }

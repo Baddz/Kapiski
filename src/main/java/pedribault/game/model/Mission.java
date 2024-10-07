@@ -37,10 +37,18 @@ public abstract class Mission {
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
 
-    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKeyColumn(name = "condition")
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<MissionConditionEnum, MissionOption> options = new HashMap<>();
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL)
+    private List<MissionOption> options;
+
+    public List<MissionOption> getApplicableOptions(PlayerContext playerContext) {
+        final List<MissionOption> missionOptions = new ArrayList<>();
+        for (MissionOption missionOption : options) {
+            if (missionOption.isApplicable(playerContext)) {
+                missionOptions.add(missionOption);
+            }
+        }
+        return missionOptions;
+    }
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {

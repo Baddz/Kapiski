@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.MissionConditionEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,41 @@ public class MissionOption {
     @OneToMany(mappedBy = "missionOption", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
 
+    @ElementCollection(targetClass = MissionConditionEnum.class)
+    @Enumerated(EnumType.STRING)
+    private List<MissionConditionEnum> conditions;
+
     @ManyToOne
     @JoinColumn(name = "mission_id")
     private Mission mission;
+
+    public boolean isApplicable(PlayerContext playerContext) {
+        for (MissionConditionEnum condition : conditions) {
+            switch (condition) {
+                case HAS_A_FRIEND_INVOLVED:
+                    if (playerContext.getSidekicks() < 0) {
+                        return false;
+                    }
+                    break;
+                case HAS_TWO_FRIENDS_INVOLVED:
+                    if (playerContext.getSidekicks() < 1) {
+                        return false;
+                    }
+                    break;
+                case HAS_MORE_FRIENDS_INVOLVED:
+                    if (playerContext.getSidekicks() < 2) {
+                        return false;
+                    }
+                    break;
+                case PREFERS_EMAIL:
+                    if (!playerContext.getPrefersEmail()) {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
 
     public void addClue(Clue clue) {
         if (this.getClues() == null) {

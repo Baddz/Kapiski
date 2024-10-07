@@ -1,5 +1,7 @@
 package pedribault.game.model.dto;
 
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import lombok.Getter;
 import lombok.Setter;
 import pedribault.game.enums.MissionConditionEnum;
@@ -13,6 +15,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public class MissionDto {
     private Integer id;
     private String title;
@@ -21,5 +24,5 @@ public class MissionDto {
     private Boolean isVisible;
     private Boolean isOptional;
     private List<ClueSummary> clues;
-    private Map<MissionConditionEnum, MissionOptionSummary> options;
+    private List<MissionOptionSummary> options;
 }

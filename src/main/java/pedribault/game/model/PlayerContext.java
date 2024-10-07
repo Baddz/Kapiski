@@ -6,19 +6,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "Mission_Customization_Rule")
+@Table(name = "Player_Context")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class MissionCustomizationRule {
+public class PlayerContext {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "description")
-    private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "mission_id", nullable = true)
-    private Mission mission;
+    @Column(name = "sidekicks")
+    private Integer sidekicks;
+    @Column(name = "prefers_email")
+    private Boolean prefersEmail;
+
+    @OneToOne
+    @JoinColumn(name = "player_id", nullable = false)
+    private Player player;
 }

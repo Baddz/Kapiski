@@ -36,6 +36,9 @@ public class Player {
     @Column(name = "comment")
     private String comment;
 
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PlayerContext playerContext;
+
     @Column(name = "preferences", columnDefinition = "TEXT")
     @Convert(converter = MissionConditionEnumConverter.class)
     private List<MissionConditionEnum> preferences = new ArrayList<>();

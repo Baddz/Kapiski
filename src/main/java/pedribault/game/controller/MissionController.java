@@ -7,6 +7,7 @@ import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Mission;
 import pedribault.game.model.StandardMission;
+import pedribault.game.model.dto.MissionDto;
 import pedribault.game.service.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class MissionController {
 
         try {
             log.info("[IN]=[GETTING MISSIONS]");
-            List<Mission> missions = new ArrayList<>();
+            List<MissionDto> missions = new ArrayList<>();
 
             missions = missionService.getMissions();
             final StringBuilder reqOut = new StringBuilder();
@@ -46,36 +47,38 @@ public class MissionController {
     }
 
     @GetMapping("/{id}")
-    public Mission getMissionById(@PathVariable Integer id) {
+    public ResponseEntity<?> getMissionById(@PathVariable Integer id) {
 
-        log.info("[IN]=[GETTING MISSION [ID]=[{}]]", id);
-        Mission standardMission = missionService.getMissionById(id);
+        try {
+            log.info("[IN]=[GETTING MISSION [ID]=[{}]]", id);
+            MissionDto mission = missionService.getMissionById(id);
 
-        final StringBuilder reqOut = new StringBuilder();
-        reqOut.append("[OUT]=[[STATUS]=[OK]]");
-        log.info(reqOut.toString());
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
 
-        return standardMission;
+            return new ResponseEntity<>(mission, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Mission> createMission(@RequestBody StandardMission standardMission) {
+    public ResponseEntity<?> createMission(@RequestBody Mission mission) {
 
         log.info("[IN]=[CREATING MISSION]");
         try {
-            Mission createdStandardMission = missionService.createMission(standardMission);
-            log.info("[OUT]=[[STATUS]=[CREATED],[TITLE]=[{}],[VISIBLE]=[{}],[ESCAPE_ID]=[{}],[ORDER]=[{}],[SUCCESS_RATE]=[{}],[OPTIONAL]=[{}]]",
-                    standardMission.getTitle(), standardMission.getIsVisible(), standardMission.getEscape().getId(), standardMission.getOrder(), standardMission.getSuccessRate(), standardMission.getIsOptional());
-            return new ResponseEntity<>(createdStandardMission, HttpStatus.CREATED);
+            MissionDto createdMission = missionService.createMission(mission);
+            log.info("[OUT]=[[STATUS]=[CREATED],[TYPE]=[{}],[TITLE]=[{}],[DESCRIPTION]=[{}],[ORDER]=[{}],[VISIBLE]=[{}],[OPTIONAL]=[{}],[ESCAPE_ID]=[{}],[SUCCESS_RATE]=[{}],[OPTIONAL]=[{}]]",
+                    mission.getTitle(), mission.getDescription(), mission.getIsVisible(), mission.getEscape().getId(), mission.getOrder(), mission.getSuccessRate(), mission.getIsOptional());
+            return new ResponseEntity<>(createdMission, HttpStatus.CREATED);
         } catch (TheGameException e) {
-            log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]",
-                    e.getStatus(), e.getMessage(), e.getDetailedMessage());
-            return new ResponseEntity<>(null, e.getStatus());
+            return globalExceptionHandler.handleException(e);
         }
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<Mission> updateMission(@PathVariable Integer id, @RequestBody StandardMission updatedStandardMission) {
+    public ResponseEntity<?> updateMission(@PathVariable Integer id, @RequestBody StandardMission updatedStandardMission) {
         log.info("[IN]=[UPDATING MISSION [ID]=[{}]]", id);
         try {
             Mission standardMission = missionService.updateMission(id, updatedStandardMission);

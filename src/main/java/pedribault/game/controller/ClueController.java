@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping("/theGame/clue")
 public class ClueController {
 
+    @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
 
     private final ClueService clueService;
