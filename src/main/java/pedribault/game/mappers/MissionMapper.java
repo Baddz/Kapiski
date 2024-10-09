@@ -12,7 +12,9 @@ import pedribault.game.model.dto.MissionDto;
 import pedribault.game.model.dto.StandardMissionDto;
 import pedribault.game.model.dto.summary.MissionOptionSummary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -43,12 +45,11 @@ public class MissionMapper {
         missionDto.setIsOptional(mission.getIsOptional());
         missionDto.setClues(toSummaryMapper.cluesToClueSummaries(mission.getClues()));
         if (mission.getOptions() != null) {
-            final Map<MissionConditionEnum, MissionOptionSummary> mapSummary = new HashMap<>();
-            for (MissionConditionEnum missionConditionEnum : mission.getOptions().keySet()) {
-                mapSummary.put(missionConditionEnum,
-                        toSummaryMapper.missionOptionToMissionOptionSummary(mission.getOptions().get(missionConditionEnum)));
+            final List<MissionOptionSummary> missionOptionSummaries = new ArrayList<>();
+            for (MissionOption missionOption: mission.getOptions()) {
+                missionOptionSummaries.add(toSummaryMapper.missionOptionToMissionOptionSummary(missionOption));
             }
-            missionDto.setOptions(mapSummary);
+            missionDto.setOptions(missionOptionSummaries);
         }
 
         return missionDto;

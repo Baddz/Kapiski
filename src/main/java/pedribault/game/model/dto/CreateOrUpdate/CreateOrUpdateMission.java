@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CreateOrUpdateMission {
-    private MissionTypeEnum missionType;
+    private String missionType;
     private String title;
     private String description;
     private Boolean isVisible;
@@ -18,4 +18,11 @@ public class CreateOrUpdateMission {
     private Integer order;
     private List<Integer> clueIds;
     private List<MissionOptionSummary> missionOptions;
+    // if type == "CUSTOM"
+    private Integer subOrder;
+    private List<Integer> escapeIds;
+    private List<Integer> playerIds;
+    // if type == "STANDARD"
+    private Double successRate;
+    private Integer escapeId;
 }

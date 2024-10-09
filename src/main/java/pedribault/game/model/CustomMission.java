@@ -19,10 +19,6 @@ public class CustomMission extends Mission {
     @Column(name = "sub_order")
     private Integer subOrder;
 
-    @ManyToOne
-    @JoinColumn(name = "escape_id")
-    private Escape escapes;
-
     @ManyToMany(mappedBy = "customMissions")
     private List<Player> players = new ArrayList<>();
 }

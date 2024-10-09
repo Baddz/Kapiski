@@ -25,9 +25,6 @@ public class StandardMission extends Mission {
     @Column(name = "success_rate")
     private Double successRate;
 
-    @ManyToOne
-    @JoinColumn(name = "escape_id")
-    private Escape escape;
 
 
 }

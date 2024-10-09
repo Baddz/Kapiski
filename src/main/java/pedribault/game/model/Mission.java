@@ -37,6 +37,10 @@ public abstract class Mission {
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
 
+    @ManyToOne
+    @JoinColumn(name = "escape_id")
+    private Escape escape;
+
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL)
     private List<MissionOption> options;
 

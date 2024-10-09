@@ -7,6 +7,7 @@ import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Mission;
 import pedribault.game.model.StandardMission;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
 import pedribault.game.model.dto.MissionDto;
 import pedribault.game.service.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class MissionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createMission(@RequestBody Mission mission) {
+    public ResponseEntity<?> createMission(@RequestBody CreateOrUpdateMission mission) {
 
         log.info("[IN]=[CREATING MISSION]");
         try {

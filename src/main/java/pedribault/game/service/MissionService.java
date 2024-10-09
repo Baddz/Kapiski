@@ -1,20 +1,25 @@
 package pedribault.game.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
-import pedribault.game.model.Escape;
-import pedribault.game.model.Mission;
-import pedribault.game.model.StandardMission;
+import pedribault.game.model.*;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
 import pedribault.game.model.dto.MissionDto;
+import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.EscapeRepository;
 import pedribault.game.repository.MissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pedribault.game.repository.PlayerRepository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@Slf4j
 @Service
 public class MissionService {
 
@@ -24,6 +29,10 @@ public class MissionService {
     private MissionMapper missionMapper;
     @Autowired
     private EscapeRepository escapeRepository;
+    @Autowired
+    private PlayerRepository playerRepository;
+    @Autowired
+    private ClueRepository clueRepository;
 
     public List<MissionDto> getMissions() {
         final List<Mission> missions = missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
@@ -39,34 +48,78 @@ public class MissionService {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
         }
 
-        return missionRepository.findById(id)
+        final Mission mission = missionRepository.findById(id)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + id + " does not exist."));
+        return missionMapper.missionToMissionDto(mission);
     }
 
-    public Mission createMission(StandardMission standardMission) {
-        if (standardMission == null) {
+    public MissionDto createMission(CreateOrUpdateMission createOrUpdateMission) {
+        if (createOrUpdateMission == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission is null", "A body is required");
-        } else if (standardMission.getTitle() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
-        } else if (standardMission.getEscape() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Reference escape is null", "A mission needs to refer to an Escape with a valid id");
-        } else if (standardMission.getEscape().getId() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Escape id is null", "A mission needs to refer to an Escape with a valid id");
+        }
+        if (createOrUpdateMission.getIsVisible() == null) {
+            log.info("isVisible is null : set to true");
+            createOrUpdateMission.setIsVisible(true);
+        }
+        if (createOrUpdateMission.getIsOptional() == null) {
+            log.info("isOptional is null : set to false");
+            createOrUpdateMission.setIsOptional(false);
+        }
+        if (createOrUpdateMission.getOrder() == null) {
+            log.info("order is null : set to 0");
+            createOrUpdateMission.setOrder(0);
+        }
+        Mission mission = null;
+        if (createOrUpdateMission.getMissionType() == "STANDARD") {
+            mission = new StandardMission();
+            ((StandardMission) mission).setSuccessRate(createOrUpdateMission.getSuccessRate());
+        } else if (createOrUpdateMission.getMissionType() == "CUSTOM") {
+            mission = new CustomMission();
+            ((CustomMission) mission).setSubOrder(createOrUpdateMission.getSubOrder());
+            if (createOrUpdateMission.getPlayerIds() != null) {
+                final Set<Integer> distinctPlayerIds = new HashSet<>(createOrUpdateMission.getPlayerIds());
+                final List<Player> foundPlayers = playerRepository.findAllById(distinctPlayerIds);
+                if (foundPlayers.size() != distinctPlayerIds.size()) {
+                    final List<Integer> foundIds = foundPlayers.stream().map(Player::getId).toList();
+                    final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
+                    throw new TheGameException(HttpStatus.NOT_FOUND,
+                            "Players not found",
+                            "The following ids were not found: " + missingIds + " in the PLayers database");
+                }
+                ((CustomMission) mission).setPlayers(foundPlayers);
+            }
+        } else {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission type unknown", "Mission type must be STANDARD or CUSTOM");
         }
 
-        if (standardMission.getIsVisible() == null) {
-            standardMission.setIsVisible(true);
+        mission.setTitle(createOrUpdateMission.getTitle());
+        mission.setDescription(createOrUpdateMission.getDescription());
+        mission.setIsVisible(createOrUpdateMission.getIsVisible());
+        mission.setIsOptional(createOrUpdateMission.getIsOptional());
+        if (createOrUpdateMission.getEscapeId() != null) {
+            final Escape escape = escapeRepository.findById(createOrUpdateMission.getEscapeId())
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "Escape with id: " + createOrUpdateMission.getEscapeId() + " doesn't exist in the Escapes database"));
+            mission.setEscape(escape);
+        }
+        mission.setOrder(createOrUpdateMission.getOrder());
+        if (createOrUpdateMission.getClueIds() != null) {
+            final Set<Integer> distinctClueIds = new HashSet<>(createOrUpdateMission.getClueIds());
+            final List<Clue> foundClues = clueRepository.findAllById(distinctClueIds);
+            if (foundClues.size() != distinctClueIds.size()) {
+                final List<Integer> foundIds = foundClues.stream().map(Clue::getId).toList();
+                final List<Integer> missingIds = distinctClueIds.stream().filter(id -> !foundIds.contains(id)).toList();
+                throw new TheGameException(HttpStatus.NOT_FOUND,
+                        "Clues not found",
+                        "The following ids were not found: " + missingIds + " in the PLayers database");
+            }
+            mission.setClues(foundClues);
         }
 
-        if (standardMission.getIsOptional() == null) {
-            standardMission.setIsOptional(false);
+        if (createOrUpdateMission.getMissionOptions() != null) {
+
         }
 
-        if (standardMission.getOrder() == null) {
-            standardMission.setOrder(0);
-        }
-
-        return missionRepository.save(standardMission);
+        return missionRepository.save(createOrUpdateMission);
     }
 
     public Mission updateMission(Integer id, StandardMission updatedStandardMission) {

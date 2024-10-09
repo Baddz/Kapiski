@@ -1,10 +1,12 @@
 package pedribault.game.mappers;
 
 import org.springframework.stereotype.Component;
+import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.enums.MissionTypeEnum;
 import pedribault.game.model.*;
 import pedribault.game.model.dto.summary.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -45,14 +47,17 @@ public class ToSummaryMapper {
     }
 
     public List<ClueSummary> cluesToClueSummaries(List<Clue> clues) {
-        return clues.stream().map(c -> clueToClueSummary(c)).toList();
+        return clues.stream().map(this::clueToClueSummary).toList();
     }
 
     public MissionOptionSummary missionOptionToMissionOptionSummary(MissionOption missionOption) {
         final MissionOptionSummary missionOptionSummary = new MissionOptionSummary();
         missionOptionSummary.setId(missionOption.getId());
-        missionOptionSummary.setMission(missionToMissionSummary(missionOption.getMission()));
         missionOptionSummary.setDescription(missionOption.getDescription());
+        missionOptionSummary.setConditions(new ArrayList<>());
+        for (MissionConditionEnum missionConditionEnum : missionOption.getConditions()) {
+            missionOptionSummary.getConditions().add(missionConditionEnum.name());
+        }
         return missionOptionSummary;
     }
 
@@ -69,7 +74,7 @@ public class ToSummaryMapper {
     }
 
     public List<PlayerSummary> playersToPlayerSummaries(List<Player> players) {
-        return players.stream().map(p -> playerToPlayerSummary(p)).toList();
+        return players.stream().map(this::playerToPlayerSummary).toList();
     }
 
     public UniverseSummary universeToUniverseSummary(Universe universe) {
