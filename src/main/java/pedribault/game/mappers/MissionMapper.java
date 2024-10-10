@@ -28,12 +28,10 @@ public class MissionMapper {
         if (mission instanceof final StandardMission standardMission) {
             StandardMissionDto standardMissionDto = new StandardMissionDto();
             standardMissionDto.setSuccessRate(standardMission.getSuccessRate());
-            standardMissionDto.setEscape(toSummaryMapper.escapeToEscapeSummary(standardMission.getEscape()));
             missionDto = standardMissionDto;
         } else if (mission instanceof final CustomMission customMission) {
             CustomMissionDto customMissionDto = new CustomMissionDto();
             customMissionDto.setSubOrder(customMission.getSubOrder());
-            customMissionDto.setEscapes(toSummaryMapper.escapeToEscapeSummary(customMission.getEscapes()));
             customMissionDto.setPlayers(toSummaryMapper.playersToPlayerSummaries(customMission.getPlayers()));
             missionDto = customMissionDto;
         }
@@ -43,6 +41,7 @@ public class MissionMapper {
         missionDto.setOrder(mission.getOrder());
         missionDto.setIsVisible(mission.getIsVisible());
         missionDto.setIsOptional(mission.getIsOptional());
+        missionDto.setEscape(toSummaryMapper.escapeToEscapeSummary(mission.getEscape()));
         missionDto.setClues(toSummaryMapper.cluesToClueSummaries(mission.getClues()));
         if (mission.getOptions() != null) {
             final List<MissionOptionSummary> missionOptionSummaries = new ArrayList<>();

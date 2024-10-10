@@ -14,5 +14,4 @@ import java.util.Map;
 @DiscriminatorValue("STANDARD")
 public class StandardMissionDto extends MissionDto {
     private Double successRate;
-    private EscapeSummary escape;
 }

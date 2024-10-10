@@ -13,6 +13,5 @@ import java.util.List;
 @DiscriminatorValue("CUSTOM")
 public class CustomMissionDto extends MissionDto {
     private Integer subOrder;
-    private EscapeSummary escapes;
     private List<PlayerSummary> players;
 }

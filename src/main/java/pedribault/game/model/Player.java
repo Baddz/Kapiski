@@ -17,7 +17,7 @@ import java.util.Map;
 @Entity
 @Getter
 @Setter
-@Table(name = "Players", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "first_name"})})
+@Table(name = "Players")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Player {
     @Id
@@ -36,7 +36,8 @@ public class Player {
     @Column(name = "comment")
     private String comment;
 
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "player_context_id", referencedColumnName = "id")
     private PlayerContext playerContext;
 
     @Column(name = "preferences", columnDefinition = "TEXT")

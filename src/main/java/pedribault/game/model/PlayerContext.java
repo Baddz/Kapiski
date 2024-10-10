@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
 @Table(name = "Player_Context")
@@ -21,7 +22,7 @@ public class PlayerContext {
     @Column(name = "prefers_email")
     private Boolean prefersEmail;
 
-    @OneToOne
+    @OneToOne(mappedBy = "playerContext")
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 }

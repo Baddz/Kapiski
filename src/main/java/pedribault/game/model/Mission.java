@@ -41,7 +41,7 @@ public abstract class Mission {
     @JoinColumn(name = "escape_id")
     private Escape escape;
 
-    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MissionOption> options;
 
     public List<MissionOption> getApplicableOptions(PlayerContext playerContext) {

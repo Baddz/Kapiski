@@ -70,8 +70,8 @@ public class MissionController {
         log.info("[IN]=[CREATING MISSION]");
         try {
             MissionDto createdMission = missionService.createMission(mission);
-            log.info("[OUT]=[[STATUS]=[CREATED],[TYPE]=[{}],[TITLE]=[{}],[DESCRIPTION]=[{}],[ORDER]=[{}],[VISIBLE]=[{}],[OPTIONAL]=[{}],[ESCAPE_ID]=[{}],[SUCCESS_RATE]=[{}],[OPTIONAL]=[{}]]",
-                    mission.getTitle(), mission.getDescription(), mission.getIsVisible(), mission.getEscape().getId(), mission.getOrder(), mission.getSuccessRate(), mission.getIsOptional());
+            log.info("[OUT]=[[STATUS]=[CREATED],[TYPE]=[{}],[TITLE]=[{}],[DESCRIPTION]=[{}],[ORDER]=[{}],[VISIBLE]=[{}],[OPTIONAL]=[{}],[ESCAPE_ID]=[{}],[SUCCESS_RATE]=[{}],[SUB_ORDER]=[{}]]",
+                    mission.getMissionType(), mission.getTitle(), mission.getDescription(), mission.getOrder(), mission.getIsVisible(),mission.getIsOptional(), mission.getEscapeId(), mission.getSuccessRate(), mission.getSubOrder());
             return new ResponseEntity<>(createdMission, HttpStatus.CREATED);
         } catch (TheGameException e) {
             return globalExceptionHandler.handleException(e);

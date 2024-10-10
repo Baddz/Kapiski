@@ -23,6 +23,7 @@ public class MissionDto {
     private Integer order;
     private Boolean isVisible;
     private Boolean isOptional;
+    private EscapeSummary escape;
     private List<ClueSummary> clues;
     private List<MissionOptionSummary> options;
 }

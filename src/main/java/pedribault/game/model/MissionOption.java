@@ -30,6 +30,11 @@ public class MissionOption {
 
     @ElementCollection(targetClass = MissionConditionEnum.class)
     @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name = "Mission_Conditions",
+            joinColumns = @JoinColumn(name = "mission_option_id")
+    )
+    @Column(name = "condition")
     private List<MissionConditionEnum> conditions;
 
     @ManyToOne

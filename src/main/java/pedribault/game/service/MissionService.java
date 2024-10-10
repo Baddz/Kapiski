@@ -2,10 +2,13 @@ package pedribault.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
 import pedribault.game.model.*;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
 import pedribault.game.model.dto.MissionDto;
 import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.EscapeRepository;
@@ -57,6 +60,36 @@ public class MissionService {
         if (createOrUpdateMission == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission is null", "A body is required");
         }
+        setDefaultValues(createOrUpdateMission);
+        Mission mission = null;
+
+        mission = setMissionType(createOrUpdateMission);
+        mission.setTitle(createOrUpdateMission.getTitle());
+        mission.setDescription(createOrUpdateMission.getDescription());
+        mission.setIsVisible(createOrUpdateMission.getIsVisible());
+        mission.setIsOptional(createOrUpdateMission.getIsOptional());
+        mission.setOrder(createOrUpdateMission.getOrder());
+
+        if (createOrUpdateMission.getEscapeId() != null) {
+            final Escape escape = escapeRepository.findById(createOrUpdateMission.getEscapeId())
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "Escape with id: " + createOrUpdateMission.getEscapeId() + " doesn't exist in the Escapes database"));
+            mission.setEscape(escape);
+        }
+
+        if (createOrUpdateMission.getClues() != null && !createOrUpdateMission.getClues().isEmpty()) {
+            setClues(createOrUpdateMission, mission);
+        }
+
+        if (createOrUpdateMission.getMissionOptions() != null) {
+            setMissionOptions(createOrUpdateMission, mission);
+        }
+
+        missionRepository.save(mission);
+
+        return missionMapper.missionToMissionDto(mission);
+    }
+
+    private static void setDefaultValues(final CreateOrUpdateMission createOrUpdateMission) {
         if (createOrUpdateMission.getIsVisible() == null) {
             log.info("isVisible is null : set to true");
             createOrUpdateMission.setIsVisible(true);
@@ -69,7 +102,10 @@ public class MissionService {
             log.info("order is null : set to 0");
             createOrUpdateMission.setOrder(0);
         }
-        Mission mission = null;
+    }
+
+    private Mission setMissionType(final CreateOrUpdateMission createOrUpdateMission) {
+        Mission mission;
         if (createOrUpdateMission.getMissionType() == "STANDARD") {
             mission = new StandardMission();
             ((StandardMission) mission).setSuccessRate(createOrUpdateMission.getSuccessRate());
@@ -91,35 +127,54 @@ public class MissionService {
         } else {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission type unknown", "Mission type must be STANDARD or CUSTOM");
         }
+        return mission;
+    }
 
-        mission.setTitle(createOrUpdateMission.getTitle());
-        mission.setDescription(createOrUpdateMission.getDescription());
-        mission.setIsVisible(createOrUpdateMission.getIsVisible());
-        mission.setIsOptional(createOrUpdateMission.getIsOptional());
-        if (createOrUpdateMission.getEscapeId() != null) {
-            final Escape escape = escapeRepository.findById(createOrUpdateMission.getEscapeId())
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "Escape with id: " + createOrUpdateMission.getEscapeId() + " doesn't exist in the Escapes database"));
-            mission.setEscape(escape);
+    private void setClues(final CreateOrUpdateMission createOrUpdateMission, final Mission mission) {
+        final List<Clue> clues = new ArrayList<>();
+        for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateMission.getClues()) {
+            final Clue clue = new Clue();
+            clue.setMission(mission);
+            clue.setOrder(createOrUpdateClue.getOrder());
+            clue.setContent(createOrUpdateClue.getContent());
+            clue.setSubOrder(createOrUpdateClue.getSubOrder());
         }
-        mission.setOrder(createOrUpdateMission.getOrder());
-        if (createOrUpdateMission.getClueIds() != null) {
-            final Set<Integer> distinctClueIds = new HashSet<>(createOrUpdateMission.getClueIds());
-            final List<Clue> foundClues = clueRepository.findAllById(distinctClueIds);
-            if (foundClues.size() != distinctClueIds.size()) {
-                final List<Integer> foundIds = foundClues.stream().map(Clue::getId).toList();
-                final List<Integer> missingIds = distinctClueIds.stream().filter(id -> !foundIds.contains(id)).toList();
-                throw new TheGameException(HttpStatus.NOT_FOUND,
-                        "Clues not found",
-                        "The following ids were not found: " + missingIds + " in the PLayers database");
+    }
+
+    private static void setMissionOptions(final CreateOrUpdateMission createOrUpdateMission, final Mission mission) {
+        final List<MissionOption> missionOptions = new ArrayList<>();
+        for (CreateOrUpdateMissionOption createOrUpdateMissionOption : createOrUpdateMission.getMissionOptions()) {
+            final MissionOption missionOption = new MissionOption();
+            missionOption.setMission(mission);
+            if (createOrUpdateMissionOption.getConditions() == null || createOrUpdateMissionOption.getConditions().isEmpty()) {
+                throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing condition", "The MissionOption: " + createOrUpdateMissionOption.toString() + "is missing a condition");
             }
-            mission.setClues(foundClues);
+            final List<MissionConditionEnum> missionConditionEnums = new ArrayList<>();
+            for (String condition : createOrUpdateMissionOption.getConditions()) {
+                MissionConditionEnum missionConditionEnum;
+                try {
+                    missionConditionEnum = MissionConditionEnum.valueOf(condition);
+                } catch (IllegalArgumentException e) {
+                    throw new TheGameException(HttpStatus.BAD_REQUEST, "One condition dosen't exist", "The condition: " + condition + " doens't exist");
+                }
+                missionConditionEnums.add(missionConditionEnum);
+            }
+            missionOption.setConditions(missionConditionEnums);
+            missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+            if (createOrUpdateMissionOption.getClues() != null && !createOrUpdateMissionOption.getClues().isEmpty()) {
+                final List<Clue> clues = new ArrayList<>();
+                for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateMissionOption.getClues()) {
+                    final Clue clue = new Clue();
+                    clue.setMissionOption(missionOption);
+                    clue.setContent(createOrUpdateClue.getContent());
+                    clue.setOrder(createOrUpdateClue.getOrder());
+                    clue.setSubOrder(createOrUpdateClue.getSubOrder());
+                    clues.add(clue);
+                }
+                missionOption.setClues(clues);
+            }
         }
-
-        if (createOrUpdateMission.getMissionOptions() != null) {
-
-        }
-
-        return missionRepository.save(createOrUpdateMission);
+        mission.setOptions(missionOptions);
     }
 
     public Mission updateMission(Integer id, StandardMission updatedStandardMission) {
