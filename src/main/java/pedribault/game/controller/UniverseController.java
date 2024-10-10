@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedribault.game.exceptions.GlobalExceptionHandler;
+import pedribault.game.model.dto.ClueDto;
 import pedribault.game.model.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Universe;
@@ -18,6 +20,9 @@ import java.util.List;
 @RequestMapping("/theGame/universe")
 public class UniverseController {
 
+    @Autowired
+    private GlobalExceptionHandler globalExceptionHandler;
+
     private UniverseService universeService;
     @Autowired
     public UniverseController(UniverseService universeService) {
@@ -25,17 +30,21 @@ public class UniverseController {
     }
 
     @GetMapping("/universes")
-    public List<Universe> getUniverses() {
+    public ResponseEntity<?> getUniverses() {
 
-        log.info("[IN]=[GETTING UNIVERSES]");
-        List<Universe> universes = new ArrayList<>();
+        try {
+            log.info("[IN]=[GETTING UNIVERSES]");
+            List<UniverseDto> universes = new ArrayList<>();
 
-        universes = universeService.getUniverses();
-        final StringBuilder reqOut = new StringBuilder();
-        reqOut.append("[OUT]:[[STATUS]=[OK]]");
-        log.info(reqOut.toString());
+            universes = universeService.getUniverses();
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
 
-        return universes;
+            return new ResponseEntity<>(universes, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
     }
 
     @GetMapping("/{id}")

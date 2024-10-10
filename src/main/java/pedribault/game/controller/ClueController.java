@@ -26,7 +26,8 @@ public class ClueController {
     private final ClueService clueService;
 
     @Autowired
-    public ClueController(ClueService clueService) {
+    public ClueController(GlobalExceptionHandler globalExceptionHandler, ClueService clueService) {
+        this.globalExceptionHandler = globalExceptionHandler;
         this.clueService = clueService;
     }
 
