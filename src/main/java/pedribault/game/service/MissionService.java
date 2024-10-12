@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pedribault.game.repository.PlayerRepository;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -106,10 +103,10 @@ public class MissionService {
 
     private Mission setMissionType(final CreateOrUpdateMission createOrUpdateMission) {
         Mission mission;
-        if (createOrUpdateMission.getMissionType() == "STANDARD") {
+        if (Objects.equals(createOrUpdateMission.getMissionType(), "STANDARD")) {
             mission = new StandardMission();
             ((StandardMission) mission).setSuccessRate(createOrUpdateMission.getSuccessRate());
-        } else if (createOrUpdateMission.getMissionType() == "CUSTOM") {
+        } else if (Objects.equals(createOrUpdateMission.getMissionType(), "CUSTOM")) {
             mission = new CustomMission();
             ((CustomMission) mission).setSubOrder(createOrUpdateMission.getSubOrder());
             if (createOrUpdateMission.getPlayerIds() != null) {

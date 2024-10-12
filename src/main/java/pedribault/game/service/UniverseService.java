@@ -1,6 +1,7 @@
 package pedribault.game.service;
 
 import org.springframework.http.HttpStatus;
+import pedribault.game.mappers.UniverseMapper;
 import pedribault.game.model.dto.UniverseDto;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.Universe;
@@ -17,8 +18,19 @@ public class UniverseService {
     @Autowired
     private UniverseRepository universeRepository;
 
-    public List<Universe> getUniverses() {
-        return universeRepository.findAll() == null ? new ArrayList<>() : universeRepository.findAll();
+    @Autowired
+    private UniverseMapper universeMapper;
+
+
+    public List<UniverseDto> getUniverses() {
+        final List<Universe> universes = universeRepository.findAll() == null ? new ArrayList<>() : universeRepository.findAll();
+        final List<UniverseDto> universeDtos = new ArrayList<>();
+        if (!universes.isEmpty()){
+            for (Universe universe : universes){
+                universeDtos.add(universeMapper.universeToUniversDTO(universe));
+            }
+        }
+        return universeDtos;
     }
 
     public Universe getUniverseById(Integer id) {
