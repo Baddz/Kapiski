@@ -38,9 +38,8 @@ public class Player {
     @JoinColumn(name = "player_context_id", referencedColumnName = "id")
     private PlayerContext playerContext;
 
-    @Column(name = "preferences", columnDefinition = "TEXT")
-    @Convert(converter = MissionConditionEnumConverter.class)
-    private List<MissionConditionEnum> preferences = new ArrayList<>();
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlayerPreference> preferences = new ArrayList<>();
 
     @ManyToMany(mappedBy = "players")
     private List<Escape> escapes = new ArrayList<>();
