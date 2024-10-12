@@ -112,4 +112,32 @@ public class ToSummaryMapper {
     public List<EscapeSummary> escapesToEscapeSummaries(List<Escape> escapes) {
         return escapes.stream().map(this::escapeToEscapeSummary).toList();
     }
+
+    public MissionPlayerMappingSummary missionPlayerMappingToMissionPlayerMappingSummary(MissionPlayerMapping missionPlayerMapping) {
+        final MissionPlayerMappingSummary missionPlayerMappingSummary = new MissionPlayerMappingSummary();
+        missionPlayerMappingSummary.setId(missionPlayerMapping.getId());
+        missionPlayerMappingSummary.setPlayerId(missionPlayerMapping.getPlayer().getId());
+        missionPlayerMappingSummary.setStatus(missionPlayerMapping.getStatus().name());
+        missionPlayerMappingSummary.setEndDate(missionPlayerMapping.getEndDate());
+        missionPlayerMappingSummary.setStartDate(missionPlayerMapping.getStartDate());
+        return missionPlayerMappingSummary;
+    }
+
+    public List<MissionPlayerMappingSummary> missionPlayerMappingsToMissionPlayerMappingSummaries(List<MissionPlayerMapping> missionPlayerMappings) {
+        final List<MissionPlayerMappingSummary> missionPlayerMappingSummaries = new ArrayList<>();
+        for (MissionPlayerMapping missionPlayerMapping : missionPlayerMappings) {
+            missionPlayerMappingSummaries.add(missionPlayerMappingToMissionPlayerMappingSummary(missionPlayerMapping));
+        }
+        return missionPlayerMappingSummaries;
+    }
+
+    public PlayerMissionMappingSummary missionPlayerMappingToPlayerMissionMappingSummary(MissionPlayerMapping missionPlayerMapping) {
+        final PlayerMissionMappingSummary playerMissionMappingSummary = new PlayerMissionMappingSummary();
+        playerMissionMappingSummary.setMissionId(missionPlayerMapping.getPlayer().getId());
+        playerMissionMappingSummary.setStatus(missionPlayerMapping.getStatus().name());
+        playerMissionMappingSummary.setEndDate(missionPlayerMapping.getEndDate());
+        playerMissionMappingSummary.setStartDate(missionPlayerMapping.getStartDate());
+        playerMissionMappingSummary.setId(missionPlayerMapping.getId());
+        return playerMissionMappingSummary;
+    }
 }

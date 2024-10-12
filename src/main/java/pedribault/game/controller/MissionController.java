@@ -79,15 +79,14 @@ public class MissionController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<?> updateMission(@PathVariable Integer id, @RequestBody StandardMission updatedStandardMission) {
+    public ResponseEntity<?> updateMission(@PathVariable Integer id, @RequestBody CreateOrUpdateMission createOrUpdateMission) {
         log.info("[IN]=[UPDATING MISSION [ID]=[{}]]", id);
         try {
-            Mission standardMission = missionService.updateMission(id, updatedStandardMission);
+            MissionDto mission = missionService.updateMission(id, createOrUpdateMission);
             log.info("[OUT]=[[STATUS]=[OK]]");
-            return new ResponseEntity<>(standardMission, HttpStatus.OK);
-        } catch (TheGameException e) {
-            log.error("[OUT]=[[STATUS]=[KO],[ERROR]=[[STATUS]=[{}],[MESSAGE]=[{}],[DETAILED_MESSAGE]=[{}]]]", e.getStatus(), e.getMessage(), e.getDetailedMessage());
-            return new ResponseEntity<>(null, e.getStatus());
+            return new ResponseEntity<>(mission, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
         }
     }
 }

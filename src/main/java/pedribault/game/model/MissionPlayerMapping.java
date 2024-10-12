@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "Player_J_Mission")
+@Table(name = "Player_J_Mission", uniqueConstraints = @UniqueConstraint(columnNames = {"player_id", "mission_id"}))
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class MissionPlayerMapping {
     @Id

@@ -2,7 +2,6 @@ package pedribault.game.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.model.CustomMission;
 import pedribault.game.model.Mission;
 import pedribault.game.model.MissionOption;
@@ -13,9 +12,7 @@ import pedribault.game.model.dto.StandardMissionDto;
 import pedribault.game.model.dto.summary.MissionOptionSummary;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class MissionMapper {
@@ -32,7 +29,6 @@ public class MissionMapper {
         } else if (mission instanceof final CustomMission customMission) {
             CustomMissionDto customMissionDto = new CustomMissionDto();
             customMissionDto.setSubOrder(customMission.getSubOrder());
-            customMissionDto.setPlayers(toSummaryMapper.playersToPlayerSummaries(customMission.getPlayers()));
             missionDto = customMissionDto;
         }
         missionDto.setId(mission.getId());
@@ -43,6 +39,7 @@ public class MissionMapper {
         missionDto.setIsOptional(mission.getIsOptional());
         missionDto.setEscape(toSummaryMapper.escapeToEscapeSummary(mission.getEscape()));
         missionDto.setClues(toSummaryMapper.cluesToClueSummaries(mission.getClues()));
+        missionDto.setPlayerMappings(toSummaryMapper.missionPlayerMappingsToMissionPlayerMappingSummaries(mission.getPlayerMappings()));
         if (mission.getOptions() != null) {
             final List<MissionOptionSummary> missionOptionSummaries = new ArrayList<>();
             for (MissionOption missionOption: mission.getOptions()) {

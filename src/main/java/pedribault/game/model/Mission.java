@@ -44,6 +44,9 @@ public abstract class Mission {
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MissionOption> options;
 
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MissionPlayerMapping> playerMappings = new ArrayList<>();
+
     public List<MissionOption> getApplicableOptions(PlayerContext playerContext) {
         final List<MissionOption> missionOptions = new ArrayList<>();
         for (MissionOption missionOption : options) {
@@ -58,7 +61,9 @@ public abstract class Mission {
         if (this.getClues() == null) {
             this.setClues(new ArrayList<>());
         }
-        this.getClues().add(clue);
+        if (!this.clues.contains(clue)) {
+            this.clues.add(clue);
+        }
     }
 
     public void addClues(List<Clue> clues) {
@@ -77,6 +82,21 @@ public abstract class Mission {
             if (this.getClues().contains(clue)) {
                 this.getClues().remove(clue);
             }
+        }
+    }
+
+    public void addPlayerMapping(MissionPlayerMapping mapping) {
+        if (this.playerMappings == null) {
+            this.playerMappings = new ArrayList<>();
+        }
+        if (!this.playerMappings.contains(mapping)) {
+            this.playerMappings.add(mapping);
+        }
+    }
+
+    public void removePlayerMapping(MissionPlayerMapping mapping) {
+        if (this.playerMappings != null && this.playerMappings.contains(mapping)) {
+            this.playerMappings.remove(mapping);
         }
     }
 }

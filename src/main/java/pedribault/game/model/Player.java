@@ -10,9 +10,7 @@ import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.mappers.MissionConditionEnumConverter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Getter
@@ -49,20 +47,15 @@ public class Player {
 
     @ManyToMany
     @JoinTable(
-            name = "Player_J_Mission",
-            joinColumns = @JoinColumn(name = "player_id"),
-            inverseJoinColumns = @JoinColumn(name = "mission_id")
-    )
-    private List<CustomMission> customMissions = new ArrayList<>();
-
-    @ManyToMany
-    @JoinTable(
             name = "Player_J_Sidekick",
             joinColumns = @JoinColumn(name = "player_id"),
             inverseJoinColumns = @JoinColumn(name = "sidekick_id")
     )
     @JsonManagedReference
     private List<Sidekick> sidekicks;
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MissionPlayerMapping> missionMappings = new ArrayList<>();
 
     public void addSidekick(Sidekick sidekick) {
         if (sidekick == null) {

@@ -5,11 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pedribault.game.exceptions.ErrorResponse;
 import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.ClueDto;
-import pedribault.game.exceptions.TheGameException;
 import pedribault.game.service.ClueService;
 
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import java.util.List;
 public class ClueController {
 
     @Autowired
-    private GlobalExceptionHandler globalExceptionHandler;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     private final ClueService clueService;
 
@@ -82,7 +80,7 @@ public class ClueController {
 
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateClue(@PathVariable Integer id, @RequestBody CreateOrUpdateClue createOrUpdateClue) {
-        log.info("[IN]=[UPDATING CLUE]");
+        log.info("[IN]=[UPDATING CLUE [ID]=[{}]]", id);
         try {
             ClueDto clue = clueService.updateClue(id, createOrUpdateClue);
             log.info("[OUT]=[[STATUS]=[OK]]");

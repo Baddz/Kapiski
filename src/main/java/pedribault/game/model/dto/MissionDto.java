@@ -4,14 +4,9 @@ import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.enums.MissionConditionEnum;
-import pedribault.game.model.dto.summary.ClueSummary;
-import pedribault.game.model.dto.summary.EscapeSummary;
-import pedribault.game.model.dto.summary.MissionOptionSummary;
-import pedribault.game.model.dto.summary.PlayerSummary;
+import pedribault.game.model.dto.summary.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -26,4 +21,5 @@ public class MissionDto {
     private EscapeSummary escape;
     private List<ClueSummary> clues;
     private List<MissionOptionSummary> options;
+    private List<MissionPlayerMappingSummary> playerMappings;
 }

@@ -3,12 +3,9 @@ package pedribault.game.model.dto;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import pedribault.game.model.dto.summary.CustomMissionSummary;
-import pedribault.game.model.dto.summary.EscapeSummary;
-import pedribault.game.model.dto.summary.SidekickSummary;
+import pedribault.game.model.dto.summary.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -21,9 +18,10 @@ public class PlayerDto {
     private String address;
     private String phone;
     private String comment;
+    private PlayerContextSummary playerContext;
     private List<String> preferences;
     private List<SidekickSummary> sidekicks;
     private List<CustomMissionSummary> customMissions;
     private List<EscapeSummary> escapes;
-    private Map<EscapeSummary, List<CustomMissionSummary>> escapeCustomMissionsMap;
+    private List<PlayerMissionMappingSummary> missionMappings;
 }

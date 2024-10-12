@@ -19,6 +19,4 @@ public class CustomMission extends Mission {
     @Column(name = "sub_order")
     private Integer subOrder;
 
-    @ManyToMany(mappedBy = "customMissions")
-    private List<Player> players = new ArrayList<>();
 }
