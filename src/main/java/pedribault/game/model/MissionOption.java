@@ -94,4 +94,12 @@ public class MissionOption {
             }
         }
     }
+
+    public void addCondition(MissionConditionEnum conditionEnum) {
+        if (this.conditions == null) {
+            this.conditions = new ArrayList<>();
+        }
+
+        this.getConditions().add(conditionEnum);
+    }
 }

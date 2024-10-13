@@ -7,7 +7,6 @@ import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
 import pedribault.game.model.*;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
-import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClueWithId;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
 import pedribault.game.model.dto.MissionDto;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -117,13 +115,13 @@ public class MissionService {
         return mission;
     }
 
-    private void addClues(final List<CreateOrUpdateClueWithId> createOrUpdateClueWithIds, final Mission mission) {
-        for (CreateOrUpdateClueWithId createOrUpdateClueWithId : createOrUpdateClueWithIds) {
+    private void addClues(final List<CreateOrUpdateClue> createOrUpdateClues, final Mission mission) {
+        for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateClues) {
             final Clue clue = new Clue();
             clue.setMission(mission);
-            clue.setOrder(createOrUpdateClueWithId.getOrder());
-            clue.setContent(createOrUpdateClueWithId.getContent());
-            clue.setSubOrder(createOrUpdateClueWithId.getSubOrder());
+            clue.setOrder(createOrUpdateClue.getOrder());
+            clue.setContent(createOrUpdateClue.getContent());
+            clue.setSubOrder(createOrUpdateClue.getSubOrder());
             mission.addClue(clue);
         }
     }
@@ -185,8 +183,39 @@ public class MissionService {
             existingMission.setEscape(escape);
         }
 
+        // can only create clues. We go through ClueService to add/remove new Clues
         if (createOrUpdateMission.getClues() != null) {
-            handleClues(createOrUpdateMission, existingMission);
+            addClues(createOrUpdateMission.getClues(), existingMission);
+        }
+
+        if (createOrUpdateMission.getMissionOptions() != null) {
+            final List<MissionOption> missionOptions = new ArrayList<>();
+            for (CreateOrUpdateMissionOption createOrUpdateMissionOption : createOrUpdateMission.getMissionOptions()) {
+                final MissionOption missionOption = new MissionOption();
+                missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+                missionOption.setMission(existingMission);
+                if (createOrUpdateMissionOption.getConditions() != null) {
+                    for (String condition : createOrUpdateMissionOption.getConditions()) {
+                        try {
+                            MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
+                            missionOption.addCondition(missionConditionEnum);
+                        } catch (IllegalArgumentException e) {
+                            throw new TheGameException(HttpStatus.BAD_REQUEST, "Condition not acceptable", "The condition: " + condition + " is not a MissionCondition");
+                        }
+                    }
+                }
+                if (createOrUpdateMissionOption.getClues() != null) {
+                    for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateMissionOption.getClues()) {
+                        final Clue clue = new Clue();
+                        clue.setContent(createOrUpdateClue.getContent());
+                        clue.setMissionOption(missionOption);
+                        clue.setOrder(createOrUpdateClue.getOrder());
+                        clue.setSubOrder(createOrUpdateClue.getSubOrder());
+                        missionOption.addClue(clue);
+                    }
+                }
+                existingMission.addMissionOption(missionOption);
+            }
         }
 
         if (existingMission instanceof CustomMission) {
@@ -228,36 +257,4 @@ public class MissionService {
         }
     }
 
-    private void handleClues(final CreateOrUpdateMission createOrUpdateMission, final Mission existingMission) {
-        // add new Clues (without id)
-        final List<CreateOrUpdateClueWithId> newClues =
-                createOrUpdateMission.getClues().stream().filter(c -> c.getId() == null).toList();
-        addClues(newClues, existingMission);
-        final List<CreateOrUpdateClueWithId> givenClues =
-                createOrUpdateMission.getClues().stream().filter(c -> c.getId() != null).toList();
-        final Set<Integer> distinctClueIds = givenClues.stream().map(CreateOrUpdateClueWithId::getId).collect(Collectors.toSet());
-        final List<Clue> foundClues = clueRepository.findAllById(distinctClueIds);
-        if (foundClues.size() != distinctClueIds.size()) {
-            final List<Integer> foundClueIds = foundClues.stream().map(Clue::getId).toList();
-            final List<Integer> missingClueIds = distinctClueIds.stream().filter(cid -> !foundClueIds.contains(cid)).toList();
-            throw new TheGameException(HttpStatus.NOT_FOUND,
-                    "Clues not found",
-                    "The following ids were not found: " + missingClueIds + " in the Clues database");
-        }
-        // add clues
-        for (Clue foundClue : foundClues) {
-            if (!existingMission.getClues().contains(foundClue)) {
-                existingMission.addClue(foundClue);
-            }
-        }
-        // remove clues
-        for (Clue clue : existingMission.getClues()) {
-            if (!foundClues.contains(clue)) {
-                existingMission.removeClue(clue);
-            }
-        }
-    }
-
-    // TODO
-    // addClue, removeClue
 }

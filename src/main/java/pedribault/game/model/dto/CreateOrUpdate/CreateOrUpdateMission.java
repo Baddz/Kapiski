@@ -15,7 +15,7 @@ public class CreateOrUpdateMission {
     private Boolean isOptional;
     private Integer order;
     private Integer escapeId;
-    private List<CreateOrUpdateClueWithId> clues;
+    private List<CreateOrUpdateClue> clues;
     private List<CreateOrUpdateMissionOption> missionOptions;
     // if type == "CUSTOM"
     private Integer subOrder;

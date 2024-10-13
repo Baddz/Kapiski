@@ -99,4 +99,11 @@ public abstract class Mission {
             this.playerMappings.remove(mapping);
         }
     }
+
+    public void addMissionOption(MissionOption missionOption) {
+        if (this.options == null) {
+            this.options = new ArrayList<>();
+        }
+        this.getOptions().add(missionOption);
+    }
 }
