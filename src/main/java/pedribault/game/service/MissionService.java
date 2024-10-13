@@ -248,7 +248,7 @@ public class MissionService {
             }
         }
 
-        // TODO add / remove Clues MissionOptions
+        // TODO add / remove Clues MissionOptions Players
 
         missionRepository.save(existingMission);
         final MissionDto missionDto = missionMapper.missionToMissionDto(existingMission);
