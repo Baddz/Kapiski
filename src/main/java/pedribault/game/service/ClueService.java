@@ -32,7 +32,8 @@ public class ClueService {
     private ClueMapper clueMapper;
 
     public List<ClueDto> getClues() {
-        final List<Clue> clues = clueRepository.findAll() == null ? new ArrayList<>() : clueRepository.findAll();
+        clueRepository.findAll();
+        final List<Clue> clues = clueRepository.findAll();
         final List<ClueDto> clueDtos = new ArrayList<>();
         if (!clues.isEmpty()) {
             clueDtos.addAll(clues.stream().map(p -> clueMapper.clueToClueDto(p)).toList());

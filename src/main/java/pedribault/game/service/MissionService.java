@@ -220,10 +220,9 @@ public class MissionService {
             existingMission.setEscape(escape);
         }
 
-
-        if (createOrUpdateMission.getPlayerMappings() != null) {
-            addPlayers(createOrUpdateMission.getPlayerMappings(), existingMission);
-        }
+//        if (createOrUpdateMission.getPlayerMappings() != null) {
+//            addPlayers(createOrUpdateMission.getPlayerMappings(), existingMission);
+//        }
 
         // can only create clues. We go through ClueService to add/remove new Clues
         if (createOrUpdateMission.getClues() != null) {
@@ -248,7 +247,8 @@ public class MissionService {
             }
         }
 
-        // TODO add / remove Clues MissionOptions Players
+        // TODO add / remove Clues MissionOptions
+        // TODO updatePlayers
 
         missionRepository.save(existingMission);
         final MissionDto missionDto = missionMapper.missionToMissionDto(existingMission);
