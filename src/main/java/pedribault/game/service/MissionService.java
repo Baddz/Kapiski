@@ -38,7 +38,7 @@ public class MissionService {
     private ClueRepository clueRepository;
 
     public List<MissionDto> getMissions() {
-        final List<Mission> missions = missionRepository.findAll() == null ? new ArrayList<>() : missionRepository.findAll();
+        final List<Mission> missions = missionRepository.findAll();
         final List<MissionDto> missionDtos = new ArrayList<>();
         for (final Mission mission : missions) {
             missionDtos.add(missionMapper.missionToMissionDto(mission));
@@ -85,7 +85,7 @@ public class MissionService {
         }
 
         if (createOrUpdateMission.getPlayerMappings() != null) {
-            handlePlayers(createOrUpdateMission, mission);
+            addPlayers(createOrUpdateMission.getPlayerMappings(), mission);
         }
 
         missionRepository.save(mission);
@@ -93,8 +93,8 @@ public class MissionService {
         return missionMapper.missionToMissionDto(mission);
     }
 
-    private void handlePlayers(final CreateOrUpdateMission createOrUpdateMission, final Mission mission) {
-        final Set<Integer> distinctPlayerIds = createOrUpdateMission.getPlayerMappings().stream()
+    private void addPlayers(final List<CreateOrUpdateMissionPlayerMapping> createOrUpdateMissionPlayerMappings, final Mission mission) {
+        final Set<Integer> distinctPlayerIds = createOrUpdateMissionPlayerMappings.stream()
                 .map(CreateOrUpdateMissionPlayerMapping::getPlayerId).collect(Collectors.toSet());
         ;
         final List<Player> players = playerRepository.findAllById(distinctPlayerIds);
@@ -107,7 +107,7 @@ public class MissionService {
         }
 
         Map<Integer, Player> playerMap = players.stream().collect(Collectors.toMap(Player::getId, player -> player));
-        for (CreateOrUpdateMissionPlayerMapping createPlayerMapping : createOrUpdateMission.getPlayerMappings()) {
+        for (CreateOrUpdateMissionPlayerMapping createPlayerMapping : createOrUpdateMissionPlayerMappings) {
             final MissionPlayerMapping missionPlayerMapping = new MissionPlayerMapping();
             missionPlayerMapping.setPlayer(playerMap.get(createPlayerMapping.getPlayerId()));
             missionPlayerMapping.setMission(mission);
@@ -220,39 +220,18 @@ public class MissionService {
             existingMission.setEscape(escape);
         }
 
+
+        if (createOrUpdateMission.getPlayerMappings() != null) {
+            addPlayers(createOrUpdateMission.getPlayerMappings(), existingMission);
+        }
+
         // can only create clues. We go through ClueService to add/remove new Clues
         if (createOrUpdateMission.getClues() != null) {
             addClues(createOrUpdateMission.getClues(), existingMission);
         }
 
         if (createOrUpdateMission.getMissionOptions() != null) {
-            final List<MissionOption> missionOptions = new ArrayList<>();
-            for (CreateOrUpdateMissionOption createOrUpdateMissionOption : createOrUpdateMission.getMissionOptions()) {
-                final MissionOption missionOption = new MissionOption();
-                missionOption.setDescription(createOrUpdateMissionOption.getDescription());
-                missionOption.setMission(existingMission);
-                if (createOrUpdateMissionOption.getConditions() != null) {
-                    for (String condition : createOrUpdateMissionOption.getConditions()) {
-                        try {
-                            MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
-                            missionOption.addCondition(missionConditionEnum);
-                        } catch (IllegalArgumentException e) {
-                            throw new TheGameException(HttpStatus.BAD_REQUEST, "Condition not acceptable", "The condition: " + condition + " is not a MissionCondition");
-                        }
-                    }
-                }
-                if (createOrUpdateMissionOption.getClues() != null) {
-                    for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateMissionOption.getClues()) {
-                        final Clue clue = new Clue();
-                        clue.setContent(createOrUpdateClue.getContent());
-                        clue.setMissionOption(missionOption);
-                        clue.setOrder(createOrUpdateClue.getOrder());
-                        clue.setSubOrder(createOrUpdateClue.getSubOrder());
-                        missionOption.addClue(clue);
-                    }
-                }
-                existingMission.addMissionOption(missionOption);
-            }
+            updateMissionOptions(createOrUpdateMission, existingMission);
         }
 
         if (existingMission instanceof CustomMission) {
@@ -269,11 +248,40 @@ public class MissionService {
             }
         }
 
-        // TODO handle players via MissionPlayerMapping
+        // TODO add / remove Clues MissionOptions
 
         missionRepository.save(existingMission);
         final MissionDto missionDto = missionMapper.missionToMissionDto(existingMission);
         return missionDto;
+    }
+
+    private static void updateMissionOptions(final CreateOrUpdateMission createOrUpdateMission, final Mission existingMission) {
+        for (CreateOrUpdateMissionOption createOrUpdateMissionOption : createOrUpdateMission.getMissionOptions()) {
+            final MissionOption missionOption = new MissionOption();
+            missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+            missionOption.setMission(existingMission);
+            if (createOrUpdateMissionOption.getConditions() != null) {
+                for (String condition : createOrUpdateMissionOption.getConditions()) {
+                    try {
+                        MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
+                        missionOption.addCondition(missionConditionEnum);
+                    } catch (IllegalArgumentException e) {
+                        throw new TheGameException(HttpStatus.BAD_REQUEST, "Condition not acceptable", "The condition: " + condition + " is not a MissionCondition");
+                    }
+                }
+            }
+            if (createOrUpdateMissionOption.getClues() != null) {
+                for (CreateOrUpdateClue createOrUpdateClue : createOrUpdateMissionOption.getClues()) {
+                    final Clue clue = new Clue();
+                    clue.setContent(createOrUpdateClue.getContent());
+                    clue.setMissionOption(missionOption);
+                    clue.setOrder(createOrUpdateClue.getOrder());
+                    clue.setSubOrder(createOrUpdateClue.getSubOrder());
+                    missionOption.addClue(clue);
+                }
+            }
+            existingMission.addMissionOption(missionOption);
+        }
     }
 
     private static void updateCommonValues(final CreateOrUpdateMission createOrUpdateMission, final Mission existingMission) {
