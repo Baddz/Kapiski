@@ -47,7 +47,11 @@ public class ToSummaryMapper {
     }
 
     public List<ClueSummary> cluesToClueSummaries(List<Clue> clues) {
-        return clues.stream().map(this::clueToClueSummary).toList();
+        List<ClueSummary> clueSummaries = new ArrayList<>();
+        if (clues != null) {
+            clueSummaries = clues.stream().map(this::clueToClueSummary).toList();
+        }
+        return clueSummaries;
     }
 
     public MissionOptionSummary missionOptionToMissionOptionSummary(MissionOption missionOption) {

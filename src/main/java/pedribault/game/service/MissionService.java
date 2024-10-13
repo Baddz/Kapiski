@@ -3,12 +3,14 @@ package pedribault.game.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.enums.MissionConditionEnum;
+import pedribault.game.enums.MissionStatusEnum;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
 import pedribault.game.model.*;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
+import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionPlayerMapping;
 import pedribault.game.model.dto.MissionDto;
 import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.EscapeRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -81,9 +84,42 @@ public class MissionService {
             setMissionOptions(createOrUpdateMission, mission);
         }
 
+        if (createOrUpdateMission.getPlayerMappings() != null) {
+            handlePlayers(createOrUpdateMission, mission);
+        }
+
         missionRepository.save(mission);
 
         return missionMapper.missionToMissionDto(mission);
+    }
+
+    private void handlePlayers(final CreateOrUpdateMission createOrUpdateMission, final Mission mission) {
+        final Set<Integer> distinctPlayerIds = createOrUpdateMission.getPlayerMappings().stream()
+                .map(CreateOrUpdateMissionPlayerMapping::getPlayerId).collect(Collectors.toSet());
+        ;
+        final List<Player> players = playerRepository.findAllById(distinctPlayerIds);
+        if(players.size() != distinctPlayerIds.size()) {
+            final List<Integer> foundIds = players.stream().map(Player::getId).toList();
+            final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
+            throw new TheGameException(HttpStatus.NOT_FOUND,
+                    "Players not found",
+                    "The following ids were not found: " + missingIds + " in the PLayers database");
+        }
+
+        Map<Integer, Player> playerMap = players.stream().collect(Collectors.toMap(Player::getId, player -> player));
+        for (CreateOrUpdateMissionPlayerMapping createPlayerMapping : createOrUpdateMission.getPlayerMappings()) {
+            final MissionPlayerMapping missionPlayerMapping = new MissionPlayerMapping();
+            missionPlayerMapping.setPlayer(playerMap.get(createPlayerMapping.getPlayerId()));
+            missionPlayerMapping.setMission(mission);
+            try {
+                missionPlayerMapping.setStatus(MissionStatusEnum.valueOf(createPlayerMapping.getStatus()));
+            } catch (IllegalArgumentException e) {
+                throw new TheGameException(HttpStatus.BAD_REQUEST, "One MissionPlayer status dosen't exist", "The status: " + createPlayerMapping.getStatus() + " doens't exist");
+            }
+            missionPlayerMapping.setStartDate(createPlayerMapping.getStartDate());
+            missionPlayerMapping.setEndDate(createPlayerMapping.getEndDate());
+            mission.addPlayerMapping(missionPlayerMapping);
+        }
     }
 
     private static void setDefaultValues(final CreateOrUpdateMission createOrUpdateMission) {
@@ -158,6 +194,7 @@ public class MissionService {
                 }
                 missionOption.setClues(clues);
             }
+            missionOptions.add(missionOption);
         }
         mission.setOptions(missionOptions);
     }
