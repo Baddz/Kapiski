@@ -116,4 +116,26 @@ public class EscapePlayerController {
             return globalExceptionHandler.handleException(e);
         }
     }
+
+    @GetMapping("/{id}/update")
+    public ResponseEntity<?> updateEscapePlayerMappingById(@PathVariable Integer id, @RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+        log.info("[IN]=[UPDATING ESCAPE_PLAYER [ID]=[{}]]", id);
+        try {
+            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.updateEscapePlayerMappingById(id, createOrUpdateEscapePlayerMapping);
+            return new ResponseEntity<>(escapePlayerMappingDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
+
+    @GetMapping("/escape/{escapeId}/player/{playerId}/update")
+    public ResponseEntity<?> updateEscapePlayerMappingByEscapeIdAndPlayerId(@PathVariable Integer escapeId, @PathVariable Integer playerId, @RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+        log.info("[IN]=[UPDATING ESCAPE_PLAYER [ESCAPE_ID]=[{}],[PLAYER_ID]=[{}]]", escapeId, playerId);
+        try {
+            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.updateEscapePlayerMappingByEscapeIdAndPlayerId(escapeId, playerId, createOrUpdateEscapePlayerMapping);
+            return new ResponseEntity<>(escapePlayerMappingDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
 }
