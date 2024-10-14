@@ -45,7 +45,7 @@ public class ClueService {
         ClueDto clueDto;
         if (id != null) {
             Clue clue = clueRepository.findById(id)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Clues table", "The id " + id + " does not exist."));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Clue not found", "The id " + id + " does not exist in the Clues database"));
             clueDto = clueMapper.clueToClueDto(clue);
         } else {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "id must be provided", "id is null");
