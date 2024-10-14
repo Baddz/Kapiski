@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pedribault.game.enums.EscapeStatusEnum;
 import pedribault.game.enums.MissionStatusEnum;
 
 import java.time.LocalDateTime;
@@ -35,5 +36,5 @@ public class EscapePlayerMapping {
 
     @Enumerated(EnumType.STRING)
     @JoinColumn(name = "status")
-    private MissionStatusEnum status;
+    private EscapeStatusEnum status;
 }
