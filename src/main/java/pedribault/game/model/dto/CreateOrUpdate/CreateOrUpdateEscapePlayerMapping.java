@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CreateOrUpdateEscapePlayerMapping {
-    private Integer playerId;
-    private Integer escapeId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String status;

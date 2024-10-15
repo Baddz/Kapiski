@@ -83,44 +83,44 @@ public class MissionService {
         if (createOrUpdateMission.getMissionOptions() != null) {
             setMissionOptions(createOrUpdateMission, mission);
         }
-
-        if (createOrUpdateMission.getPlayerMappings() != null) {
-            addPlayers(createOrUpdateMission.getPlayerMappings(), mission);
-        }
+// TODO players
+//        if (createOrUpdateMission.getPlayerMappings() != null) {
+//            addPlayers(createOrUpdateMission.getPlayerMappings(), mission);
+//        }
 
         missionRepository.save(mission);
 
         return missionMapper.missionToMissionDto(mission);
     }
-
-    private void addPlayers(final List<CreateOrUpdateMissionPlayerMapping> createOrUpdateMissionPlayerMappings, final Mission mission) {
-        final Set<Integer> distinctPlayerIds = createOrUpdateMissionPlayerMappings.stream()
-                .map(CreateOrUpdateMissionPlayerMapping::getPlayerId).collect(Collectors.toSet());
-        ;
-        final List<Player> players = playerRepository.findAllById(distinctPlayerIds);
-        if(players.size() != distinctPlayerIds.size()) {
-            final List<Integer> foundIds = players.stream().map(Player::getId).toList();
-            final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
-            throw new TheGameException(HttpStatus.NOT_FOUND,
-                    "Players not found",
-                    "The following ids were not found: " + missingIds + " in the PLayers database");
-        }
-
-        Map<Integer, Player> playerMap = players.stream().collect(Collectors.toMap(Player::getId, player -> player));
-        for (CreateOrUpdateMissionPlayerMapping createPlayerMapping : createOrUpdateMissionPlayerMappings) {
-            final MissionPlayerMapping missionPlayerMapping = new MissionPlayerMapping();
-            missionPlayerMapping.setPlayer(playerMap.get(createPlayerMapping.getPlayerId()));
-            missionPlayerMapping.setMission(mission);
-            try {
-                missionPlayerMapping.setStatus(MissionStatusEnum.valueOf(createPlayerMapping.getStatus()));
-            } catch (IllegalArgumentException e) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "One MissionPlayer status dosen't exist", "The status: " + createPlayerMapping.getStatus() + " doens't exist");
-            }
-            missionPlayerMapping.setStartDate(createPlayerMapping.getStartDate());
-            missionPlayerMapping.setEndDate(createPlayerMapping.getEndDate());
-            mission.addPlayerMapping(missionPlayerMapping);
-        }
-    }
+// TODO players
+//    private void addPlayers(final List<CreateOrUpdateMissionPlayerMapping> createOrUpdateMissionPlayerMappings, final Mission mission) {
+//        final Set<Integer> distinctPlayerIds = createOrUpdateMissionPlayerMappings.stream()
+//                .map(CreateOrUpdateMissionPlayerMapping::getPlayerId).collect(Collectors.toSet());
+//        ;
+//        final List<Player> players = playerRepository.findAllById(distinctPlayerIds);
+//        if(players.size() != distinctPlayerIds.size()) {
+//            final List<Integer> foundIds = players.stream().map(Player::getId).toList();
+//            final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
+//            throw new TheGameException(HttpStatus.NOT_FOUND,
+//                    "Players not found",
+//                    "The following ids were not found: " + missingIds + " in the PLayers database");
+//        }
+//
+//        Map<Integer, Player> playerMap = players.stream().collect(Collectors.toMap(Player::getId, player -> player));
+//        for (CreateOrUpdateMissionPlayerMapping createPlayerMapping : createOrUpdateMissionPlayerMappings) {
+//            final MissionPlayerMapping missionPlayerMapping = new MissionPlayerMapping();
+//            missionPlayerMapping.setPlayer(playerMap.get(createPlayerMapping.getPlayerId()));
+//            missionPlayerMapping.setMission(mission);
+//            try {
+//                missionPlayerMapping.setStatus(MissionStatusEnum.valueOf(createPlayerMapping.getStatus()));
+//            } catch (IllegalArgumentException e) {
+//                throw new TheGameException(HttpStatus.BAD_REQUEST, "One MissionPlayer status dosen't exist", "The status: " + createPlayerMapping.getStatus() + " doens't exist");
+//            }
+//            missionPlayerMapping.setStartDate(createPlayerMapping.getStartDate());
+//            missionPlayerMapping.setEndDate(createPlayerMapping.getEndDate());
+//            mission.addPlayerMapping(missionPlayerMapping);
+//        }
+//    }
 
     private static void setDefaultValues(final CreateOrUpdateMission createOrUpdateMission) {
         if (createOrUpdateMission.getIsVisible() == null) {

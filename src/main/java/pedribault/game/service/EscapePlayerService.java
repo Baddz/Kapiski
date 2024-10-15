@@ -75,21 +75,21 @@ public class EscapePlayerService {
         return escapePlayerMappingMapper.escapePlayerMappingToEscapePlayerMappingDto(escapePlayerMapping);
     }
 
-    public EscapePlayerMappingDto createEscapePlayerMapping(CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+    public EscapePlayerMappingDto createEscapePlayerMapping(CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, Integer escapeId, Integer playerId) {
         if (createOrUpdateEscapePlayerMapping == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is null", "A body is required");
         }
-        if (createOrUpdateEscapePlayerMapping.getEscapeId() == null) {
+        if (escapeId == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Escape id is null", "Escape id is required");
         }
-        if (createOrUpdateEscapePlayerMapping.getPlayerId() == null) {
+        if (playerId == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Player id is null", "Player id is required");
         }
 
-        final Player player = playerRepository.findById(createOrUpdateEscapePlayerMapping.getPlayerId())
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "id: " + createOrUpdateEscapePlayerMapping.getPlayerId() + " doesn't exist in the Players database"));
-        final Escape escape = escapeRepository.findById(createOrUpdateEscapePlayerMapping.getEscapeId())
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "id: " + createOrUpdateEscapePlayerMapping.getEscapeId() + " doesn't exist in the Escapes database"));
+        final Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "id: " + playerId + " doesn't exist in the Players database"));
+        final Escape escape = escapeRepository.findById(escapeId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "id: " + escapeId + " doesn't exist in the Escapes database"));
 
         final EscapePlayerMapping escapePlayerMapping = new EscapePlayerMapping();
         escapePlayerMapping.setPlayer(player);
@@ -107,7 +107,7 @@ public class EscapePlayerService {
         return escapePlayerMappingMapper.escapePlayerMappingToEscapePlayerMappingDto(escapePlayerMapping);
     }
 
-    public EscapePlayerMappingDto updateEscapePlayerMappingById(Integer id, CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+    public EscapePlayerMappingDto updateEscapePlayerMappingById(Integer id, CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, Integer escapeId, Integer playerId) {
         if (id == null) {
             throw  new TheGameException(HttpStatus.BAD_REQUEST, "id must be provided", "id is null");
         }
@@ -117,7 +117,7 @@ public class EscapePlayerService {
         final EscapePlayerMapping escapePlayerMapping = escapePlayerMappingRepository.findById(id)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "EscapePlayerMapping not found", "Id: " + id + " doesn't exist in the Escape_J_Player database"));
 
-        updateEscapePlayerMapping(createOrUpdateEscapePlayerMapping, escapePlayerMapping);
+        updateEscapePlayerMapping(createOrUpdateEscapePlayerMapping, escapePlayerMapping, escapeId, playerId);
 
         return escapePlayerMappingMapper.escapePlayerMappingToEscapePlayerMappingDto(escapePlayerMapping);
     }
@@ -135,12 +135,12 @@ public class EscapePlayerService {
         final EscapePlayerMapping escapePlayerMapping = escapePlayerMappingRepository.findByPlayerIdAndEscapeId(playerId, escapeId)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "EscapePlayerMapping not found", "Player id: " + playerId + " and Escape id: " + escapeId + " are not linked in the Escape_J_Player database"));
 
-        updateEscapePlayerMapping(createOrUpdateEscapePlayerMapping, escapePlayerMapping);
+        updateEscapePlayerMapping(createOrUpdateEscapePlayerMapping, escapePlayerMapping, escapeId, playerId);
 
         return escapePlayerMappingMapper.escapePlayerMappingToEscapePlayerMappingDto(escapePlayerMapping);
     }
 
-    private void updateEscapePlayerMapping(final CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, final EscapePlayerMapping escapePlayerMapping) {
+    private void updateEscapePlayerMapping(final CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, final EscapePlayerMapping escapePlayerMapping, Integer escapeId, Integer playerId) {
         boolean updated = false;
         if (createOrUpdateEscapePlayerMapping.getStatus() != null
                 && !createOrUpdateEscapePlayerMapping.getStatus().equals(escapePlayerMapping.getStatus().name())) {
@@ -151,17 +151,15 @@ public class EscapePlayerService {
             }
             updated = true;
         }
-        if (createOrUpdateEscapePlayerMapping.getPlayerId() != null
-                && !createOrUpdateEscapePlayerMapping.getPlayerId().equals(escapePlayerMapping.getPlayer().getId())) {
-            final Player player = playerRepository.findById(createOrUpdateEscapePlayerMapping.getPlayerId())
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "id: " + createOrUpdateEscapePlayerMapping.getPlayerId() + " doesn't exist in the Players database"));
+        if (playerId != null && !playerId.equals(escapePlayerMapping.getPlayer().getId())) {
+            final Player player = playerRepository.findById(playerId)
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "id: " + playerId + " doesn't exist in the Players database"));
             escapePlayerMapping.setPlayer(player);
             updated = true;
         }
-        if (createOrUpdateEscapePlayerMapping.getEscapeId() != null
-                && !createOrUpdateEscapePlayerMapping.getEscapeId().equals(escapePlayerMapping.getEscape().getId())) {
-            final Escape escape = escapeRepository.findById(createOrUpdateEscapePlayerMapping.getEscapeId())
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "id: " + createOrUpdateEscapePlayerMapping.getEscapeId() + " doesn't exist in the Escapes database"));
+        if (escapeId != null && !escapeId.equals(escapePlayerMapping.getEscape().getId())) {
+            final Escape escape = escapeRepository.findById(escapeId)
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "id: " + escapeId + " doesn't exist in the Escapes database"));
             updated = true;
         }
         if (createOrUpdateEscapePlayerMapping.getEndDate() != null

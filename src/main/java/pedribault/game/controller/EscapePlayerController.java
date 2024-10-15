@@ -107,10 +107,10 @@ public class EscapePlayerController {
     }
 
     @GetMapping("/create")
-    public ResponseEntity<?> createEscapePlayerMapping(@RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+    public ResponseEntity<?> createEscapePlayerMapping(@RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, @PathVariable Integer escapeId, @PathVariable Integer playerId) {
         log.info("[IN]=[CREATING ESCAPE_PLAYER]");
         try {
-            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.createEscapePlayerMapping(createOrUpdateEscapePlayerMapping);
+            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.createEscapePlayerMapping(createOrUpdateEscapePlayerMapping, escapeId, playerId);
             return new ResponseEntity<>(escapePlayerMappingDto, HttpStatus.CREATED);
         } catch (Exception e) {
             return globalExceptionHandler.handleException(e);
@@ -118,10 +118,10 @@ public class EscapePlayerController {
     }
 
     @GetMapping("/{id}/update")
-    public ResponseEntity<?> updateEscapePlayerMappingById(@PathVariable Integer id, @RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping) {
+    public ResponseEntity<?> updateEscapePlayerMappingById(@PathVariable Integer id, @RequestBody CreateOrUpdateEscapePlayerMapping createOrUpdateEscapePlayerMapping, @RequestParam Integer escapeId, @RequestParam Integer playerId) {
         log.info("[IN]=[UPDATING ESCAPE_PLAYER [ID]=[{}]]", id);
         try {
-            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.updateEscapePlayerMappingById(id, createOrUpdateEscapePlayerMapping);
+            EscapePlayerMappingDto escapePlayerMappingDto = escapePlayerService.updateEscapePlayerMappingById(id, createOrUpdateEscapePlayerMapping, escapeId, playerId);
             return new ResponseEntity<>(escapePlayerMappingDto, HttpStatus.CREATED);
         } catch (Exception e) {
             return globalExceptionHandler.handleException(e);

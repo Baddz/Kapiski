@@ -31,8 +31,9 @@ public class ClueService {
     @Autowired
     private ClueMapper clueMapper;
 
+    // TODO Update/create clue with RequestParameter missionId / missionOptionId
+
     public List<ClueDto> getClues() {
-        clueRepository.findAll();
         final List<Clue> clues = clueRepository.findAll();
         final List<ClueDto> clueDtos = new ArrayList<>();
         if (!clues.isEmpty()) {
@@ -58,7 +59,6 @@ public class ClueService {
         if (createOrUpdateClue == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Clue is null", "A body is required");
         }
-
         if (createOrUpdateClue.getContent() == null || createOrUpdateClue.getOrder() == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing order or content of the clue", "Order and content of the clue need to be specified in the body");
         }
