@@ -3,14 +3,12 @@ package pedribault.game.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import pedribault.game.enums.MissionConditionEnum;
-import pedribault.game.enums.MissionStatusEnum;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
 import pedribault.game.model.*;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMission;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
-import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionPlayerMapping;
 import pedribault.game.model.dto.MissionDto;
 import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.EscapeRepository;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
