@@ -57,7 +57,7 @@ public class MissionOptionController {
         }
     }
 
-    @GetMapping("/mission/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getMissionOptionById(Integer id) {
         try {
             log.info("[IN]=[GETTING MISSION_OPTION [ID]=[{}]]", id);
@@ -75,8 +75,38 @@ public class MissionOptionController {
     @GetMapping("/mission/{missionId}/create")
     public ResponseEntity<?> createMissionOption(@RequestBody CreateOrUpdateMissionOption createOrUpdateMissionOption, @PathVariable Integer missionId) {
         try {
-            log.info("[IN]=[CREATING MISSION_OPTIONS [MISSION_ID]=[{}]]", missionId);
+            log.info("[IN]=[CREATING MISSION_OPTION [MISSION_ID]=[{}]]", missionId);
             final MissionOptionDto missionOptionDto = missionOptionService.createMissionOption(createOrUpdateMissionOption, missionId);
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
+
+            return new ResponseEntity<>(missionOptionDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
+
+    @GetMapping("/{id}/update")
+    public ResponseEntity<?> updateMissionOption(@PathVariable Integer id, @RequestParam Integer missionId, @RequestBody CreateOrUpdateMissionOption createOrUpdateMissionOption) {
+        try {
+            log.info("[IN]=[UPDATING MISSION_OPTION [ID]=[{}]]", id);
+            final MissionOptionDto missionOptionDto = missionOptionService.updateMissionOption(id, missionId, createOrUpdateMissionOption);
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
+
+            return new ResponseEntity<>(missionOptionDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
+
+    @GetMapping("/{id}/clues/remove")
+    public ResponseEntity<?> removeClues(@PathVariable Integer id, @RequestBody List<Integer> clueIds) {
+        try {
+            log.info("[IN]=[REMOVING CLUES FROM MISSION_OPTION [ID]=[{}]]", id);
+            final MissionOptionDto missionOptionDto = missionOptionService.removeClues(id, clueIds);
             final StringBuilder reqOut = new StringBuilder();
             reqOut.append("[OUT]=[[STATUS]=[OK]]");
             log.info(reqOut.toString());

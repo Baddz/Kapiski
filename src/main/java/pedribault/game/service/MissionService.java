@@ -100,7 +100,7 @@ public class MissionService {
 //            final List<Integer> missingIds = distinctPlayerIds.stream().filter(id -> !foundIds.contains(id)).toList();
 //            throw new TheGameException(HttpStatus.NOT_FOUND,
 //                    "Players not found",
-//                    "The following ids were not found: " + missingIds + " in the PLayers database");
+//                    "The following ids were not found: " + missingIds + " in the Players database");
 //        }
 //
 //        Map<Integer, Player> playerMap = players.stream().collect(Collectors.toMap(Player::getId, player -> player));

@@ -73,7 +73,9 @@ public class MissionOption {
         if (this.getClues() == null) {
             this.setClues(new ArrayList<>());
         }
+        clue.setMission(null);
         this.getClues().add(clue);
+        clue.setMissionOption(this);
     }
 
     public void addClues(List<Clue> clues) {
@@ -91,6 +93,7 @@ public class MissionOption {
         if (clue != null) {
             if (this.getClues().contains(clue)) {
                 this.getClues().remove(clue);
+                clue.setMissionOption(null);
             }
         }
     }
@@ -101,5 +104,13 @@ public class MissionOption {
         }
 
         this.getConditions().add(conditionEnum);
+    }
+
+    public void removeCondition(MissionConditionEnum conditionEnum) {
+        if (conditionEnum != null) {
+            if (this.getConditions().contains(conditionEnum)) {
+                this.getConditions().remove(conditionEnum);
+            }
+        }
     }
 }

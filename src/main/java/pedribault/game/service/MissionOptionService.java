@@ -12,12 +12,17 @@ import pedribault.game.model.Mission;
 import pedribault.game.model.MissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
+import pedribault.game.model.dto.CreateOrUpdate.UpdateClue;
 import pedribault.game.model.dto.MissionOptionDto;
 import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.MissionOptionRepository;
 import pedribault.game.repository.MissionRepository;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -79,7 +84,7 @@ public class MissionOptionService {
         addClues(createOrUpdateMissionOption.getClues(), missionOption);
     }
 
-    private static void addClues(final List<CreateOrUpdateClue> clues, final MissionOption missionOption) {
+    private static void addClues(final List<UpdateClue> clues, final MissionOption missionOption) {
         for (CreateOrUpdateClue createOrUpdateClue : clues) {
             if (createOrUpdateClue == null) {
                 throw new TheGameException(HttpStatus.BAD_REQUEST, "Clue is null", "A clue is required");
@@ -126,7 +131,8 @@ public class MissionOptionService {
         }
 
         if (createOrUpdateMissionOption != null) {
-            addConditionsAndClues(createOrUpdateMissionOption, missionOption);
+            updateConditions(createOrUpdateMissionOption, missionOption);
+            updateClues(createOrUpdateMissionOption, missionOption);
             missionOption.setDescription(createOrUpdateMissionOption.getDescription());
         }
 
@@ -135,12 +141,73 @@ public class MissionOptionService {
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
-    public MissionOptionDto addClues(Integer id, List<CreateOrUpdateClue> createOrUpdateClues) {
-        final MissionOption missionOption = missionOptionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
-        addClues(createOrUpdateClues, missionOption);
-        missionOptionRepository.save(missionOption);
-        return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
+    private void updateClues(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption) {
+        if (createOrUpdateMissionOption.getClues() != null) {
+            final List<UpdateClue> newClues = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() == null).toList();
+            final List<UpdateClue> updateClueDtos = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() != null).toList();
+            final Set<Integer> updateClueIdSet = updateClueDtos.stream().map(UpdateClue::getId).collect(Collectors.toSet());
+            final List<Clue> updateClues = clueRepository.findAllById(updateClueIdSet);
+            // check if all exist
+            if (updateClues.size() != updateClueIdSet.size()) {
+                final List<Integer> foundIds = updateClues.stream().map(Clue::getId).toList();
+                final List<Integer> missingIds = updateClueIdSet.stream().filter(foundIds::contains).toList();
+                throw new TheGameException(HttpStatus.NOT_FOUND,
+                "Clues not found",
+                "The following ids were not found: " + missingIds + " in the Clues database");
+            }
+            final List<Clue> updatedClues = new ArrayList<>();
+            // add
+            for (Clue clue : updateClues) {
+                if (!missionOption.getClues().contains(clue)) {
+                    missionOption.addClue(clue);
+                    clue.setMissionOption(missionOption);
+                    clue.setMission(null);
+                    updatedClues.add(clue);
+                }
+            }
+            clueRepository.saveAll(updatedClues);
+            // remove
+            for (Clue clue : missionOption.getClues()) {
+                if (!updateClues.contains(clue)) {
+                    missionOption.removeClue(clue);
+                }
+            }
+
+            // create
+            for (UpdateClue newClueDto : newClues) {
+                Clue newClue = new Clue();
+                newClue.setContent(newClueDto.getContent());
+                newClue.setOrder(newClueDto.getOrder());
+                newClue.setSubOrder(newClueDto.getSubOrder());
+                missionOption.addClue(newClue);
+            }
+        }
+    }
+
+    private static void updateConditions(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption) {
+        if (createOrUpdateMissionOption.getConditions() != null) {
+            final List<MissionConditionEnum> missionConditionEnums = new ArrayList<>();
+            for (String condition : createOrUpdateMissionOption.getConditions()) {
+                try {
+                    final MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
+                    missionConditionEnums.add(missionConditionEnum);
+                } catch (IllegalArgumentException e) {
+                    throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid Mission Condition", "Mission Condition: " + condition + " doesn't exist");
+                }
+            }
+            // add
+            for (MissionConditionEnum missionConditionEnum : missionConditionEnums) {
+                if (!missionOption.getConditions().contains(missionConditionEnum)) {
+                    missionOption.addCondition(missionConditionEnum);
+                }
+            }
+            // remove
+            for (MissionConditionEnum missionConditionEnum : missionOption.getConditions()) {
+                if (!missionConditionEnums.contains(missionConditionEnum)) {
+                    missionOption.removeCondition(missionConditionEnum);
+                }
+            }
+        }
     }
 
     public MissionOptionDto removeClues(Integer id, List<Integer> clueIds) {

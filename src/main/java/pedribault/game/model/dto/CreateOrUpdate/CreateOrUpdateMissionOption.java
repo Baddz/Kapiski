@@ -10,5 +10,5 @@ import java.util.List;
 public class CreateOrUpdateMissionOption {
     private String description;
     private List<String> conditions;
-    private List<CreateOrUpdateClue> clues;
+    private List<UpdateClue> clues;
 }
