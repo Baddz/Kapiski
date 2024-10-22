@@ -19,7 +19,6 @@ import pedribault.game.repository.MissionOptionRepository;
 import pedribault.game.repository.MissionRepository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -123,25 +122,33 @@ public class MissionOptionService {
 
         final MissionOption missionOption = missionOptionRepository.findById(id)
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
-
+        boolean updated = false;
         if (missionId != null) {
             final Mission mission = missionRepository.findById(missionId)
                     .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + id + " doesn't exist in the Missions database"));
-            missionOption.setMission(mission);
+            if (!mission.equals(missionOption.getMission())) {
+                missionOption.setMission(mission);
+                updated = true;
+            }
         }
 
         if (createOrUpdateMissionOption != null) {
-            updateConditions(createOrUpdateMissionOption, missionOption);
-            updateClues(createOrUpdateMissionOption, missionOption);
-            missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+            updateConditions(createOrUpdateMissionOption, missionOption, updated);
+            updateClues(createOrUpdateMissionOption, missionOption, updated);
+            if (createOrUpdateMissionOption.getDescription() != null && !createOrUpdateMissionOption.getDescription().equals(missionOption.getDescription())) {
+                missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+                updated = true;
+            }
         }
 
-        missionOptionRepository.save(missionOption);
+        if (updated) {
+            missionOptionRepository.save(missionOption);
+        }
 
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
-    private void updateClues(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption) {
+    private void updateClues(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, boolean updated) {
         if (createOrUpdateMissionOption.getClues() != null) {
             final List<UpdateClue> newClues = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() == null).toList();
             final List<UpdateClue> updateClueDtos = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() != null).toList();
@@ -163,6 +170,7 @@ public class MissionOptionService {
                     clue.setMissionOption(missionOption);
                     clue.setMission(null);
                     updatedClues.add(clue);
+                    updated = true;
                 }
             }
             clueRepository.saveAll(updatedClues);
@@ -170,6 +178,7 @@ public class MissionOptionService {
             for (Clue clue : missionOption.getClues()) {
                 if (!updateClues.contains(clue)) {
                     missionOption.removeClue(clue);
+                    updated = true;
                 }
             }
 
@@ -180,11 +189,12 @@ public class MissionOptionService {
                 newClue.setOrder(newClueDto.getOrder());
                 newClue.setSubOrder(newClueDto.getSubOrder());
                 missionOption.addClue(newClue);
+                updated = true;
             }
         }
     }
 
-    private static void updateConditions(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption) {
+    private static void updateConditions(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, boolean updated) {
         if (createOrUpdateMissionOption.getConditions() != null) {
             final List<MissionConditionEnum> missionConditionEnums = new ArrayList<>();
             for (String condition : createOrUpdateMissionOption.getConditions()) {
@@ -199,12 +209,14 @@ public class MissionOptionService {
             for (MissionConditionEnum missionConditionEnum : missionConditionEnums) {
                 if (!missionOption.getConditions().contains(missionConditionEnum)) {
                     missionOption.addCondition(missionConditionEnum);
+                    updated = true;
                 }
             }
             // remove
             for (MissionConditionEnum missionConditionEnum : missionOption.getConditions()) {
                 if (!missionConditionEnums.contains(missionConditionEnum)) {
                     missionOption.removeCondition(missionConditionEnum);
+                    updated = true;
                 }
             }
         }
