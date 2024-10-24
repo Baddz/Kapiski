@@ -72,7 +72,7 @@ public class MissionOptionController {
         }
     }
 
-    @GetMapping("/mission/{missionId}/create")
+    @PostMapping("/mission/{missionId}/create")
     public ResponseEntity<?> createMissionOption(@RequestBody CreateOrUpdateMissionOption createOrUpdateMissionOption, @PathVariable Integer missionId) {
         try {
             log.info("[IN]=[CREATING MISSION_OPTION [MISSION_ID]=[{}]]", missionId);
@@ -87,7 +87,7 @@ public class MissionOptionController {
         }
     }
 
-    @GetMapping("/{id}/update")
+    @PutMapping("/{id}/update")
     public ResponseEntity<?> updateMissionOption(@PathVariable Integer id, @RequestParam Integer missionId, @RequestBody CreateOrUpdateMissionOption createOrUpdateMissionOption) {
         try {
             log.info("[IN]=[UPDATING MISSION_OPTION [ID]=[{}]]", id);
@@ -102,7 +102,7 @@ public class MissionOptionController {
         }
     }
 
-    @GetMapping("/{id}/clues/remove")
+    @DeleteMapping("/{id}/clues/remove")
     public ResponseEntity<?> removeClues(@PathVariable Integer id, @RequestBody List<Integer> clueIds) {
         try {
             log.info("[IN]=[REMOVING CLUES FROM MISSION_OPTION [ID]=[{}]]", id);
@@ -116,4 +116,6 @@ public class MissionOptionController {
             return globalExceptionHandler.handleException(e);
         }
     }
+
+    // TODO delete mission_option from mission
 }

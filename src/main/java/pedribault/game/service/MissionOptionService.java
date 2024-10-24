@@ -74,6 +74,7 @@ public class MissionOptionService {
         addConditionsAndClues(createOrUpdateMissionOption, missionOption);
         missionOption.setMission(mission);
         missionOption.setDescription(createOrUpdateMissionOption.getDescription());
+        missionOptionRepository.save(missionOption);
 
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
