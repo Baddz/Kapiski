@@ -30,7 +30,7 @@ public class MissionOptionMapper {
             for (MissionOption missionOption : missionOptions) {
                 missionOptionDtos.add(missionOptionToMissionOptionDto(missionOption));
             }
-            return missionOptionDtos;
         }
+        return missionOptionDtos;
     }
 }
