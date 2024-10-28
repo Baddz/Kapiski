@@ -41,7 +41,7 @@ public class MissionOptionController {
     }
 
     @GetMapping("/mission/{missionId}")
-    public ResponseEntity<?> getMissionOptionsByMissionId(Integer missionId) {
+    public ResponseEntity<?> getMissionOptionsByMissionId(@PathVariable Integer missionId) {
         try {
             log.info("[IN]=[GETTING MISSION_OPTIONS [MISSION_ID]=[{}]]", missionId);
             List<MissionOptionDto> missionOptionDtos = new ArrayList<>();
@@ -58,7 +58,7 @@ public class MissionOptionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getMissionOptionById(Integer id) {
+    public ResponseEntity<?> getMissionOptionById(@PathVariable Integer id) {
         try {
             log.info("[IN]=[GETTING MISSION_OPTION [ID]=[{}]]", id);
             final MissionOptionDto missionOptionDto = missionOptionService.getMissionOptionsById(id);
@@ -86,6 +86,8 @@ public class MissionOptionController {
             return globalExceptionHandler.handleException(e);
         }
     }
+
+    // TODO tests below
 
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateMissionOption(@PathVariable Integer id, @RequestParam Integer missionId, @RequestBody CreateOrUpdateMissionOption createOrUpdateMissionOption) {
