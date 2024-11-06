@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.exceptions.TheGameException;
+import pedribault.game.mappers.MissionMapper;
 import pedribault.game.mappers.MissionOptionMapper;
 import pedribault.game.model.Clue;
 import pedribault.game.model.Mission;
@@ -13,6 +14,8 @@ import pedribault.game.model.MissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.UpdateClue;
+import pedribault.game.model.dto.CreateOrUpdate.UpdateMissionOption;
+import pedribault.game.model.dto.MissionDto;
 import pedribault.game.model.dto.MissionOptionDto;
 import pedribault.game.repository.ClueRepository;
 import pedribault.game.repository.MissionOptionRepository;
@@ -20,6 +23,7 @@ import pedribault.game.repository.MissionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +41,8 @@ public class MissionOptionService {
     private ClueService clueService;
     @Autowired
     private ClueRepository clueRepository;
+    @Autowired
+    private MissionMapper missionMapper;
 
     public List<MissionOptionDto> getMissionOptions() {
         final List<MissionOption> missionOptions = missionOptionRepository.findAll();
@@ -149,6 +155,46 @@ public class MissionOptionService {
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
+    private MissionDto updateMissionOptions(Integer missionId, List<UpdateMissionOption> updateMissionOptions) {
+        if (updateMissionOptions == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is null", "Mission options not provided");
+        }
+        final Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + missionId + " doesn't exist in the Missions database"));
+        final List<MissionOption> missionOptions = new ArrayList<>();
+        final List<UpdateMissionOption> missionOptionsToUpdate = updateMissionOptions.stream().filter(umo -> umo.getId() != null).collect(Collectors.toSet()).stream().toList();
+        final List<MissionOption> foundMissionOptionsToUpdate = missionOptionRepository.findAllById(missionOptionsToUpdate.stream().map(UpdateMissionOption::getId).toList());
+        final List<Integer> foundMissionOptionsIds = foundMissionOptionsToUpdate.stream().map(MissionOption::getId).toList();
+        final List<Integer> notFoundMissionOptionIds = new ArrayList<>();
+        for (UpdateMissionOption missionOptionToUpdate : missionOptionsToUpdate) {
+            if (!foundMissionOptionsIds.contains(missionOptionToUpdate.getId())) {
+                notFoundMissionOptionIds.add(missionOptionToUpdate.getId());
+            }
+        }
+        if (!notFoundMissionOptionIds.isEmpty()) {
+            throw new TheGameException(HttpStatus.NOT_FOUND, "MissionOptions not found", "Mission options ids: " + notFoundMissionOptionIds + " don't exist in the Mission_Option database");
+        }
+        // TODO use new function ObjectHandler.updateObjectList
+        if (mission.getOptions() == null) {
+            mission.setOptions(new ArrayList<>());
+        }
+
+        for (MissionOption missionOption : mission.getOptions()) {
+            if (!foundMissionOptionsIds.contains(missionOption.getId())) {
+                mission.removeOption(missionOption);
+            } else {
+                foundMissionOptionsToUpdate.forEach(umo -> {
+                    if (Objects.equals(umo.getId(), missionOption.getId())) {
+                    }
+                });
+            }
+        }
+
+        for (UpdateMissionOption updateMissionOption : missionOptionsToUpdate) {
+            final MissionOption missionOption =
+        }
+    }
+
     private void updateClues(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, boolean updated) {
         if (createOrUpdateMissionOption.getClues() != null) {
             final List<UpdateClue> newClues = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() == null).toList();
@@ -238,6 +284,19 @@ public class MissionOptionService {
         }
 
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
+    }
+
+    public MissionDto removeMissionOption(Integer missionId, Integer id) {
+        final Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + missionId + " doesn't exist in the Missions database"));
+        final MissionOption missionOption = missionOptionRepository.findById(id)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
+
+        if (mission.getOptions() == null || !mission.getOptions().contains(missionOption)) {
+            throw new TheGameException(HttpStatus.NOT_FOUND, "Mission option not linked to mission", "Mission option id: " + id + " is not an option of mission id: " + missionId);
+        }
+        mission.removeOption(missionOption);
+        return missionMapper.missionToMissionDto(mission);
     }
 }
 

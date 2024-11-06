@@ -85,6 +85,18 @@ public abstract class Mission {
         }
     }
 
+    public void removeOption(MissionOption missionOption) {
+        if (this.getOptions() == null) {
+            this.setOptions(new ArrayList<>());
+        }
+
+        if (missionOption != null) {
+            if (this.getOptions().contains(missionOption)) {
+                this.getOptions().remove(missionOption);
+            }
+        }
+    }
+
     public void addPlayerMapping(MissionPlayerMapping mapping) {
         if (this.playerMappings == null) {
             this.playerMappings = new ArrayList<>();

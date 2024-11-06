@@ -119,5 +119,13 @@ public class MissionOptionController {
         }
     }
 
-    // TODO delete mission_option from mission
+    @DeleteMapping("/mission/{missionId}/mission_option/{id}/remove")
+    public ResponseEntity<?> removeMissionOption(@PathVariable Integer missionId, @PathVariable Integer id) {
+        try {
+            log.info("[IN]=[REMOVING CLUES FROM MISSION_OPTION [ID]=[{}]]", id);
+
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
 }
