@@ -106,7 +106,7 @@ public class MissionOptionController {
         }
     }
 
-    @PutMapping("/{missionId}/mission_options")
+    @PutMapping("mission/{missionId}/update")
     public ResponseEntity<?> updateMissionOptions(@PathVariable Integer missionId, @RequestBody List<UpdateMissionOption> createOrUpdateMissionOptions) {
         try {
             log.info("[IN]=[UPDATING MISSION_OPTIONS OF MISSION [ID]=[{}]]", missionId);
@@ -139,8 +139,13 @@ public class MissionOptionController {
     @DeleteMapping("/mission/{missionId}/mission_option/{id}/remove")
     public ResponseEntity<?> removeMissionOption(@PathVariable Integer missionId, @PathVariable Integer id) {
         try {
-            log.info("[IN]=[REMOVING CLUES FROM MISSION_OPTION [ID]=[{}]]", id);
+            log.info("[IN]=[REMOVING MISSION_OPTION [ID]=[{}] FROM MISSION [ID]=[{}]]", id, missionId);
+            final MissionDto missionDto = missionOptionService.removeMissionOption(missionId, id);
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
 
+            return new ResponseEntity<>(missionDto, HttpStatus.OK);
         } catch (Exception e) {
             return globalExceptionHandler.handleException(e);
         }

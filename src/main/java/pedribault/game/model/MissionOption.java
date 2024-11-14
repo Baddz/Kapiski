@@ -35,7 +35,7 @@ public class MissionOption {
             joinColumns = @JoinColumn(name = "mission_option_id")
     )
     @Column(name = "`condition`")
-    private List<MissionConditionEnum> conditions;
+    private List<MissionConditionEnum> conditions = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "mission_id")

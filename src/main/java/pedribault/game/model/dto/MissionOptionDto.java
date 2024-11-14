@@ -13,5 +13,6 @@ public class MissionOptionDto {
     private Integer id;
     private String description;
     private List<ClueSummary> clues;
+    private List<String> conditions;
     private MissionSummary mission;
 }

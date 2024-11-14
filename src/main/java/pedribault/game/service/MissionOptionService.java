@@ -1,16 +1,17 @@
 package pedribault.game.service;
 
+import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.exceptions.TheGameException;
 import pedribault.game.mappers.MissionMapper;
 import pedribault.game.mappers.MissionOptionMapper;
-import pedribault.game.model.Clue;
-import pedribault.game.model.Mission;
-import pedribault.game.model.MissionOption;
+import pedribault.game.model.*;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateClue;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.UpdateClue;
@@ -159,6 +160,7 @@ public class MissionOptionService {
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
+    @Transactional
     public MissionDto updateMissionOptions(Integer missionId, List<UpdateMissionOption> updateMissionOptions) {
         if (updateMissionOptions == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is null", "Mission options not provided");
@@ -185,7 +187,14 @@ public class MissionOptionService {
         AtomicBoolean updated = new AtomicBoolean(false);
         objectHandler.updateObjectList(mission.getOptions(), updateMissionOptions, MissionOption::getId, UpdateMissionOption::getId, this::updateMissionOption, this::createMissionOption, updated);
         if (updated.get()) {
-            missionRepository.save(mission);
+            if (mission instanceof StandardMission) {
+                log.info("Attempting to save mission: " + mission);
+                missionRepository.save((StandardMission) mission);
+            } else if (mission instanceof CustomMission) {
+                missionRepository.save((CustomMission) mission);
+            } else {
+                throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid mission type", "Mission must be of type StandardMission or CustomMission.");
+            }
         }
 
         return missionMapper.missionToMissionDto(mission);
@@ -250,75 +259,62 @@ public class MissionOptionService {
 
     private void updateClues(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, AtomicBoolean updated) {
         if (createOrUpdateMissionOption.getClues() != null) {
+            // Separate lists for additions and removals
+            List<Clue> cluesToAdd = new ArrayList<>();
+            List<Clue> cluesToRemove = new ArrayList<>(missionOption.getClues());
+
             final List<UpdateClue> newClues = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() == null).toList();
             final List<UpdateClue> updateClueDtos = createOrUpdateMissionOption.getClues().stream().filter(c -> c.getId() != null).toList();
             final Set<Integer> updateClueIdSet = updateClueDtos.stream().map(UpdateClue::getId).collect(Collectors.toSet());
             final List<Clue> updateClues = clueRepository.findAllById(updateClueIdSet);
-            // check if all exist
-            if (updateClues.size() != updateClueIdSet.size()) {
-                final List<Integer> foundIds = updateClues.stream().map(Clue::getId).toList();
-                final List<Integer> missingIds = updateClueIdSet.stream().filter(foundIds::contains).toList();
-                throw new TheGameException(HttpStatus.NOT_FOUND,
-                "Clues not found",
-                "The following ids were not found: " + missingIds + " in the Clues database");
-            }
-            final List<Clue> updatedClues = new ArrayList<>();
-            // add
+
+            // Add clues if they don't exist in the current list
             for (Clue clue : updateClues) {
                 if (!missionOption.getClues().contains(clue)) {
-                    missionOption.addClue(clue);
-                    clue.setMissionOption(missionOption);
-                    clue.setMission(null);
-                    updatedClues.add(clue);
-                    updated.set(true);
-                }
-            }
-            clueRepository.saveAll(updatedClues);
-            // remove
-            for (Clue clue : missionOption.getClues()) {
-                if (!updateClues.contains(clue)) {
-                    missionOption.removeClue(clue);
+                    cluesToAdd.add(clue);
                     updated.set(true);
                 }
             }
 
-            // create
+            // Remove clues not in the update list
+            cluesToRemove.removeAll(updateClues);
+
+            // Add new clues from DTOs
             for (UpdateClue newClueDto : newClues) {
                 Clue newClue = new Clue();
                 newClue.setContent(newClueDto.getContent());
                 newClue.setOrder(newClueDto.getOrder());
                 newClue.setSubOrder(newClueDto.getSubOrder());
-                missionOption.addClue(newClue);
+                cluesToAdd.add(newClue);
                 updated.set(true);
             }
+
+            // additions and removals
+            missionOption.getClues().addAll(cluesToAdd);
+            missionOption.getClues().removeAll(cluesToRemove);
         }
     }
 
-    private static void updateConditions(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, AtomicBoolean updated) {
-        if (createOrUpdateMissionOption.getConditions() != null) {
-            final List<MissionConditionEnum> missionConditionEnums = new ArrayList<>();
-            for (String condition : createOrUpdateMissionOption.getConditions()) {
-                try {
-                    final MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
-                    missionConditionEnums.add(missionConditionEnum);
-                } catch (IllegalArgumentException e) {
-                    throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid Mission Condition", "Mission Condition: " + condition + " doesn't exist");
-                }
-            }
-            // add
-            for (MissionConditionEnum missionConditionEnum : missionConditionEnums) {
-                if (!missionOption.getConditions().contains(missionConditionEnum)) {
-                    missionOption.addCondition(missionConditionEnum);
-                    updated.set(true);
-                }
-            }
-            // remove
-            for (MissionConditionEnum missionConditionEnum : missionOption.getConditions()) {
-                if (!missionConditionEnums.contains(missionConditionEnum)) {
-                    missionOption.removeCondition(missionConditionEnum);
-                    updated.set(true);
-                }
-            }
+    private void updateConditions(final CreateOrUpdateMissionOption createOrUpdateMissionOption, final MissionOption missionOption, AtomicBoolean updated) {
+        processConditions(createOrUpdateMissionOption.getConditions(), missionOption,updated);
+    }
+
+    private void processConditions(List<String> conditions, MissionOption missionOption, AtomicBoolean updated) {
+        Set<MissionConditionEnum> updatedConditions = conditions.stream()
+                .map(cond -> {
+                    try {
+                        return MissionConditionEnum.valueOf(cond);
+                    } catch (IllegalArgumentException e) {
+                        throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid MissionOption condition", "MissionOption condition: " + cond + " doesn't exist");
+                    }
+                }).collect(Collectors.toSet());
+        List<MissionConditionEnum> missionConditionEnumList = new ArrayList<>();
+        for (MissionConditionEnum missionConditionEnum : updatedConditions) {
+            missionConditionEnumList.add(missionConditionEnum);
+        }
+        if (!missionOption.getConditions().equals(updatedConditions.stream().toList())) {
+            missionOption.setConditions(missionConditionEnumList);
+            updated.set(true);
         }
     }
 

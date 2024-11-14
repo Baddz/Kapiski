@@ -1,11 +1,8 @@
 package pedribault.game.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.model.dto.EscapeDto;
-import pedribault.game.enums.EscapeStatusEnum;
-import pedribault.game.exceptions.TheGameException;
 import pedribault.game.model.*;
 import pedribault.game.model.dto.summary.PlayerSummary;
 import pedribault.game.model.dto.summary.StandardMissionSummary;
@@ -14,9 +11,7 @@ import pedribault.game.repository.PlayerRepository;
 import pedribault.game.repository.UniverseRepository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class EscapeMapper {

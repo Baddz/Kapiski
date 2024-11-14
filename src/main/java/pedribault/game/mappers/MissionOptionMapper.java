@@ -2,11 +2,11 @@ package pedribault.game.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pedribault.game.enums.MissionConditionEnum;
 import pedribault.game.model.MissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
 import pedribault.game.model.dto.CreateOrUpdate.UpdateMissionOption;
 import pedribault.game.model.dto.MissionOptionDto;
-import pedribault.game.model.dto.summary.MissionOptionSummary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,14 @@ public class MissionOptionMapper {
         missionOptionDto.setId(missionOption.getId());
         missionOptionDto.setClues(toSummaryMapper.cluesToClueSummaries(missionOption.getClues()));
         missionOptionDto.setDescription(missionOption.getDescription());
+        // Transform into mutable object
+        final List<String> conditions = new ArrayList<>();
+        if (missionOption.getConditions() != null) {
+            for (MissionConditionEnum missionConditionEnum : missionOption.getConditions()) {
+                conditions.add(missionConditionEnum.name());
+            }
+        }
+        missionOptionDto.setConditions(conditions);
         return missionOptionDto;
     }
 

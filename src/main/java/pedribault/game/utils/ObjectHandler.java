@@ -1,6 +1,7 @@
 package pedribault.game.utils;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import pedribault.game.exceptions.TheGameException;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Component
 public class ObjectHandler {
 
     /**
