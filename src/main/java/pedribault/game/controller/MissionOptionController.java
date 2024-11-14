@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pedribault.game.exceptions.GlobalExceptionHandler;
 import pedribault.game.model.dto.CreateOrUpdate.CreateOrUpdateMissionOption;
+import pedribault.game.model.dto.CreateOrUpdate.UpdateMissionOption;
+import pedribault.game.model.dto.MissionDto;
 import pedribault.game.model.dto.MissionOptionDto;
 import pedribault.game.service.MissionOptionService;
 
@@ -99,6 +101,21 @@ public class MissionOptionController {
             log.info(reqOut.toString());
 
             return new ResponseEntity<>(missionOptionDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return globalExceptionHandler.handleException(e);
+        }
+    }
+
+    @PutMapping("/{missionId}/mission_options")
+    public ResponseEntity<?> updateMissionOptions(@PathVariable Integer missionId, @RequestBody List<UpdateMissionOption> createOrUpdateMissionOptions) {
+        try {
+            log.info("[IN]=[UPDATING MISSION_OPTIONS OF MISSION [ID]=[{}]]", missionId);
+            final MissionDto missionDto = missionOptionService.updateMissionOptions(missionId, createOrUpdateMissionOptions);
+            final StringBuilder reqOut = new StringBuilder();
+            reqOut.append("[OUT]=[[STATUS]=[OK]]");
+            log.info(reqOut.toString());
+
+            return new ResponseEntity<>(missionDto, HttpStatus.OK);
         } catch (Exception e) {
             return globalExceptionHandler.handleException(e);
         }

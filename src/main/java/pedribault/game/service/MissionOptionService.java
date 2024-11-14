@@ -159,7 +159,7 @@ public class MissionOptionService {
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
-    private MissionDto updateMissionOptions(Integer missionId, List<UpdateMissionOption> updateMissionOptions) {
+    public MissionDto updateMissionOptions(Integer missionId, List<UpdateMissionOption> updateMissionOptions) {
         if (updateMissionOptions == null) {
             throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is null", "Mission options not provided");
         }
@@ -178,7 +178,6 @@ public class MissionOptionService {
         if (!notFoundMissionOptionIds.isEmpty()) {
             throw new TheGameException(HttpStatus.NOT_FOUND, "MissionOptions not found", "Mission options ids: " + notFoundMissionOptionIds + " don't exist in the Mission_Option database");
         }
-        // TODO use new function ObjectHandler.updateObjectList
         if (mission.getOptions() == null) {
             mission.setOptions(new ArrayList<>());
         }

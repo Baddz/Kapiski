@@ -30,7 +30,7 @@ public class ObjectHandler {
                                                                 AtomicBoolean updated) {
 
         if (updated == null) {
-            updated.set(true);
+            updated.set(false);
         }
         // Create a map of existing objects by ID
         Map<Integer, OriginalObject> existingObjectsMap = originalObjectDtosOld.stream()
