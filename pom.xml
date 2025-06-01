@@ -98,6 +98,9 @@
                 <version>3.11.0</version>
                 <configuration>
                     <release>17</release>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

@@ -4,88 +4,179 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import pedribault.game.exceptions.TheGameException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
 public class ObjectHandler {
 
     /**
-     * Update a list of object attributes, adding the missing, updating the existing ones and removing the others
-     * @param updateObjectsNew the attribute that is a list, to update
-     * @param originalObjectDtosOld the list given that should be the final one
-     * @param getId function to get the id of the object
-     * @param updateFunction the function to update an objectDto
-     * @param createFunction the function to create an objectDto
+     * Configuration class for updateObjectList to make it more flexible
      */
-    public <UpdateObject, OriginalObject> void updateObjectList(List<OriginalObject> originalObjectDtosOld,
-                                                                List<UpdateObject> updateObjectsNew,
-                                                                Function<OriginalObject, Integer> getId,
-                                                                Function<UpdateObject, Integer> getNewId,
-                                                                TriConsumer<OriginalObject, UpdateObject, AtomicBoolean> updateFunction,
-                                                                Function<UpdateObject, OriginalObject> createFunction,
-                                                                AtomicBoolean updated) {
+    @lombok.Builder
+    public static class UpdateConfig<UpdateObject, OriginalObject> {
+        private List<OriginalObject> originalObjects;
+        private List<UpdateObject> updateObjects;
+        private Function<OriginalObject, Integer> getId;
+        private Function<UpdateObject, Integer> getNewId;
+        private TriConsumer<OriginalObject, UpdateObject, AtomicBoolean> updateFunction;
+        private Function<UpdateObject, OriginalObject> createFunction;
+        private boolean allowNewIds;
+        private Predicate<OriginalObject> additionalValidation;
+        private BiConsumer<OriginalObject, UpdateObject> beforeUpdate;
+        private BiConsumer<OriginalObject, UpdateObject> afterUpdate;
+        private Comparator<OriginalObject> orderingComparator;
+    }
 
-        if (updated == null) {
-            updated.set(false);
-        }
-        // Create a map of existing objects by ID
-        Map<Integer, OriginalObject> existingObjectsMap = originalObjectDtosOld.stream()
-                .filter(obj -> getId.apply(obj) != null)
-                .collect(Collectors.toMap(getId, Function.identity()));
+    /**
+     * Update a list of objects with enhanced configuration options
+     * @param config Configuration object containing all necessary parameters and callbacks
+     * @return true if any changes were made
+     */
+    public <UpdateObject, OriginalObject> boolean updateObjectList(UpdateConfig<UpdateObject, OriginalObject> config) {
+        AtomicBoolean updated = new AtomicBoolean(false);
 
-        // set of ids of the new list to compare
-        Set<Integer> newObjectIds = updateObjectsNew.stream()
-                .map(getNewId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // collect missing ids to throw potential error
-        List<Integer> missingIds = updateObjectsNew.stream()
-                .map(getNewId)
-                .filter(Objects::nonNull)
-                .filter(id -> !existingObjectsMap.containsKey(id))
-                .collect(Collectors.toList());
-
-        // If there are missing IDs, throw an error with the list of missing IDs
-        if (!missingIds.isEmpty()) {
-            final String objectClass = !originalObjectDtosOld.isEmpty() ? originalObjectDtosOld.get(0).getClass().toString() : (!updateObjectsNew.isEmpty() ? updateObjectsNew.get(0).getClass().toString() : "Unknown Class");
+        // Validate inputs
+        if (config.originalObjects == null || config.updateObjects == null) {
             throw new TheGameException(
-                    HttpStatus.NOT_FOUND,
-                    "Error when updating list of attributes",
-                    "Attribute list of: " + objectClass + " doesn't contain the following list of IDs: " + missingIds
+                HttpStatus.BAD_REQUEST,
+                "Invalid input",
+                "Original and update object lists cannot be null"
             );
         }
 
+        // Create a map of existing objects by ID
+        Map<Integer, OriginalObject> existingObjectsMap = config.originalObjects.stream()
+                .filter(obj -> config.getId.apply(obj) != null)
+                .collect(Collectors.toMap(config.getId, Function.identity()));
 
-        for (UpdateObject newObj : updateObjectsNew) {
-            Integer newId = getNewId.apply(newObj);
-            // If no id, create object and add
+        // Set of ids in the new list
+        Set<Integer> newObjectIds = config.updateObjects.stream()
+                .map(config.getNewId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Validate IDs if not allowing new ones
+        if (!config.allowNewIds) {
+            List<Integer> missingIds = config.updateObjects.stream()
+                    .map(config.getNewId)
+                    .filter(Objects::nonNull)
+                    .filter(id -> !existingObjectsMap.containsKey(id))
+                    .toList();
+
+            if (!missingIds.isEmpty()) {
+                String objectClass = !config.originalObjects.isEmpty() ? 
+                        config.originalObjects.get(0).getClass().getSimpleName() : 
+                        (!config.updateObjects.isEmpty() ? config.updateObjects.get(0).getClass().getSimpleName() : "Unknown");
+                throw new TheGameException(
+                        HttpStatus.NOT_FOUND,
+                        "Error when updating list of " + objectClass,
+                        "The following IDs do not exist: " + missingIds
+                );
+            }
+        }
+
+        // Process each new object
+        for (UpdateObject newObj : config.updateObjects) {
+            Integer newId = config.getNewId.apply(newObj);
+            
             if (newId == null) {
-                OriginalObject createdObj = createFunction.apply(newObj);
-                originalObjectDtosOld.add(createdObj);
+                // Create new object if no ID provided
+                OriginalObject createdObj = config.createFunction.apply(newObj);
+                
+                // Run additional validation if provided
+                if (config.additionalValidation != null && !config.additionalValidation.test(createdObj)) {
+                    throw new TheGameException(
+                        HttpStatus.BAD_REQUEST,
+                        "Validation failed",
+                        "New object failed validation"
+                    );
+                }
+                
+                config.originalObjects.add(createdObj);
                 updated.set(true);
             } else {
                 OriginalObject existingObj = existingObjectsMap.get(newId);
-                // if object's id in the old list, we update
                 if (existingObj != null) {
-                    updateFunction.accept(existingObj, newObj, updated);
+                    // Run pre-update hook if provided
+                    if (config.beforeUpdate != null) {
+                        config.beforeUpdate.accept(existingObj, newObj);
+                    }
+                    
+                    // Update existing object
+                    config.updateFunction.accept(existingObj, newObj, updated);
+                    
+                    // Run post-update hook if provided
+                    if (config.afterUpdate != null) {
+                        config.afterUpdate.accept(existingObj, newObj);
+                    }
+                } else if (config.allowNewIds) {
+                    // Create new object with provided ID if allowed
+                    OriginalObject createdObj = config.createFunction.apply(newObj);
+                    
+                    // Run additional validation if provided
+                    if (config.additionalValidation != null && !config.additionalValidation.test(createdObj)) {
+                        throw new TheGameException(
+                            HttpStatus.BAD_REQUEST,
+                            "Validation failed",
+                            "New object failed validation"
+                        );
+                    }
+                    
+                    config.originalObjects.add(createdObj);
+                    updated.set(true);
                 }
             }
         }
-        // remove obsolete objects
-        boolean removedAny = originalObjectDtosOld.removeIf(obj -> {
-            Integer id = getId.apply(obj);
+
+        // Remove obsolete objects
+        boolean removedAny = config.originalObjects.removeIf(obj -> {
+            Integer id = config.getId.apply(obj);
             return id != null && !newObjectIds.contains(id);
         });
 
         if (removedAny) {
             updated.set(true);
+        }
+
+        // Apply ordering if comparator is provided
+        if (config.orderingComparator != null && updated.get()) {
+            config.originalObjects.sort(config.orderingComparator);
+        }
+
+        return updated.get();
+    }
+
+    /**
+     * Legacy support for the old method signature
+     */
+    public <UpdateObject, OriginalObject> void updateObjectList(
+            List<OriginalObject> originalObjectsOld,
+            List<UpdateObject> updateObjectsNew,
+            Function<OriginalObject, Integer> getId,
+            Function<UpdateObject, Integer> getNewId,
+            TriConsumer<OriginalObject, UpdateObject, AtomicBoolean> updateFunction,
+            Function<UpdateObject, OriginalObject> createFunction,
+            AtomicBoolean updated,
+            boolean allowNewIds) {
+        
+        UpdateConfig<UpdateObject, OriginalObject> config = UpdateConfig.<UpdateObject, OriginalObject>builder()
+            .originalObjects(originalObjectsOld)
+            .updateObjects(updateObjectsNew)
+            .getId(getId)
+            .getNewId(getNewId)
+            .updateFunction(updateFunction)
+            .createFunction(createFunction)
+            .allowNewIds(allowNewIds)
+            .build();
+
+        boolean wasUpdated = updateObjectList(config);
+        if (updated != null) {
+            updated.set(wasUpdated);
         }
     }
 }

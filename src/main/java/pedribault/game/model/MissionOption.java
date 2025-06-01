@@ -25,8 +25,11 @@ public class MissionOption {
     @Column(name = "description")
     private String description; // ex : "Receive a package", "Go to a location", "Get info by email"
 
+    @Column(name = "priority")
+    private Integer priority;
+
     @OneToMany(mappedBy = "missionOption", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Clue> clues;
+    private List<Clue> clues = new ArrayList<>();
 
     @ElementCollection(targetClass = MissionConditionEnum.class)
     @Enumerated(EnumType.STRING)

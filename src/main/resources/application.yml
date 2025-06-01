@@ -12,4 +12,10 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
         physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  logging:
+    level:
+      root: INFO
+      org.springframework: INFO
+      your.package: DEBUG
+      org.hibernate: WARN
 
