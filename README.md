@@ -1,43 +1,33 @@
-Database String Constraints
+# Streaming Analytics
 
+A Python tool to analyze and visualize streaming statistics from various Twitch and YouTube chess channels.
+
+## Features
+
+- Data collection from Twitch and YouTube channels
+- Statistical analysis of streaming patterns
+- Visualization of viewer counts and engagement metrics
+- Support for channels like chess.com, chesscomfr, blitzstream, GothamChess, and Naroditsky
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+poetry install
 ```
-Asset.name         VARCHAR(255)
-Asset.description  VARCHAR(1023)
-Asset.type         VARCHAR(100)
+3. Create a `.env` file with your API keys:
+```bash
+TWITCH_CLIENT_ID=your_client_id
+TWITCH_CLIENT_SECRET=your_client_secret
+YOUTUBE_API_KEY=your_api_key
+```
 
-Clue.content      VARCHAR(255)
+## Project Structure
 
-CustomMission.context VARCHAR(255)    # In table: custom_mission_contexts
-
-Escape.title      VARCHAR(255)
-
-EscapePlayerMapping.status VARCHAR(255)
-
-Mission.title     VARCHAR(255)
-Mission.description VARCHAR(1023)
-Mission.type      VARCHAR(255)
-
-MissionOption.description VARCHAR(1023)
-MissionOption.conditions  VARCHAR(1023)
-
-MissionPlayerMapping.status VARCHAR(50)      # ENUM MissionStatusEnum
-
-Player.name       VARCHAR(255)
-Player.firstName  VARCHAR(255)
-Player.mail       VARCHAR(255)
-Player.address    VARCHAR(255)
-Player.phone      VARCHAR(255)
-Player.comment    VARCHAR(1023)
-
-PlayerPreference.preference VARCHAR(50)      # ENUM MissionConditionEnum
-
-Sidekick.name     VARCHAR(255)
-Sidekick.firstName VARCHAR(255)
-Sidekick.mail     VARCHAR(255)
-Sidekick.address  VARCHAR(255)
-Sidekick.phone    VARCHAR(255)
-Sidekick.comment  VARCHAR(2023)
-
-Universe.title    VARCHAR(255)
-``` 
-
+- `streaming_analytics/`: Main package directory
+  - `data/`: Data storage and management
+  - `scrapers/`: Web scraping and API interaction modules
+  - `utils/`: Utility functions and helpers
+  - `visualizations/`: Data visualization modules
+- `tests/`: Test files 

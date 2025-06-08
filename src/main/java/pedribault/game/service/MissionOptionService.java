@@ -300,7 +300,7 @@ public class MissionOptionService {
         }
 
         // Update or create clues
-        for (UpdateClue updateClue : newClues) {
+            for (UpdateClue updateClue : newClues) {
             if (updateClue.getId() != null) {
                 // Update existing clue
                 Clue existingClue = existingCluesMap.get(updateClue.getId());
@@ -392,10 +392,10 @@ public class MissionOptionService {
 
         // Add conditions
         if (updateMissionOption.getConditions() != null) {
-            for (String condition : updateMissionOption.getConditions()) {
-                try {
-                    missionOption.addCondition(MissionConditionEnum.valueOf(condition));
-                } catch (IllegalArgumentException e) {
+        for (String condition : updateMissionOption.getConditions()) {
+            try {
+                missionOption.addCondition(MissionConditionEnum.valueOf(condition));
+            } catch (IllegalArgumentException e) {
                     throw new TheGameException(HttpStatus.BAD_REQUEST, 
                         "Invalid MissionOption condition", 
                         "MissionOption condition: " + condition + " doesn't exist");
