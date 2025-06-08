@@ -45,17 +45,23 @@ public class MissionService {
 
     public MissionDto getMissionById(final Integer id) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[getMissionById] Id is null", 
+                "[getMissionById] mission_id must be provided");
         }
 
         final Mission mission = missionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Missions table", "The id " + id + " does not exist."));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[getMissionById] Mission not found", 
+                    "[getMissionById] mission_id: " + id + " doesn't exist"));
         return missionMapper.missionToMissionDto(mission);
     }
 
     public MissionDto createMission(CreateOrUpdateMission createOrUpdateMission) {
         if (createOrUpdateMission == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission is null", "A body is required");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createMission] Missing body", 
+                "[createMission] CreateOrUpdateMission must be provided");
         }
         setDefaultValues(createOrUpdateMission);
         Mission mission = null;
@@ -69,7 +75,9 @@ public class MissionService {
 
         if (createOrUpdateMission.getEscapeId() != null) {
             final Escape escape = escapeRepository.findById(createOrUpdateMission.getEscapeId())
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "Escape with id: " + createOrUpdateMission.getEscapeId() + " doesn't exist in the Escapes database"));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                        "[createMission] Escape not found", 
+                        "[createMission] escape_id: " + createOrUpdateMission.getEscapeId() + " doesn't exist"));
             mission.setEscape(escape);
         }
 
@@ -143,7 +151,9 @@ public class MissionService {
             mission = new CustomMission();
             ((CustomMission) mission).setSubOrder(createOrUpdateMission.getSubOrder());
         } else {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission type unknown", "Mission type must be STANDARD or CUSTOM");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[setMissionType] Invalid mission type", 
+                "[setMissionType] mission_type must be STANDARD or CUSTOM, received: " + createOrUpdateMission.getMissionType());
         }
         return mission;
     }
@@ -165,7 +175,7 @@ public class MissionService {
             final MissionOption missionOption = new MissionOption();
             missionOption.setMission(mission);
             if (createOrUpdateMissionOption.getConditions() == null || createOrUpdateMissionOption.getConditions().isEmpty()) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing condition", "The MissionOption: " + createOrUpdateMissionOption.toString() + "is missing a condition");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, "[setMissionOptions] Missing condition", "[setMissionOptions] The MissionOption: " + createOrUpdateMissionOption.toString() + "is missing a condition");
             }
             final List<MissionConditionEnum> missionConditionEnums = new ArrayList<>();
             for (String condition : createOrUpdateMissionOption.getConditions()) {
@@ -173,7 +183,9 @@ public class MissionService {
                 try {
                     missionConditionEnum = MissionConditionEnum.valueOf(condition);
                 } catch (IllegalArgumentException e) {
-                    throw new TheGameException(HttpStatus.BAD_REQUEST, "One condition dosen't exist", "The condition: " + condition + " doens't exist");
+                    throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                        "[setMissionOptions] Invalid condition", 
+                        "[setMissionOptions] Invalid condition: " + condition);
                 }
                 missionConditionEnums.add(missionConditionEnum);
             }
@@ -198,22 +210,30 @@ public class MissionService {
 
     public MissionDto updateMission(Integer id, CreateOrUpdateMission createOrUpdateMission) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id not provided", "The id must be provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateMission] Missing id", 
+                "[updateMission] mission_id must be provided");
         } else if (createOrUpdateMission == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The input mission is null", "The body is missing");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateMission] Missing body", 
+                "[updateMission] CreateOrUpdateMission must be provided");
         }
 
-        log.info("RETREIVING MISSION ID = " + id);
+        log.info("[updateMission] RETREIVING MISSION ID = " + id);
 
         Mission existingMission = missionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "The id " + id + "doesn't exist in the Missions database"));
-        log.info("MISSION RETRIEVED");
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[updateMission] Mission not found", 
+                    "[updateMission] mission_id: " + id + " doesn't exist"));
+        log.info("[updateMission] MISSION RETRIEVED");
 
         updateCommonValues(createOrUpdateMission, existingMission);
 
         if (createOrUpdateMission.getEscapeId() != null) {
             final Escape escape = escapeRepository.findById(createOrUpdateMission.getEscapeId())
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Escape not found", "Escape with id: " + createOrUpdateMission.getEscapeId() + "doesn't exist in Escape database"));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                        "[updateMission] Escape not found", 
+                        "[updateMission] escape_id: " + createOrUpdateMission.getEscapeId() + " doesn't exist"));
             existingMission.setEscape(escape);
         }
 
@@ -230,14 +250,19 @@ public class MissionService {
             updateMissionOptions(createOrUpdateMission, existingMission);
         }
 
+        // TODO: can we update a mission type ?
         if (existingMission instanceof CustomMission) {
             if (!Objects.equals(createOrUpdateMission.getMissionType(), "CUSTOM")) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Wrong mission type", "Mission type given is: " + createOrUpdateMission.getMissionType() + " and found Mission is CUSTOM");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[updateMission] Type mismatch", 
+                    "[updateMission] Cannot change CUSTOM mission to type: " + createOrUpdateMission.getMissionType());
             }
             ((CustomMission) existingMission).setSubOrder(createOrUpdateMission.getSubOrder());
         } else if (existingMission instanceof StandardMission) {
             if (!Objects.equals(createOrUpdateMission.getMissionType(), "STANDARD")) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Wrong mission type", "Mission type given is: " + createOrUpdateMission.getMissionType() + " and found Mission is STANDARD");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[updateMission] Type mismatch", 
+                    "[updateMission] Cannot change STANDARD mission to type: " + createOrUpdateMission.getMissionType());
             }
             if (createOrUpdateMission.getSuccessRate() != null) {
                 ((StandardMission) existingMission).setSuccessRate(createOrUpdateMission.getSuccessRate());
@@ -263,7 +288,7 @@ public class MissionService {
                         MissionConditionEnum missionConditionEnum = MissionConditionEnum.valueOf(condition);
                         missionOption.addCondition(missionConditionEnum);
                     } catch (IllegalArgumentException e) {
-                        throw new TheGameException(HttpStatus.BAD_REQUEST, "Condition not acceptable", "The condition: " + condition + " is not a MissionCondition");
+                        throw new TheGameException(HttpStatus.BAD_REQUEST, "[updateMissionOptions] Condition not acceptable", "[updateMissionOptions] condition: " + condition + " is not a MissionCondition");
                     }
                 }
             }

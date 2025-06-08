@@ -43,27 +43,34 @@ public class ClueService {
     }
 
     public ClueDto getClueById(Integer id) {
-        ClueDto clueDto;
-        if (id != null) {
-            Clue clue = clueRepository.findById(id)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Clue not found", "The id " + id + " does not exist in the Clues database"));
-            clueDto = clueMapper.clueToClueDto(clue);
-        } else {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "id must be provided", "id is null");
+        if (id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[getClueById] Id is null", 
+                "[getClueById] clue_id must be provided");
         }
 
-        return clueDto;
+        Clue clue = clueRepository.findById(id)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[getClueById] Clue not found", 
+                    "[getClueById] clue_id: " + id + " doesn't exist"));
+        return clueMapper.clueToClueDto(clue);
     }
 
     public ClueDto createClue(final CreateOrUpdateClue createOrUpdateClue) {
         if (createOrUpdateClue == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Clue is null", "A body is required");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createClue] Missing body", 
+                "[createClue] CreateOrUpdateClue must be provided");
         }
         if (createOrUpdateClue.getContent() == null || createOrUpdateClue.getOrder() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing order or content of the clue", "Order and content of the clue need to be specified in the body");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createClue] Missing required fields", 
+                "[createClue] content and order must be provided");
         }
         if (createOrUpdateClue.getMissionId() == null && createOrUpdateClue.getMissionOptionId() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing missionId or missionOptionId", "The clue must be linked to a mission or a missionOption");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createClue] Missing parent reference", 
+                "[createClue] mission_id or mission_option_id must be provided");
         }
 
         final Clue clue = new Clue();
@@ -73,32 +80,43 @@ public class ClueService {
 
         final Integer missionId = createOrUpdateClue.getMissionId();
         if (missionId != null) {
-            final Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission with id " + missionId + " doesn't exist in the Missions database"));
+            final Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[createClue] Mission not found", 
+                    "[createClue] mission_id: " + missionId + " doesn't exist"));
             clue.setMission(mission);
         }
 
         final Integer missionOptionId = createOrUpdateClue.getMissionOptionId();
         if (missionOptionId != null) {
-            final MissionOption missionOption = missionOptionRepository.findById(missionOptionId).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "MissionOption not found", "MissionOption with id " + missionOptionId + " doesn't exist in the Missions database"));
+            final MissionOption missionOption = missionOptionRepository.findById(missionOptionId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[createClue] MissionOption not found", 
+                    "[createClue] mission_option_id: " + missionOptionId + " doesn't exist"));
             clue.setMissionOption(missionOption);
         }
 
         clueRepository.save(clue);
-
         return clueMapper.clueToClueDto(clue);
     }
 
     public ClueDto updateClue(Integer id, CreateOrUpdateClue createOrUpdateClue) {
         if (createOrUpdateClue == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The input clue is null", "The body is missing");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateClue] Missing body", 
+                "[updateClue] CreateOrUpdateClue must be provided");
         } else if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id is null", "The id must be provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateClue] Missing id", 
+                "[updateClue] clue_id must be provided");
         }
 
-        log.info("RETREIVING CLUE ID = " + id);
+        log.info("[updateClue] RETRIEVING CLUE ID = " + id);
         Clue existingClue = clueRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Clue not found", "The id " + id + " doesn't exist in the Clues database"));
-        log.info("CLUE RETREIVED");
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[updateClue] Clue not found", 
+                    "[updateClue] clue_id: " + id + " doesn't exist"));
+        log.info("[updateClue] CLUE RETRIEVED");
 
         if (createOrUpdateClue.getOrder() != null) {
             existingClue.setOrder(createOrUpdateClue.getOrder());
@@ -114,19 +132,22 @@ public class ClueService {
         // missionId == null --> no modification
         if (missionId != null) {
             final Mission mission = missionRepository.findById(missionId)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id " + missionId + " doesn't exist in the Missions database"));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                        "[updateClue] Mission not found", 
+                        "[updateClue] mission_id: " + missionId + " doesn't exist"));
             existingClue.setMission(mission);
         }
 
         final Integer missionOptionId = createOrUpdateClue.getMissionOptionId();
         if (missionOptionId != null) {
             final MissionOption missionOption = missionOptionRepository.findById(missionOptionId)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "MissionOption not found", "MissionOption id " + missionOptionId + " doesn't exist in the MissionOptions database"));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                        "[updateClue] MissionOption not found", 
+                        "[updateClue] mission_option_id: " + missionOptionId + " doesn't exist"));
             existingClue.setMissionOption(missionOption);
         }
 
         clueRepository.save(existingClue);
-
         return clueMapper.clueToClueDto(existingClue);
     }
 

@@ -60,7 +60,9 @@ public class MissionOptionService {
 
     public List<MissionOptionDto> getMissionOptionsByMissionId(Integer missionId) {
         if (missionId == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id is required", "Id is null");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[getMissionOptionsByMissionId] Missing mission id", 
+                "[getMissionOptionsByMissionId] mission_id must be provided");
         }
         final List<MissionOption> missionOptions = missionOptionRepository.findByMissionId(missionId);
         return missionOptionMapper.missionOptionsToMissionOptionDtos(missionOptions);
@@ -68,22 +70,33 @@ public class MissionOptionService {
 
     public MissionOptionDto getMissionOptionsById(Integer id) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id is required", "Id is null");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[getMissionOptionsById] Missing id", 
+                "[getMissionOptionsById] mission_option_id must be provided");
         }
-        final MissionOption missionOption = missionOptionRepository.findById(id).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "MissionOption not found", "Id: " + id + " doesn't exist in the Mission_Options database"));
+        final MissionOption missionOption = missionOptionRepository.findById(id)
+            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                "[getMissionOptionsById] Mission option not found", 
+                "[getMissionOptionsById] mission_option_id: " + id + " not found"));
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
     public MissionOptionDto createMissionOption(CreateOrUpdateMissionOption createOrUpdateMissionOption, Integer missionId) {
         if (createOrUpdateMissionOption == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is required", "Body is null");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createMissionOption] Missing body", 
+                "[createMissionOption] CreateOrUpdateMissionOption must be provided");
         }
         if (missionId == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Mission id is required", "Mission id is null");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[createMissionOption] Missing mission id", 
+                "[createMissionOption] mission_id must be provided");
         }
 
         final Mission mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + missionId + " doesn't exist in the Missions database"));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[createMissionOption] Mission not found", 
+                    "[createMissionOption] mission_id: " + missionId + " not found"));
         final MissionOption missionOption = new MissionOption();
 
         addConditionsAndClues(createOrUpdateMissionOption, missionOption);
@@ -102,10 +115,14 @@ public class MissionOptionService {
     private static void addClues(final List<UpdateClue> clues, final MissionOption missionOption) {
         for (CreateOrUpdateClue createOrUpdateClue : clues) {
             if (createOrUpdateClue == null) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Clue is null", "A clue is required");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[addClues] Missing clue", 
+                    "[addClues] clue must be provided");
             }
             if (createOrUpdateClue.getContent() == null || createOrUpdateClue.getOrder() == null) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Missing order or content of the clue", "Order and content of the clue need to be specified in the body");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[addClues] Missing clue properties", 
+                    "[addClues] clue content and order must be provided");
             }
 
             final Clue clue = new Clue();
@@ -123,25 +140,35 @@ public class MissionOptionService {
             try {
                 missionOption.addCondition(MissionConditionEnum.valueOf(condition));
             } catch (IllegalArgumentException e) {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid MissionOption condition", "MissionOption condition: " + condition + " doesn't exist");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[addConditions] Invalid condition", 
+                    "[addConditions] condition: " + condition + " is not valid");
             }
         }
     }
 
     public MissionOptionDto updateMissionOption(Integer id, Integer missionId, CreateOrUpdateMissionOption createOrUpdateMissionOption) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id not provided", "Id is needed");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateMissionOption] Missing id", 
+                "[updateMissionOption] mission_option_id must be provided");
         }
         if (createOrUpdateMissionOption == null && missionId == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "No missionId nor MissionOption provided", "A missionId or a body is required");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateMissionOption] Missing parameters", 
+                "[updateMissionOption] mission_id or CreateOrUpdateMissionOption must be provided");
         }
 
         final MissionOption missionOption = missionOptionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[updateMissionOption] Mission option not found", 
+                    "[updateMissionOption] mission_option_id: " + id + " not found"));
         AtomicBoolean updated = new AtomicBoolean(false);
         if (missionId != null) {
             final Mission mission = missionRepository.findById(missionId)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + id + " doesn't exist in the Missions database"));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                        "[updateMissionOption] Mission not found", 
+                        "[updateMissionOption] mission_id: " + missionId + " not found"));
             if (!mission.equals(missionOption.getMission())) {
                 missionOption.setMission(mission);
                 updated.set(true);
@@ -162,12 +189,15 @@ public class MissionOptionService {
     @Transactional
     public MissionDto updateMissionOptions(Integer missionId, List<UpdateMissionOption> updateMissionOptions) {
         if (updateMissionOptions == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Body is null", "Mission options not provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[updateMissionOptions] Missing options", 
+                "[updateMissionOptions] mission_options must be provided");
         }
         
         final Mission mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", 
-                    "Mission id: " + missionId + " doesn't exist in the Missions database"));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[updateMissionOptions] Mission not found", 
+                    "[updateMissionOptions] mission_id: " + missionId + " not found"));
 
         // Validate all mission option IDs exist before making any changes
         validateMissionOptionIds(updateMissionOptions);
@@ -183,14 +213,15 @@ public class MissionOptionService {
         // Save if changes were made
         if (wasUpdated) {
             if (mission instanceof StandardMission) {
-                log.info("Saving StandardMission: " + mission);
+                log.info("[updateMissionOptions] Saving StandardMission: " + mission);
                 missionRepository.save((StandardMission) mission);
             } else if (mission instanceof CustomMission) {
-                log.info("Saving CustomMission: " + mission);
+                log.info("[updateMissionOptions] Saving CustomMission: " + mission);
                 missionRepository.save((CustomMission) mission);
             } else {
-                throw new TheGameException(HttpStatus.BAD_REQUEST, "Invalid mission type", 
-                    "Mission must be of type StandardMission or CustomMission.");
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[updateMissionOptions] Invalid mission type", 
+                    "[updateMissionOptions] mission must be StandardMission or CustomMission");
             }
         }
 
@@ -369,8 +400,8 @@ public class MissionOptionService {
                         return MissionConditionEnum.valueOf(cond);
                     } catch (IllegalArgumentException e) {
                         throw new TheGameException(HttpStatus.BAD_REQUEST, 
-                            "Invalid MissionOption condition", 
-                            "MissionOption condition: " + cond + " doesn't exist");
+                            "[updateConditionsList] Invalid condition", 
+                            "[updateConditionsList] mission_condition: " + cond + " is not a valid MissionConditionEnum");
                     }
                 }).collect(Collectors.toSet());
 
@@ -397,8 +428,8 @@ public class MissionOptionService {
                 missionOption.addCondition(MissionConditionEnum.valueOf(condition));
             } catch (IllegalArgumentException e) {
                     throw new TheGameException(HttpStatus.BAD_REQUEST, 
-                        "Invalid MissionOption condition", 
-                        "MissionOption condition: " + condition + " doesn't exist");
+                        "[createMissionOption] Invalid condition", 
+                        "[createMissionOption] mission_condition: " + condition + " is not a valid MissionConditionEnum");
                 }
             }
         }
@@ -421,8 +452,8 @@ public class MissionOptionService {
         if (updateClue.getId() != null) {
             return clueRepository.findById(updateClue.getId())
                 .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
-                    "Clue not found", 
-                    "Clue id: " + updateClue.getId() + " doesn't exist in the Clues database"));
+                    "[createClueFromUpdate] Clue not found", 
+                    "[createClueFromUpdate] clue_id: " + updateClue.getId() + " not found"));
         }
 
         final Clue clue = new Clue();
@@ -455,38 +486,78 @@ public class MissionOptionService {
         
         if (!missingIds.isEmpty()) {
             throw new TheGameException(HttpStatus.NOT_FOUND, 
-                "MissionOptions not found", 
-                "Mission options ids: " + missingIds + " don't exist in the Mission_Option database");
+                "[validateMissionOptionIds] MissionOptions not found", 
+                "[validateMissionOptionIds] mission options ids: " + missingIds + " don't exist in the Mission_Option database");
         }
     }
 
     public MissionOptionDto removeClues(Integer id, List<Integer> clueIds) {
-        final MissionOption missionOption = missionOptionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
-
-        final List<Clue> clues = clueRepository.findAllById(clueIds);
-        log.info("RETRIEVED CLUES: [" + clues.stream().map(Clue::getId).toString() + "]");
-        for (Clue clue : clues) {
-            if (!missionOption.getClues().contains(clue)) {
-                log.info("Clue [ID]=[" + clue.getId() + "] not a clue from Mission Option [ID]=[" + id + "]. Clue not removed");
-            } else {
-                missionOption.removeClue(clue);
-            }
+        if (id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[removeClues] Missing id", 
+                "[removeClues] mission_option_id must be provided");
+        }
+        if (clueIds == null || clueIds.isEmpty()) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[removeClues] Missing clue ids", 
+                "[removeClues] clue_ids must be provided");
         }
 
+        final MissionOption missionOption = missionOptionRepository.findById(id)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[removeClues] Mission option not found", 
+                    "[removeClues] mission_option_id: " + id + " not found"));
+
+        final List<Clue> clues = clueRepository.findAllById(clueIds);
+        if (clues.size() != clueIds.size()) {
+            final List<Integer> foundIds = clues.stream().map(Clue::getId).toList();
+            final List<Integer> missingIds = clueIds.stream().filter(cId -> !foundIds.contains(cId)).toList();
+            throw new TheGameException(HttpStatus.NOT_FOUND, 
+                "[removeClues] Clues not found", 
+                "[removeClues] clue_ids not found: " + missingIds);
+        }
+
+        clues.forEach(clue -> {
+            if (!clue.getMissionOption().equals(missionOption)) {
+                throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                    "[removeClues] Invalid mission_option", 
+                    "[removeClues] clue_id: " + clue.getId() + " not linked to mission_option_id: " + id + " but to mission_option_id: " + clue.getMissionOption().getId());
+            }
+            missionOption.removeClue(clue);
+            clueRepository.delete(clue);
+        });
+
+        missionOptionRepository.save(missionOption);
         return missionOptionMapper.missionOptionToMissionOptionDto(missionOption);
     }
 
     public MissionDto removeMissionOption(Integer missionId, Integer id) {
-        final Mission mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission not found", "Mission id: " + missionId + " doesn't exist in the Missions database"));
-        final MissionOption missionOption = missionOptionRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Mission Option not found", "Mission Option id: " + id + " doesn't exist in the Mission_Option database"));
-
-        if (mission.getOptions() == null || !mission.getOptions().contains(missionOption)) {
-            throw new TheGameException(HttpStatus.NOT_FOUND, "Mission option not linked to mission", "Mission option id: " + id + " is not an option of mission id: " + missionId);
+        if (missionId == null || id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[removeMissionOption] Missing parameters", 
+                "[removeMissionOption] mission_id and mission_option_id must be provided");
         }
+
+        final Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[removeMissionOption] Mission not found", 
+                    "[removeMissionOption] mission_id: " + missionId + " not found"));
+
+        final MissionOption missionOption = missionOptionRepository.findById(id)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, 
+                    "[removeMissionOption] Mission option not found", 
+                    "[removeMissionOption] mission_option_id: " + id + " not found"));
+
+        if (!missionOption.getMission().equals(mission)) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, 
+                "[removeMissionOption] Invalid mission", 
+                "[removeMissionOption] mission_option_id: " + id + " not linked to mission_id: " + missionId + " but to mission_id: " + missionOption.getMission().getId());
+        }
+
         mission.removeOption(missionOption);
+        missionOptionRepository.delete(missionOption);
+        missionRepository.save(mission);
+
         return missionMapper.missionToMissionDto(mission);
     }
 

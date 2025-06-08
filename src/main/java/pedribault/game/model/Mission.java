@@ -30,6 +30,9 @@ public abstract class Mission {
     private Boolean isOptional;
     @Column(name = "`order`")
     private Integer order;
+    @Column(name = "score")
+    private Integer score;
+
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Clue> clues;
 
@@ -42,6 +45,9 @@ public abstract class Mission {
 
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MissionPlayerMapping> playerMappings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MissionContext missionContext;
 
     public List<MissionOption> getApplicableOptions(PlayerContext playerContext) {
         final List<MissionOption> missionOptions = new ArrayList<>();

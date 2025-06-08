@@ -33,13 +33,12 @@ public class Player {
     private String phone;
     @Column(name = "comment")
     private String comment;
+    @Column(name = "prefers_email")
+    private Boolean prefersEmail;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "player_context_id", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "player_context_id")
     private PlayerContext playerContext;
-
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlayerPreference> preferences = new ArrayList<>();
 
     @ManyToMany(mappedBy = "players")
     private List<Escape> escapes = new ArrayList<>();
@@ -82,5 +81,10 @@ public class Player {
         if (sidekick.getPlayers().contains(this)) {
             sidekick.getPlayers().remove(this);
         }
+    }
+
+    public boolean isMissionApplicable(Mission mission) {
+        return mission.getMissionContext() == null || 
+               playerContext.isMissionContextApplicable(mission.getMissionContext());
     }
 }
