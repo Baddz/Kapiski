@@ -21,45 +21,44 @@ public class UniverseService {
     @Autowired
     private UniverseMapper universeMapper;
 
-
     public List<UniverseDto> getUniverses() {
         final List<Universe> universes = universeRepository.findAll() == null ? new ArrayList<>() : universeRepository.findAll();
-        final List<UniverseDto> universeDtos = new ArrayList<>();
-        if (!universes.isEmpty()){
-            for (Universe universe : universes){
-                universeDtos.add(universeMapper.universeToUniversDTO(universe));
-            }
-        }
-        return universeDtos;
+        return universes.stream()
+                .map(universeMapper::universeToUniversDTO)
+                .toList();
     }
 
     public Universe getUniverseById(Integer id) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The id can't be null", "The provided id is null.");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "[getUniverseById] missing id", "universe_id must be provided");
         }
 
         return universeRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Universes table", "The id " + id + " does not exist."));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "[getUniverseById] Universe not found", "universe_id " + id + " does not exist"));
     }
 //TODO
     public UniverseDto createUniverse(final Universe universe) {
-
-        if (universe == null || universe.getTitle() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Title is null", "Title is required");
+        if (universe == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "[createUniverse] Missing payload", "Universe must be provided");
+        }
+        if (universe.getTitle() == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "[createUniverse] Missing title", "Universe title is required");
         }
 
         universeRepository.save(universe);
-
-        return null;
-
+        return universeMapper.universeToUniversDTO(universe);
     }
 
     public Universe updateUniverse(Integer id, Universe updatedUniverse) {
         if (id == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id not provided", "The id must be provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "[updateUniverse] Missing id", "universe_id must be provided");
         }
+        if (updatedUniverse == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST, "[updateUniverse] Missing payload", "updatedUniverse must be provided");
+        }
+
         Universe existingUniverse = universeRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Universe not found", "The id " + id + "doesn't exist in the Universes database"));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "[updateUniverse] Universe not found", "universe_id " + id + " does not exist"));
 
         if (updatedUniverse.getTitle() != null) {
             existingUniverse.setTitle(updatedUniverse.getTitle());

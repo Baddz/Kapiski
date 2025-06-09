@@ -38,17 +38,25 @@ public class PlayerService {
 
     public PlayerDto getPlayerById(final Integer id, final String name, final String firstName) {
 
+        if (id == null && (name == null || firstName == null)) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[getPlayerById] Missing parameters",
+                "[getPlayerById] player_id or both name and first_name must be provided");
+        }
+
         PlayerDto playerDTO;
         if (id != null) {
             Player player = playerRepository.findById(id)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "This id was not found in the Players table", "The id " + id + " does not exist."));
-            playerDTO = playerMapper.playerToPlayerDto(player);
-        } else if (name != null && firstName != null) {
-            Player player = playerRepository.findByNameIgnoreCaseAndFirstNameIgnoreCase(name, firstName)
-                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "The name and first name were not found in the Players table", "The name and first name" + name + " " + firstName + " do not exist."));
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                        "[getPlayerById] Player not found",
+                        "[getPlayerById] player_id: " + id + " not found"));
             playerDTO = playerMapper.playerToPlayerDto(player);
         } else {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Either id or both name and firstName must be provided", "id is null, and name or firstName is null");
+            Player player = playerRepository.findByNameIgnoreCaseAndFirstNameIgnoreCase(name, firstName)
+                    .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                        "[getPlayerById] Player not found",
+                        "[getPlayerById] player with name: " + name + " and first_name: " + firstName + " not found"));
+            playerDTO = playerMapper.playerToPlayerDto(player);
         }
 
         return playerDTO;
@@ -56,36 +64,50 @@ public class PlayerService {
 
     public PlayerDto createPlayer(PlayerDto playerDto) {
         if (playerDto == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Player is null", "A body is required");
-        } else if (playerDto.getName()== null || playerDto.getFirstName() == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The name or firstname is null", "The name and firstname of the playerDto are required");
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[createPlayer] Missing payload",
+                "[createPlayer] PlayerDto must be provided");
+        }
+        if (playerDto.getName() == null || playerDto.getFirstName() == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[createPlayer] Missing required fields",
+                "[createPlayer] name and first_name must be provided");
         }
 
         final Player player = playerMapper.playerDtoToPlayer(playerDto);
-
         playerRepository.save(player);
-
         return playerDto;
     }
 
     public PlayerDto updatePlayer(PlayerUpdate playerUpdate) {
         if (playerUpdate == null) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "The input player is null", "The body is missing");
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[updatePlayer] Missing payload",
+                "[updatePlayer] PlayerUpdate must be provided");
         }
         if (playerUpdate.getId() == null && (playerUpdate.getName() == null || playerUpdate.getFirstName() == null)) {
-            throw new TheGameException(HttpStatus.BAD_REQUEST, "Id is null, name and first name not provided either", "The id or both name and surname must be provided");
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[updatePlayer] Missing parameters",
+                "[updatePlayer] player_id or both name and first_name must be provided");
         }
 
-        log.info("RETREIVING PLAYER");
+        log.info("[updatePlayer] Retrieving player with id: {}, name: {} {}", 
+            playerUpdate.getId(), playerUpdate.getFirstName(), playerUpdate.getName());
 
         Player existingPlayer;
         if (playerUpdate.getId() != null) {
-            existingPlayer = playerRepository.findById(playerUpdate.getId()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "The id " + playerUpdate.getId() + " doesn't exist in the Players database"));
+            existingPlayer = playerRepository.findById(playerUpdate.getId())
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                    "[updatePlayer] Player not found",
+                    "[updatePlayer] player_id: " + playerUpdate.getId() + " not found"));
         } else {
-            existingPlayer = playerRepository.findByNameIgnoreCaseAndFirstNameIgnoreCase(playerUpdate.getName(), playerUpdate.getFirstName()).orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player not found", "The name and first name " + playerUpdate.getName() + " " + playerUpdate.getFirstName() + " don't exist in the Players database"));
+            existingPlayer = playerRepository.findByNameIgnoreCaseAndFirstNameIgnoreCase(playerUpdate.getName(), playerUpdate.getFirstName())
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                    "[updatePlayer] Player not found",
+                    "[updatePlayer] player with name: " + playerUpdate.getName() + " and first_name: " + playerUpdate.getFirstName() + " not found"));
         }
 
-        log.info("PLAYER RETREIVED");
+        log.info("[updatePlayer] Found player with id: {}", existingPlayer.getId());
 
         if (playerUpdate.getMail() != null) {
             existingPlayer.setMail(playerUpdate.getMail());
@@ -101,39 +123,59 @@ public class PlayerService {
         }
 
         playerRepository.save(existingPlayer);
+        log.info("[updatePlayer] Updated player with id: {}", existingPlayer.getId());
 
         return playerMapper.playerToPlayerDto(existingPlayer);
     }
-//TODO CONTROLLER
-    public PlayerDto addSidekicks(Integer id, List<Integer> sideckikIds) {
+
+    public PlayerDto addSidekicks(Integer id, List<Integer> sidekickIds) {
+        if (id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[addSidekicks] Missing player id",
+                "[addSidekicks] player_id must be provided");
+        }
 
         final Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player id " + id + " doesn't exist", "The player was not found in the Players database"));
-        if (sideckikIds != null && !sideckikIds.isEmpty()) {
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                    "[addSidekicks] Player not found",
+                    "[addSidekicks] player_id: " + id + " not found"));
+
+        if (sidekickIds != null && !sidekickIds.isEmpty()) {
             final List<Integer> currentSidekickIds = player.getSidekicks().stream().map(Sidekick::getId).toList();
             final List<Sidekick> sidekicksToAdd = new ArrayList<>();
-            sideckikIds.forEach(sidekickId -> {
+            
+            sidekickIds.forEach(sidekickId -> {
                 if (!currentSidekickIds.contains(sidekickId)) {
                     final Sidekick sidekick = sidekickRepository.findById(sidekickId)
-                            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Sidekick id " + sidekickId + " doesn't exist", "The sidekick was not found in the Sidekicks database"));
+                            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                                "[addSidekicks] Sidekick not found",
+                                "[addSidekicks] sidekick_id: " + sidekickId + " not found"));
                     sidekicksToAdd.add(sidekick);
                 }
             });
-            sidekicksToAdd.forEach(p -> {
-                player.addSidekick(p);
-                sidekickRepository.save(p);
+
+            sidekicksToAdd.forEach(s -> {
+                player.addSidekick(s);
+                sidekickRepository.save(s);
             });
             playerRepository.save(player);
+            log.info("[addSidekicks] Added {} sidekicks to player_id: {}", sidekicksToAdd.size(), id);
         }
 
-        final PlayerDto playerDto = playerMapper.playerToPlayerDto(player);
-
-        return playerDto;
+        return playerMapper.playerToPlayerDto(player);
     }
 
     public PlayerDto removeSidekicks(Integer id, List<Integer> sidekickIds) {
+        if (id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[removeSidekicks] Missing player id",
+                "[removeSidekicks] player_id must be provided");
+        }
+
         final Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player id " + id + " doesn't exist", "The player was not found in the Players database"));
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                    "[removeSidekicks] Player not found",
+                    "[removeSidekicks] player_id: " + id + " not found"));
 
         if (sidekickIds != null && !sidekickIds.isEmpty()) {
             final List<Sidekick> sidekicksToRemove = new ArrayList<>();
@@ -147,19 +189,26 @@ public class PlayerService {
                 sidekickRepository.save(s);
             });
             playerRepository.save(player);
+            log.info("[removeSidekicks] Removed {} sidekicks from player_id: {}", sidekicksToRemove.size(), id);
         }
 
-        final PlayerDto playerDto = playerMapper.playerToPlayerDto(player);
-
-        return playerDto;
+        return playerMapper.playerToPlayerDto(player);
     }
 
     public PlayerDto updateSidekicks(Integer id, List<Integer> updatedSidekickIds) {
-        final Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Player id " + id + " doesn't exist", "The player was not found in the Players database"));
+        if (id == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[updateSidekicks] Missing player id",
+                "[updateSidekicks] player_id must be provided");
+        }
 
-        // removing sidekicks
+        final Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                    "[updateSidekicks] Player not found",
+                    "[updateSidekicks] player_id: " + id + " not found"));
+
         if (updatedSidekickIds != null && !updatedSidekickIds.isEmpty()) {
+            // removing sidekicks
             final List<Integer> currentSidekicksIds = player.getSidekicks().stream().map(Sidekick::getId).toList();
             final List<Sidekick> sidekicksToRemove = new ArrayList<>();
             player.getSidekicks().forEach(s -> {
@@ -171,13 +220,16 @@ public class PlayerService {
                 player.removeSidekick(s);
                 sidekickRepository.save(s);
             });
+            log.info("[updateSidekicks] Removed {} sidekicks from player_id: {}", sidekicksToRemove.size(), id);
 
             // adding missing sidekicks
             final List<Sidekick> sidekicksToAdd = new ArrayList<>();
             updatedSidekickIds.forEach(sidekickId -> {
                 if (!currentSidekicksIds.contains(sidekickId)) {
                     final Sidekick sidekick = sidekickRepository.findById(sidekickId)
-                            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND, "Sidekick id " + sidekickId + " doesn't exist", "The sidekick was not found in the Sidekicks database"));
+                            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                                "[updateSidekicks] Sidekick not found",
+                                "[updateSidekicks] sidekick_id: " + sidekickId + " not found"));
                     sidekicksToAdd.add(sidekick);
                 }
             });
@@ -186,10 +238,9 @@ public class PlayerService {
                 sidekickRepository.save(s);
             });
             playerRepository.save(player);
+            log.info("[updateSidekicks] Added {} sidekicks to player_id: {}", sidekicksToAdd.size(), id);
         }
 
-        final PlayerDto playerDto = playerMapper.playerToPlayerDto(player);
-
-        return playerDto;
+        return playerMapper.playerToPlayerDto(player);
     }
 }
