@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import pedribault.game.repository.PlayerRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -322,6 +323,112 @@ public class MissionService {
         if (createOrUpdateMission.getOrder() != null) {
             existingMission.setOrder(createOrUpdateMission.getOrder());
         }
+    }
+
+    /**
+     * Check if the order of a standard mission is already taken by another standard mission in the same escape
+     * @param mission Mission to check
+     * @return true if order not used (is valid), false if already used
+     */
+    private boolean validateStandardMissionOrder(StandardMission mission) {
+        log.info("[validateStandardMissionOrder] Validating order {} for standard mission_id: {} in escape_id: {}", 
+            mission.getOrder(), mission.getId(), 
+            mission.getEscape() != null ? mission.getEscape().getId() : "null");
+
+        if (mission.getEscape() == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[validateStandardMissionOrder] Mission not linked to an escape",
+                "[validateStandardMissionOrder] mission_id: " + mission.getId() + " is not linked to any escape");
+        }
+
+        List<Integer> existingMissionIds = missionRepository.findStandardMissionIdsWithSameOrderInEscape(
+            mission.getEscape().getId(),
+            mission.getOrder(),
+            mission.getId()
+        );
+
+        if (!existingMissionIds.isEmpty()) {
+            log.warn("[validateStandardMissionOrder] Order {} is already taken by standard mission_ids: {} in escape_id: {}", 
+                mission.getOrder(), existingMissionIds, mission.getEscape().getId());
+        }
+
+        return existingMissionIds.isEmpty();
+    }
+
+    public List<Mission> getOrderedMissions(List<Mission> missions) {
+        if (missions == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[getOrderedMissions] Missing missions",
+                "[getOrderedMissions] missions must be provided");
+        }
+
+        log.info("[getOrderedMissions] Ordering {} missions", missions.size());
+
+        // Group missions by order
+        Map<Integer, List<Mission>> missionsByOrder = missions.stream()
+                .collect(Collectors.groupingBy(Mission::getOrder));
+
+        List<Mission> orderedMissions = missionsByOrder.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .flatMap(entry -> {
+                    List<Mission> missionsWithSameOrder = entry.getValue();
+                    
+                    // Sort standard missions first, then custom missions by subOrder
+                    return missionsWithSameOrder.stream()
+                            .sorted((m1, m2) -> {
+                                if (m1 instanceof StandardMission && m2 instanceof CustomMission) {
+                                    return -1;
+                                } else if (m1 instanceof CustomMission && m2 instanceof StandardMission) {
+                                    return 1;
+                                } else if (m1 instanceof CustomMission && m2 instanceof CustomMission) {
+                                    return ((CustomMission) m1).getSubOrder()
+                                            .compareTo(((CustomMission) m2).getSubOrder());
+                                }
+                                return 0;
+                            });
+                })
+                .collect(Collectors.toList());
+
+        log.info("[getOrderedMissions] Successfully ordered {} missions", orderedMissions.size());
+        return orderedMissions;
+    }
+
+    public Integer getNextAvailableSubOrder(Integer order) {
+        if (order == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[getNextAvailableSubOrder] Missing order",
+                "[getNextAvailableSubOrder] mission_order must be provided");
+        }
+
+        log.info("[getNextAvailableSubOrder] Finding next available sub-order for order: {}", order);
+
+        Integer nextSubOrder = missionRepository.findNextAvailableSubOrderForOrder(order)
+            .orElse(0);
+
+        log.info("[getNextAvailableSubOrder] Next available sub-order for order {}: {}", order, nextSubOrder);
+        return nextSubOrder;
+    }
+
+    public Integer getNextAvailableOrder(Integer escapeId) {
+        if (escapeId == null) {
+            throw new TheGameException(HttpStatus.BAD_REQUEST,
+                "[getNextAvailableOrder] Missing escape id",
+                "[getNextAvailableOrder] escape_id must be provided");
+        }
+
+        // Verify escape exists
+        escapeRepository.findById(escapeId)
+            .orElseThrow(() -> new TheGameException(HttpStatus.NOT_FOUND,
+                "[getNextAvailableOrder] Escape not found",
+                "[getNextAvailableOrder] escape_id: " + escapeId + " not found"));
+
+        log.info("[getNextAvailableOrder] Finding next available order for escape_id: {}", escapeId);
+
+        Integer nextOrder = missionRepository.findNextAvailableOrderForEscape(escapeId)
+            .orElse(0);
+
+        log.info("[getNextAvailableOrder] Next available order for escape_id {}: {}", escapeId, nextOrder);
+        return nextOrder;
     }
 
 }
